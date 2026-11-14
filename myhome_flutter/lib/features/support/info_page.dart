@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/config/locale_config.dart';
+import '../../core/widgets/brand_logo.dart';
 
 class InfoPage extends StatelessWidget {
   final bool about;
@@ -18,11 +19,14 @@ class InfoPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(
-                    about ? Icons.roofing_rounded : Icons.explore_outlined,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                  if (about)
+                    const BrandWordmark(width: 240)
+                  else
+                    Icon(
+                      Icons.explore_outlined,
+                      size: 64,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   const SizedBox(height: 24),
                   Text(
                     about ? l.tagline : l.guideSubtitle,

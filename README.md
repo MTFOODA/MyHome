@@ -1,5 +1,7 @@
 # بيتي | MyHome
 
+![بيتي / MyHome](myhome_flutter/assets/branding/app-icon.png)
+
 تطبيق عقارات وسكن مشترك للسوق المصري، مبني بـ **Flutter + Cubit/BLoC** و**Python/FastAPI + PostgreSQL**، مع تشغيل محلي باستخدام Docker. يدعم العربية والإنجليزية، اتجاه RTL، والوضع الفاتح والداكن.
 
 A real-estate and shared-housing marketplace for Egypt. Browse approved properties as a guest; sign in to view details, save homes or submit a listing.
@@ -61,7 +63,7 @@ myhome_flutter/   Flutter app: domain repositories, data adapters, Cubit/BLoC UI
 backend_fastapi/  FastAPI, SQLAlchemy, Alembic migrations, PostgreSQL tests
 infrastructure/   Local Docker Compose and database initialization
 UI/              Original design references
-design/branding/ Four logo proposals, awaiting selection
+design/branding/ Selected Arabic architectural logo, masters and proposal history
 docs/            Requirements, audited progress, setup and screenshots
 tools/           Local setup helper
 ```
@@ -87,6 +89,6 @@ For the API, install `backend_fastapi/requirements-dev.txt` in a virtual environ
 - [Build/test evidence and limitations](docs/25_BUILD_TEST_RESULTS.md)
 - [Agent handoff](docs/14_AGENT_HANDOFF.md)
 - [UI reference specifications](docs/07_UI_SCREEN_SPECIFICATIONS.md)
-- [Four logo options — اختار الشعار المناسب](design/branding/README.md)
+- [الشعار المعتمد وملفات الهوية / Selected brand assets](design/branding/README.md)
 
-The product name is **بيتي** in Arabic and **MyHome** in English. The final logo has not been selected.
+The product name is **بيتي** in Arabic and **MyHome** in English. The selected logo is the Arabic architectural wordmark (proposal 02), used throughout the app and platform icons.

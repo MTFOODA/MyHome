@@ -1,6 +1,10 @@
 # بيتي · MyHome — logo proposals
 
-Four alternative directions, awaiting the owner's selection. None is installed as the application's final logo.
+**Selected: option 02 — Arabic architectural wordmark**, approved by the owner on 2026-11-14 and installed in the app. The other concepts remain as design history.
+
+![Selected logo](selected/wordmark-master.png)
+
+[App icon master](selected/app-icon-master.png) · [Production prompts](selected/prompts.json)
 
 | Option | Direction | Preview |
 |---|---|---|
@@ -10,4 +14,12 @@ Four alternative directions, awaiting the owner's selection. None is installed a
 | 04 | Shared homes / belonging · السكن المشترك | [View](proposals/logo-04-community.png) |
 
 Generated with the built-in **imagegen** tool. The exact four prompts are preserved in [prompts.json](prompts.json).
-These PNG concept boards include a bilingual lockup and a small app-icon demonstration. Final vector artwork, transparent exports and platform icon installation follow the selected direction; the existing app icon remains unchanged meanwhile.
+The selected board was edited using built-in **imagegen** into a bilingual wordmark on white and a full-bleed square app icon. The wordmark uses a white presentation surface for readable colors in light and dark themes. A failed transparent extraction was discarded. The two accepted masters and exact final prompts are in `selected/`; the original proposal is retained.
+
+Flutter assets are in `myhome_flutter/assets/branding/`. Android launcher/adaptive icons, iOS icons/launch artwork, Web/PWA icons, macOS icons and Windows ICO are packaged from these masters. Regenerate sizes on Windows with:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/generate_brand_icons.ps1
+```
+
+This script only resamples the approved raster masters into platform sizes. No generated asset references a user-profile path. Vector artwork and a transparent wordmark are not part of the installed set.

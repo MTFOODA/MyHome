@@ -1,3 +1,21 @@
+## Selected logo applied - 2026-11-14
+
+| Check | Result |
+|---|---|
+| Flutter analyzer | PASS: no issues, `artifacts/analyze-logo.log` |
+| Flutter tests | PASS: 28 tests, `artifacts/tests-logo.log` |
+| Visual QA | PASS: home, drawer, login, registration and dark-login AR/EN previews; `artifacts/previews-logo-final.log` and `docs/screenshots/` |
+| Native asset validation | PASS: 45 icon entries, correct sizes, opaque RGB Apple icons, valid Windows ICO frames and Android/iOS XML |
+| Android debug build | PASS: `artifacts/apk-logo.log`, APK at `myhome_flutter/build/app/outputs/flutter-apk/app-debug.apk` |
+| Web final build | PASS: `artifacts/web-logo-final.log`; output contains selected brand assets, favicon/PWA icons and updated browser metadata |
+| iOS/macOS/Windows runtime/build | Not run for this branding increment; assets validated structurally only |
+
+The API/database are unchanged by this increment; earlier PostgreSQL test evidence remains applicable to the unchanged backend.
+
+The owner selected proposal 02 (Arabic architectural wordmark). It is installed in the home header/drawer, authentication and About screens, Android/iOS launch assets, Web/PWA and Android/iOS/macOS/Windows icons. Earlier statements that selection is pending are historical. See [selected-logo implementation](32_SELECTED_LOGO.md) and [brand masters/prompts](../design/branding/README.md).
+
+---
+
 ## Branding/search/cleanup update - 2026-11-14
 
 | Latest check | Result |

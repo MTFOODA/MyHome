@@ -4,6 +4,7 @@ import '../../app/app.dart';
 import '../../core/config/locale_config.dart';
 import '../../core/config/marketplace_strings.dart';
 import '../../core/config/settings_cubit.dart';
+import '../../core/widgets/brand_logo.dart';
 import '../auth/presentation/auth_cubit.dart';
 import '../profile/profile_page.dart';
 import '../properties/domain/property_repository.dart';
@@ -86,9 +87,19 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          l.appName,
-          style: const TextStyle(fontWeight: FontWeight.w800),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const BrandIcon(size: 30),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                l.appName,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
@@ -113,12 +124,8 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.roofing_rounded,
-                      size: 48,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(height: 16),
+                    const BrandIcon(size: 44),
+                    const SizedBox(height: 12),
                     Text(
                       l.appName,
                       style: Theme.of(context).textTheme.headlineSmall,

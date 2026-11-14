@@ -1,3 +1,9 @@
+## Selected logo applied - 2026-11-14
+
+The owner selected proposal 02 (Arabic architectural wordmark). It is installed in the home header/drawer, authentication and About screens, Android/iOS launch assets, Web/PWA and Android/iOS/macOS/Windows icons. Earlier statements that selection is pending are historical. See [selected-logo implementation](32_SELECTED_LOGO.md) and [brand masters/prompts](../design/branding/README.md).
+
+---
+
 ## Branding/search/cleanup update - 2026-11-14
 
 Product: بيتي / MyHome. The old NestJS backend was removed after migration and explicit user authorization. Search now follows the supplied capsule/filter-panel reference and supports server-side text queries. Four logo proposals await selection. See [increment details](31_BRANDING_CLEANUP_AND_SEARCH.md) and [logo options](../design/branding/README.md).

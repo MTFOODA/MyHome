@@ -30,6 +30,7 @@ MyHome/
 Check docs/05_IMPLEMENTATION_PROGRESS.md for the current phase and task status.
 
 ### Current requirements and implementation (2026-11-14)
+- Selected brand: Arabic architectural logo (proposal 02). Accepted raster masters and exact edit prompts: `design/branding/selected/`; Flutter assets: `myhome_flutter/assets/branding/`. Regenerate native icon sizes with `tools/generate_brand_icons.ps1` on Windows. Do not revert to the old Flutter/default icons or proposal-selection state.
 - Latest user scope is in `docs/29_PRODUCT_REQUIREMENTS_2026_11_14.md`; active setup is `docs/30_FASTAPI_LOCAL_SETUP.md`.
 - Active API is Python/FastAPI with SQLAlchemy/Alembic in `backend_fastapi/`. The old NestJS `backend/` was removed at the user's request after migration; historical docs are retained.
 - Flutter has public property discovery, protected details/favorites, multiple-intent onboarding, conditional roommate navigation, listing steps, private proof submission and reviewer UI.

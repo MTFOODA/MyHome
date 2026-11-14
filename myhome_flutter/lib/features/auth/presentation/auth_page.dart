@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../../core/widgets/brand_logo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/locale_config.dart';
 import '../../../core/config/settings_cubit.dart';
@@ -139,20 +140,7 @@ class _AuthPageState extends State<AuthPage> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            const Icon(
-                              Icons.roofing_rounded,
-                              color: Colors.white,
-                              size: 48,
-                            ),
-                            Text(
-                              l.appName,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 29,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
+                            const BrandWordmark(),
                             const SizedBox(height: 6),
                             Text(
                               l.tagline,

@@ -52,6 +52,11 @@ void main() {
       );
       await launch();
       await capture('home');
+      tester.state<ScaffoldState>(find.byType(Scaffold).first).openDrawer();
+      await tester.pumpAndSettle();
+      await capture('drawer');
+      tester.state<ScaffoldState>(find.byType(Scaffold).first).closeDrawer();
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('openFilters')));
       await tester.pumpAndSettle();
       await capture('filters');
@@ -103,6 +108,11 @@ void main() {
       await tester.tap(find.byKey(const Key('openFilters')));
       await tester.pumpAndSettle();
       await capture('filters-dark');
+      await tester.tap(find.byKey(const Key('closeFilters')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('openSignIn')));
+      await tester.pumpAndSettle();
+      await capture('login-dark');
     });
   }
 }

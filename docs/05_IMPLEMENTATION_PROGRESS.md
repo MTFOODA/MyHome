@@ -1,3 +1,12 @@
+## Selected logo applied - 2026-11-14
+
+- [x] BRAND-002: Install user-selected logo 02 in Flutter branding and platform icon/launch assets.
+<!-- DONE: BRAND-002 | Files: core/widgets/brand_logo.dart, assets/branding/, platform icon/launch resources, design/branding/selected/, tools/generate_brand_icons.ps1 | Tests: 28 Flutter tests, analyzer clean, AR/EN light/dark previews, 45 icon-entry structural/dimension checks, Android debug build | Verified: 2026-11-14 -->
+
+The owner selected proposal 02 (Arabic architectural wordmark). It is installed in the home header/drawer, authentication and About screens, Android/iOS launch assets, Web/PWA and Android/iOS/macOS/Windows icons. Earlier statements that selection is pending are historical. See [selected-logo implementation](32_SELECTED_LOGO.md) and [brand masters/prompts](../design/branding/README.md).
+
+---
+
 ## Branding/search/cleanup update - 2026-11-14
 
 - [x] SEARCH-202: Reference-based discovery and deferred filter sheet; server-side text search with literal wildcard escaping.

@@ -1,5 +1,7 @@
 # بيتي / MyHome — branding, cleanup and discovery
 
+Logo selection update: proposal 02 is now approved and installed. See [selected-logo implementation](32_SELECTED_LOGO.md); the pending-selection statements below describe the earlier proposal stage.
+
 Updated: 2026-11-14. This increment supersedes references to a preserved NestJS backend in earlier reports. Historical task records remain intact.
 
 ## Delivered scope
