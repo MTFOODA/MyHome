@@ -1,0 +1,54 @@
+name: myhome-local
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: myhome
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Set APP_DB_PASSWORD}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/01-app-role.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d myhome"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  migrate:
+    build: ../backend_fastapi
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/myhome
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+      DOCUMENT_KEY: ${DOCUMENT_KEY:?Set DOCUMENT_KEY}
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+  api:
+    build: ../backend_fastapi
+    environment:
+      DATABASE_URL: postgresql://myhome:${APP_DB_PASSWORD}@postgres:5432/myhome
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+      DOCUMENT_KEY: ${DOCUMENT_KEY:?Set DOCUMENT_KEY}
+      STORAGE_PATH: /data
+      OCR_ENABLED: "true"
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      PORT: 3000
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - private_media:/data
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/api/v1/health', timeout=4)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+volumes:
+  postgres_data:
+  private_media:
