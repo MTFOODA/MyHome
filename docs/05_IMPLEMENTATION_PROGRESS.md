@@ -1,3 +1,14 @@
+## One-click demo startup and HTTPS sharing - 2026-11-15
+
+Implemented `Start_MyHome.cmd` and `Stop_MyHome.cmd`, backed by `tools/run_myhome.ps1`, optional Caddy/cloudflared Docker services and same-origin Web API configuration. The default launcher starts PostgreSQL and the isolated demo, builds/caches Web and prints a public HTTPS mobile/test link. `-Android` builds an APK for that link; `-Local` disables sharing. Daily startup seeds only if empty and preserves edits/preferences. Stopping sharing preserves the database and the main API.
+
+Verified: actual CMD start/stop/restart, Web release/Android debug builds, cached repeated launch with changed account preference retained, 46 Flutter tests and analyzer clean; public HTTPS HTTP login/chat/permission/pricing/logout smoke and private-path 404 checks. Browser GUI/physical-phone testing is not claimed. Read [the launcher guide and limits](36_ONE_CLICK_DEMO.md). Previous reports remain as history; no whole marketplace phase is declared complete.
+
+---
+
+- [x] RUN-202: CMD start/stop, isolated seeded-once demo, cached Web build, single-origin HTTPS sharing and optional Android APK.
+<!-- DONE: RUN-202 | Files: Start_MyHome.cmd, Stop_MyHome.cmd, run_myhome.ps1, start_demo.ps1, compose.share.yaml, Caddyfile.demo, api_config.dart | Tests: actual CMD stop/restart/repeat, user preference preserved, public HTTPS HTTP auth/chat/isolation, 46 Flutter tests/analyzer, Web/Android builds | Verified: 2026-11-15 -->
+
 ## Approved all-in pricing, supervised deals and moderated chat - 2026-11-15
 
 This section supersedes the preview-only and E2EE-message statements below, retained as history. The owner approved fixed original-price fees split equally, server-inspected text encrypted at rest, and mandatory legal eligibility for old rent. Read [the current implementation and operating guide](35_ALL_IN_SUPERVISED_DEALS.md).

@@ -32,6 +32,8 @@ Screenshots use synthetic test fixtures. The local application database is not s
 
 ## التشغيل المحلي / Local setup
 
+**للتجربة من الموبايل أو إرسال رابط ويب:** افتح [Start_MyHome.cmd](Start_MyHome.cmd). يشغّل قاعدة التجربة والـBackend والويب ويعرض رابط HTTPS. للإيقاف افتح [Stop_MyHome.cmd](Stop_MyHome.cmd). لبناء APK متصل بالرابط الحالي استخدم `Start_MyHome.cmd -Android`. [شرح التشغيل والمتطلبات](docs/36_ONE_CLICK_DEMO.md).
+
 Requirements: Flutter/Dart compatible with [pubspec.yaml](myhome_flutter/pubspec.yaml), Python 3.11+, Docker Desktop with Linux containers. Android builds require the Android SDK; iOS requires macOS/Xcode.
 
 From the repository root:
@@ -76,7 +78,7 @@ The previous NestJS backend and unused Flutter placeholders were removed. Histor
 
 ## Validation
 
-Current verification: **43 Flutter tests + 56 PostgreSQL API tests**, 6 preview-render tests, analyzer/Ruff clean, Web and Android debug builds. [Pricing, supervised deals, chat and evidence](docs/35_ALL_IN_SUPERVISED_DEALS.md). iOS is not built on Windows.
+Current verification: **46 Flutter tests + 56 PostgreSQL API tests**, 6 preview-render tests, analyzer/Ruff clean, Web and Android debug builds. [Pricing, supervised deals, chat and evidence](docs/35_ALL_IN_SUPERVISED_DEALS.md). [CMD startup, public HTTPS smoke and APK verification](docs/36_ONE_CLICK_DEMO.md). iOS is not built on Windows.
 
 ## تجربة ببيانات منفصلة / Isolated demo
 

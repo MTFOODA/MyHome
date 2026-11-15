@@ -30,13 +30,14 @@ MyHome/
 Check docs/05_IMPLEMENTATION_PROGRESS.md for the current phase and task status.
 
 ### Current requirements and implementation (2026-11-15)
+- One-click test startup: `Start_MyHome.cmd`, optional `-Android`, `-Local`, `-NoBrowser`, `-Rebuild`; stop with `Stop_MyHome.cmd`. See `docs/36_ONE_CLICK_DEMO.md`. Public HTTPS shares only demo-web/demo-api, with a same-origin `/api/v1`; PostgreSQL/main API stay private. Daily startup seeds only if empty and preserves user edits. Cache/logs/APK/share URL are ignored under `artifacts/`.
 - Read `docs/35_ALL_IN_SUPERVISED_DEALS.md` before historical pricing/chat claims. All-in fees are approved and active: sale 1% total, half per party, frozen original-price reference; rent uses the documented duration schedule. Old rent uses a 12-month fee reference only, 3/4 month total and mandatory human legal eligibility. Special fees need both consents.
 - Owner counts, remote title autocomplete, exact 3-item signed cursor pages, pause/restore, sold/rented history and favorite tombstones remain implemented.
 - Supervised deal/viewing/offer/terms/document-review flows and a manually reconciled fee ledger exist. Staff profiles are created internally by admins. Real bank QR and reviewed legal terms are supplied through admin UI. Consent records are not a qualified signature or automatic legal validation.
 - The owner chose server-inspected text followed by encryption at rest; this supersedes earlier E2EE message requirements. Trade and housing-group chats exist. Do not claim E2EE or perfect detection of arbitrary covert contact sharing. Calls/matching remain pending.
 - Active API: Python/FastAPI, SQLAlchemy/Alembic in `backend_fastapi/`, PostgreSQL/Docker. Flutter uses Clean Architecture boundaries and Cubit/BLoC. Old NestJS was removed with authorization; preserve historical docs.
 - Demo API 3001, database `myhome_demo`, UI 8081; random credentials ignored in `artifacts/demo-accounts.json`. `tools/start_demo.ps1` is isolated; `tools/smoke_demo.py` checks actual restricted-role HTTP operations. Ten accounts, 13 properties, one group, two conversations.
-- Latest checks: 56 PostgreSQL tests, 43 Flutter tests, 6 preview renders; analyzer/Ruff clean; Web/Android debug builds. Migration head `20261115_communications`; never reset volumes or real databases for tests. Backups/secrets/private media stay ignored.
+- Latest checks: 56 PostgreSQL tests, 46 Flutter tests, 6 preview renders; analyzer/Ruff clean; Web/Android debug builds; CMD stop/restart/repeat and public HTTPS HTTP smoke passed. Migration head `20261115_communications`; never reset volumes or real databases for tests. Backups/secrets/private media stay ignored.
 - Selected logo 02 remains installed; masters/prompts in `design/branding/selected/`. Preserve native icons and existing desktop runners. Web/Android/iOS are primary targets; iOS requires macOS. No complete marketplace phase is declared done.
 
 ### Historical audited baseline (2026-11-09)
