@@ -54,6 +54,18 @@ const marketplaceWords = <String, (String, String)>{
     'عمولة التطبيق مشمولة في السعر الرسمي المعروض.',
   ),
   'ownerPrice': ('Owner price', 'سعر المالك'),
+  'baseSalePrice': (
+    'Property price before commission',
+    'قيمة العقار قبل العمولة',
+  ),
+  'baseMonthlyPrice': (
+    'Monthly rent before commission',
+    'الإيجار الشهري قبل العمولة',
+  ),
+  'baseBedPrice': (
+    'Monthly rent per bed before commission',
+    'الإيجار الشهري لكل سرير قبل العمولة',
+  ),
   'platformFee': ('Total platform fee', 'إجمالي عمولة التطبيق'),
   'inclusivePrice': ('Price with fee', 'السعر شامل العمولة'),
   'quoteNeedsTerms': (
@@ -128,8 +140,74 @@ const marketplaceWords = <String, (String, String)>{
   ),
   'roles': ('How will you use MyHome?', 'هتستخدم بيتي إزاي؟'),
   'rolesHint': (
-    'Select one or more needs, then choose your active mode. You can change them in your account.',
-    'اختار صفة أو أكثر، ثم وضع الاستخدام الحالي. تقدر تغيّرهم من حسابك.',
+    'Are you a property owner or looking to buy or rent? You can choose both, then select your needs.',
+    'أنت مالك عقار ولا بتدور على شراء أو إيجار؟ تقدر تختار الاتنين، وبعدها تحدد الأنواع المناسبة لك.',
+  ),
+  'ownerFamily': ('Property owner', 'مالك عقار'),
+  'ownerFamilyHint': (
+    'List your property for sale or rent.',
+    'اعرض عقارك للبيع أو الإيجار.',
+  ),
+  'seekerFamily': ('Buyer or tenant', 'مشتري أو مستأجر'),
+  'seekerFamilyHint': (
+    'Find a home to buy or rent.',
+    'اختار بيت للشراء أو الإيجار.',
+  ),
+  'ownerTypes': (
+    'How would you like to list your property?',
+    'تحب تعرض عقارك إزاي؟',
+  ),
+  'seekerTypes': ('What are you looking for?', 'بتدور على إيه؟'),
+  'propertyReview': ('Review property details', 'مراجعة بيانات العقار'),
+  'pricingFinal': ('Your price and earnings', 'السعر وصافي مستحقاتك'),
+  'pricingFinalHint': (
+    'Enter your price. The calculator updates automatically for your listing type and rental term.',
+    'اكتب سعرك، والحاسبة هتتحدث تلقائيًا حسب نوع الإعلان ومدة الإيجار.',
+  ),
+  'rentalTermChoice': ('Contract duration', 'مدة عقد الإيجار'),
+  'calculator': ('Automatic price calculator', 'حاسبة السعر التلقائية'),
+  'calculatorHint': (
+    'Choose the term and enter an amount to see the final price and your net earnings.',
+    'حدد المدة واكتب المبلغ عشان تشوف السعر النهائي وصافي مستحقاتك.',
+  ),
+  'ownerNet': ('Your net earnings', 'صافي مستحقاتك'),
+  'ownerNetMonthly': ('Your net earnings per month', 'صافي مستحقاتك شهريًا'),
+  'ownerNetBed': (
+    'Your net earnings per bed / month',
+    'صافي مستحقاتك لكل سرير شهريًا',
+  ),
+  'monthlyNetHint': (
+    'Monthly average after spreading the one-time commission over the contract.',
+    'متوسط شهري بعد توزيع العمولة لمرة واحدة على مدة العقد.',
+  ),
+  'ownerNetFirst': (
+    'Your net from the first payment',
+    'صافي مستحقاتك من الدفعة الأولى',
+  ),
+  'ownerNetRatio': (
+    'Your net as a share of the property / rent amount',
+    'نسبة صافي مستحقاتك من قيمة العقار / الإيجار',
+  ),
+  'referenceSale': (
+    'Percentages of the original property price',
+    'النسب من السعر المرجعي الأصلي للعقار',
+  ),
+  'referenceContract': (
+    'Percentages of the original rent over the selected contract',
+    'النسب من إجمالي الإيجار المرجعي الأصلي للمدة المختارة',
+  ),
+  'referenceMonth': (
+    'Percentages of one original monthly rent, not a legal contract term',
+    'النسب من إيجار شهر مرجعي أصلي، وليست من مدة عقد قانونية',
+  ),
+  'calculatorDetails': (
+    'Calculation details and commission terms',
+    'تفاصيل الحسبة وشروط العمولة',
+  ),
+  'quoteRetry': ('Retry calculation', 'إعادة الحسبة'),
+  'depositSeparate': (
+    'The refundable security deposit is shown separately and does not change the platform fee.',
+    'التأمين القابل للاسترداد موضح منفصلًا ولا يغيّر عمولة التطبيق.',
   ),
   'activeMode': ('Active mode', 'وضع الاستخدام الحالي'),
   'continue': ('Continue', 'متابعة'),

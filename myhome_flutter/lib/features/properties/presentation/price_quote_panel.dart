@@ -3,18 +3,20 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../domain/property_repository.dart';
-import '../../sales/presentation/financial_card.dart';
+import 'price_calculator_result.dart';
 import '../../sales/presentation/sales_strings.dart';
 
 class PriceQuotePanel extends StatefulWidget {
   final PropertyRepository repository;
   final Map<String, dynamic> values;
   final String? propertyId;
+  final ValueChanged<bool>? onReadyChanged;
   const PriceQuotePanel({
     super.key,
     required this.repository,
     required this.values,
     this.propertyId,
+    this.onReadyChanged,
   });
   @override
   State<PriceQuotePanel> createState() => _PriceQuotePanelState();
@@ -39,15 +41,20 @@ class _PriceQuotePanelState extends State<PriceQuotePanel> {
   }
 
   void _schedule() {
+    final rental = [
+      'private_rental',
+      'shared_rental',
+    ].contains(widget.values['category']);
     final data = {
       if (widget.propertyId != null) 'property_id': widget.propertyId,
       for (final key in [
         'category',
         'price',
         'area_id',
-        'rental_period',
-        'custom_months',
-        'total_beds',
+        if (rental) 'rental_period',
+        if (rental && widget.values['rental_period'] == 'custom')
+          'custom_months',
+        if (widget.values['category'] == 'shared_rental') 'total_beds',
       ])
         if (widget.values[key] != null && widget.values[key] != '')
           key: widget.values[key],
@@ -59,6 +66,11 @@ class _PriceQuotePanelState extends State<PriceQuotePanel> {
     final request = ++_generation;
     _quote = null;
     _failed = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && request == _generation && _quote == null) {
+        widget.onReadyChanged?.call(false);
+      }
+    });
     if (data['category'] == null ||
         data['area_id'] == null ||
         (num.tryParse('${data['price']}') ?? 0) <= 0) {
@@ -84,6 +96,10 @@ class _PriceQuotePanelState extends State<PriceQuotePanel> {
             _quote = quote;
             _loading = false;
           });
+          widget.onReadyChanged?.call(
+            quote['requires_agreement'] == false &&
+                quote.containsKey('buyer_fee'),
+          );
         }
       } catch (_) {
         if (mounted && request == _generation) {
@@ -111,21 +127,26 @@ class _PriceQuotePanelState extends State<PriceQuotePanel> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            words(context, 'platformPricing'),
+            words(context, 'calculator'),
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 10),
           if (_loading)
             const LinearProgressIndicator()
-          else if (_failed)
-            Text(words(context, 'quoteFailed'))
-          else if (_quote == null || _quote!['requires_agreement'] == true)
-            Text(words(context, 'quoteNeedsTerms'))
+          else if (_failed) ...[
+            Text(words(context, 'quoteFailed')),
+            TextButton.icon(
+              onPressed: () => setState(() {
+                _fingerprint = null;
+                _schedule();
+              }),
+              icon: const Icon(Icons.refresh),
+              label: Text(words(context, 'quoteRetry')),
+            ),
+          ] else if (_quote == null || _quote!['requires_agreement'] == true)
+            Text(words(context, 'calculatorHint'))
           else if (_quote!.containsKey('buyer_fee'))
-            FinancialCard(
-              snapshot: _quote!,
-              commitmentEnabled: _quote!['requires_legal_eligibility'] != true,
-            )
+            PriceCalculatorResult(quote: _quote!)
           else ...[
             Text(
               words(

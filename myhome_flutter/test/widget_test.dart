@@ -64,12 +64,18 @@ void main() {
         find.byKey(const Key('saveIntents')),
       );
       expect(continueButton.onPressed, isNull);
+      expect(find.text('Transparent final price'), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('family_owner')));
+      await tester.pumpAndSettle();
       await tester.ensureVisible(
         find.byKey(const ValueKey('intent_owner_private_rental')),
       );
       await tester.tap(
         find.byKey(const ValueKey('intent_owner_private_rental')),
       );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const ValueKey('family_seeker')));
+      await tester.tap(find.byKey(const ValueKey('family_seeker')));
       await tester.pumpAndSettle();
       await tester.ensureVisible(
         find.byKey(const ValueKey('intent_tenant_shared')),

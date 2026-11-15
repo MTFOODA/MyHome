@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "myhome",
+  "account_id": "191dfbad351e265b9f10d46ec543e5fd",
+  "main": "src/worker.js",
+  "compatibility_date": "2025-04-01",
+  "workers_dev": true,
+  "keep_vars": true
+}

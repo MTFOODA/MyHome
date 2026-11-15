@@ -54,6 +54,11 @@ def settle(reference: Reference, negotiated_price):
     if unit <= 0 or component < reference.seller_fee or component + reference.buyer_fee > MAX_MONEY:
         raise HTTPException(400, "INVALID_NET_OFFER")
     displayed = unit + reference.buyer_fee / periods
+    original_component = reference.original_price * periods
+
+    def percent(amount, basis):
+        return str((amount * 100 / basis).quantize(Decimal(".0001"), rounding=ROUND_HALF_UP)).rstrip("0").rstrip(".")
+
     return dict(
         original_price=str(reference.original_price),
         negotiated_price=str(unit),
@@ -73,4 +78,16 @@ def settle(reference: Reference, negotiated_price):
         contract_months=None if reference.old_rent else reference.months,
         contract_total_known=not reference.old_rent,
         subsequent_monthly_price=str(unit) if reference.old_rent else None,
+        calculator=dict(
+            reference_basis="monthly_rent"
+            if reference.old_rent
+            else "contract_rent"
+            if reference.months
+            else "sale_price",
+            reference_amount=str(original_component.quantize(CENT)),
+            platform_percent=percent(reference.total_fee, original_component),
+            buyer_percent=percent(reference.buyer_fee, original_component),
+            seller_percent=percent(reference.seller_fee, original_component),
+            owner_net_percent=percent(component - reference.seller_fee, component),
+        ),
     )

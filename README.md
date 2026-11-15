@@ -21,6 +21,7 @@ Screenshots use synthetic test fixtures. The local application database is not s
 - محادثات نصية منفصلة للصفقة ولجروب السكن: فحص بيانات الاتصال على الخادم قبل الإرسال ثم تشفير للتخزين، وفق الاختيار المعتمد. ليست مشفرة من الطرف للطرف.
 - تسجيل حساب ودخول وتجديد جلسة وتسجيل خروج، مع حماية تفاصيل العقارات والمفضلة.
 - اختيار أكثر من غرض للمستخدم وتغيير الوضع النشط؛ تبويب شركاء السكن يظهر للمستأجر المشترك فقط، والصلاحيات تُفرض أيضًا على الخادم.
+- أول دخول يبدأ باختيار مالك عقار أو مشتري/مستأجر وأنواع كل اختيار، دون تفاصيل عمولة. آخر خطوة لإضافة الإعلان تجمع السعر والمدة وحاسبة تلقائية لصافي المالك والسعر الشامل وحصص العمولة. [شرح الواجهات والحسابات](docs/37_ONBOARDING_AND_PRICE_CALCULATOR.md).
 - نموذج إعلان بخطوات إلزامية للبيع النقدي والتقسيط والإيجار الفردي والمشترك، المحافظة والمنطقة والصور والمرافق والتشطيب.
 - رفع إثبات الملكية والهوية بشكل خاص ومشفر، مقارنة رقم البطاقة وتاريخ الميلاد، OCR ومراجعة إدارية قبل النشر. OCR ليس نظام تحقق بيومتري أو ضمانًا لصحة الهوية.
 - طلبات السكن المشترك وقبولها مع منع حجز آخر سرير بالتزامن، وصلاحيات إنشاء مجموعة واختيار مستأجر مقبول كمشرف.
@@ -33,6 +34,8 @@ Screenshots use synthetic test fixtures. The local application database is not s
 ## التشغيل المحلي / Local setup
 
 **للتجربة من الموبايل أو إرسال رابط ويب:** افتح [Start_MyHome.cmd](Start_MyHome.cmd). يشغّل قاعدة التجربة والـBackend والويب ويعرض رابط HTTPS. للإيقاف افتح [Stop_MyHome.cmd](Stop_MyHome.cmd). لبناء APK متصل بالرابط الحالي استخدم `Start_MyHome.cmd -Android`. [شرح التشغيل والمتطلبات](docs/36_ONE_CLICK_DEMO.md).
+
+**رابط Cloudflare الثابت:** [افتح بيتي](https://myhome.mohamed-fooda-mtf.workers.dev). الـWorker بوابة للويب والـAPI المحليين؛ يجب بقاء الكمبيوتر وDocker والإنترنت شغّالين. ملف التشغيل يعيد توصيله تلقائيًا بعد الربط الأول. لإعداد الربط أو إعادة نشره افتح [Deploy_Cloudflare.cmd](Deploy_Cloudflare.cmd)؛ يتطلب Node.js 22.12+ وجلسة Cloudflare مخوّلة. [التشغيل والحدود والرجوع](docs/38_CLOUDFLARE_WORKER.md).
 
 Requirements: Flutter/Dart compatible with [pubspec.yaml](myhome_flutter/pubspec.yaml), Python 3.11+, Docker Desktop with Linux containers. Android builds require the Android SDK; iOS requires macOS/Xcode.
 
@@ -78,7 +81,7 @@ The previous NestJS backend and unused Flutter placeholders were removed. Histor
 
 ## Validation
 
-Current verification: **46 Flutter tests + 56 PostgreSQL API tests**, 6 preview-render tests, analyzer/Ruff clean, Web and Android debug builds. [Pricing, supervised deals, chat and evidence](docs/35_ALL_IN_SUPERVISED_DEALS.md). [CMD startup, public HTTPS smoke and APK verification](docs/36_ONE_CLICK_DEMO.md). iOS is not built on Windows.
+Current verification: **58 Flutter tests + 66 PostgreSQL API tests + 11 Worker tests**, 4 new onboarding/calculator preview-render tests, analyzer/Ruff clean, Web release and Android debug builds. [Onboarding/calculator evidence](docs/37_ONBOARDING_AND_PRICE_CALCULATOR.md). [Worker deployment and actual public HTTP checks](docs/38_CLOUDFLARE_WORKER.md). The existing deal/chat checks remain covered. iOS is not built on Windows; physical-device/browser GUI testing is not claimed.
 
 ## تجربة ببيانات منفصلة / Isolated demo
 

@@ -6,7 +6,7 @@ import '../../../core/config/marketplace_strings.dart';
 import '../../auth/presentation/auth_cubit.dart';
 import '../domain/property_repository.dart';
 import 'listing_cubit.dart';
-import 'price_quote_panel.dart';
+import 'listing_pricing_step.dart';
 
 class ListingPage extends StatefulWidget {
   final PropertyRepository repository;
@@ -20,6 +20,7 @@ class _ListingPageState extends State<ListingPage> {
   LocationCatalog? _catalog;
   int _step = 0;
   bool _invalid = false, _catalogFailed = false;
+  bool _quoteReady = false;
   @override
   void initState() {
     super.initState();
@@ -226,57 +227,20 @@ class _ListingPageState extends State<ListingPage> {
           'super_lux',
         ]);
       case 'pricing':
-        return Column(
-          children: [
-            field('price', number: true),
-            PriceQuotePanel(
-              repository: widget.repository,
-              values: _cubit.values,
-              propertyId: _cubit.draftId,
-            ),
-          ],
-        );
-      case 'rental_period':
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            choices('rental_period', [
-              'one_year',
-              'three_years',
-              'five_years',
-              'old_rent',
-              'custom',
-            ]),
-            const SizedBox(height: 20),
-            if (_cubit.values['rental_period'] == 'custom')
-              field('custom_months', number: true),
-            field('deposit', number: true),
-            PriceQuotePanel(
-              repository: widget.repository,
-              values: _cubit.values,
-              propertyId: _cubit.draftId,
-            ),
-          ],
-        );
-      case 'installments':
-        return Column(
-          children: [
-            field('down_payment', number: true),
-            field('installment_count', number: true),
-            field('installment_amount', number: true),
-            Text(words(context, 'installmentError')),
-          ],
+        return ListingPricingStep(
+          cubit: _cubit,
+          repository: widget.repository,
+          onReadyChanged: (ready) {
+            if (mounted && _quoteReady != ready) {
+              setState(() => _quoteReady = ready);
+            }
+          },
         );
       case 'beds':
         return Column(
           children: [
             field('total_beds', number: true),
             field('available_beds', number: true),
-            PriceQuotePanel(
-              repository: widget.repository,
-              values: _cubit.values,
-              propertyId: _cubit.draftId,
-            ),
           ],
         );
       case 'photos':
@@ -332,11 +296,6 @@ class _ListingPageState extends State<ListingPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(words(context, 'privateDocs')),
-            PriceQuotePanel(
-              repository: widget.repository,
-              values: _cubit.values,
-              propertyId: _cubit.draftId,
-            ),
             const SizedBox(height: 20),
             TextFormField(
               initialValue: _cubit.nationalId,
@@ -386,7 +345,18 @@ class _ListingPageState extends State<ListingPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final entry in _cubit.payload().entries)
+            for (final entry in _cubit.payload().entries.where(
+              (entry) => !{
+                'price',
+                'rental_period',
+                'custom_months',
+                'deposit',
+                'negotiable',
+                'down_payment',
+                'installment_count',
+                'installment_amount',
+              }.contains(entry.key),
+            ))
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(
@@ -430,7 +400,8 @@ class _ListingPageState extends State<ListingPage> {
     {
           'information': 'title',
           'dimensions': 'area_m2',
-          'pricing': 'price',
+          'pricing': 'pricingFinal',
+          'review': 'propertyReview',
           'installments': 'sale_installments',
           'beds': 'total_beds',
         }[step] ??
@@ -511,13 +482,16 @@ class _ListingPageState extends State<ListingPage> {
                                       ? null
                                       : () => setState(() {
                                           _step--;
+                                          _quoteReady = false;
                                           _invalid = false;
                                         }),
                                   child: Text(words(context, 'back')),
                                 ),
                               const Spacer(),
                               FilledButton(
-                                onPressed: state.busy
+                                onPressed:
+                                    state.busy ||
+                                        (step == 'pricing' && !_quoteReady)
                                     ? null
                                     : () {
                                         if (!_cubit.valid(step)) {

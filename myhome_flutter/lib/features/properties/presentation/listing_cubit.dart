@@ -38,15 +38,11 @@ class ListingCubit extends Cubit<ListingState> {
     'gas',
     'finishing',
     'elevator',
-    'pricing',
-    'negotiable',
-    if (['private_rental', 'shared_rental'].contains(values['category']))
-      'rental_period',
-    if (values['category'] == 'sale_installments') 'installments',
     if (values['category'] == 'shared_rental') 'beds',
     'photos',
     'verification',
     'review',
+    'pricing',
   ];
   void setValue(String key, dynamic value) {
     values[key] = value;
@@ -90,7 +86,15 @@ class ListingCubit extends Cubit<ListingState> {
       case 'finishing':
         return values['finishing'] != null;
       case 'pricing':
-        return (moneyCents(values['price']) ?? 0) > 0;
+        return (moneyCents(values['price']) ?? 0) > 0 &&
+            valid('negotiable') &&
+            (![
+                  'private_rental',
+                  'shared_rental',
+                ].contains(values['category']) ||
+                valid('rental_period')) &&
+            (values['category'] != 'sale_installments' ||
+                valid('installments'));
       case 'rental_period':
         return values['rental_period'] != null &&
             (moneyCents(values['deposit']) ?? -1) >= 0 &&

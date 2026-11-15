@@ -15,7 +15,7 @@ def run():
     sessions = {}
 
     def request(method, path, actor=None, body=None, expected=200):
-        headers = {"Content-Type": "application/json"}
+        headers = {"Content-Type": "application/json", "User-Agent": "MyHome-runtime-check/1.0"}
         if actor:
             headers["Authorization"] = "Bearer " + sessions[actor]
         req = Request(

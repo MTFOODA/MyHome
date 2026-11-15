@@ -3,6 +3,7 @@ param(
     [switch]$Stop,
     [switch]$Rebuild,
     [switch]$Android,
+    [switch]$Cloudflare,
     [switch]$NoBrowser
 )
 
@@ -15,7 +16,7 @@ Push-Location $taskRoot
 try {
     Start-Transcript -Path (Join-Path $taskArtifacts 'launcher.log') -Append | Out-Null
     $taskTranscript = $true
-    if ($Android -and $Local -and -not $Stop) { throw 'Use -Android without -Local so the phone gets a reachable HTTPS API.' }
+    if (($Android -or $Cloudflare) -and $Local -and -not $Stop) { throw 'Use -Android/-Cloudflare without -Local so the phone/Worker gets a reachable HTTPS API.' }
 
     function Invoke-Checked {
         param([string]$Command, [string[]]$Arguments)
@@ -126,45 +127,70 @@ try {
         if (Test-Path -LiteralPath $taskStateFile) { Remove-Item -LiteralPath $taskStateFile }
         Write-Host 'Local-only mode. Use this computer; run without -Local for a mobile/share HTTPS link.'
     } else {
-        Write-Host 'Starting a temporary HTTPS link for mobile and external testers...'
-        Invoke-Compose -Arguments @('up', '-d', 'demo-share')
-        $taskShareContainer = (& docker @taskCompose ps -q demo-share | Out-String).Trim()
-        $taskShareStarted = (& docker inspect --format '{{.State.StartedAt}}' $taskShareContainer | Out-String).Trim()
-        $taskStateFile = Join-Path $taskArtifacts 'share-state.json'
-        $taskPublicUrl = $null
-        if (Test-Path -LiteralPath $taskStateFile) {
-            try {
-                $taskPreviousShare = Get-Content -LiteralPath $taskStateFile -Raw | ConvertFrom-Json
-                if ($taskPreviousShare.container -eq $taskShareContainer -and $taskPreviousShare.started -eq $taskShareStarted -and
-                    $taskPreviousShare.url -match '^https://[a-z0-9-]+\.trycloudflare\.com$') {
-                    $taskPublicUrl = $taskPreviousShare.url
-                }
-            } catch { }
-        }
-        for ($taskAttempt = 0; $taskAttempt -lt 30 -and -not $taskPublicUrl; $taskAttempt++) {
-            $taskTunnelLog = (& docker @taskCompose logs --no-color --since $taskShareStarted --tail 100 demo-share | Out-String)
-            $taskMatches = [regex]::Matches($taskTunnelLog, 'https://[a-z0-9-]+\.trycloudflare\.com')
-            if ($taskMatches.Count -gt 0) { $taskPublicUrl = $taskMatches[$taskMatches.Count - 1].Value; break }
-            Start-Sleep -Seconds 2
-        }
-        if (-not $taskPublicUrl) { throw 'No HTTPS link was created. Run Start_MyHome.cmd -Local for desktop testing; check Docker demo-share logs and internet access.' }
-        Write-Host "HTTPS link allocated: $taskPublicUrl"
-        Write-Host 'Checking the public Web/API connection...'
+        Write-Host 'Starting a temporary HTTPS connection for the local API...'
         $taskPublicReady = $false
-        for ($taskAttempt = 0; $taskAttempt -lt 10; $taskAttempt++) {
-            try {
-                $taskHealth = Invoke-RestMethod -Uri "$taskPublicUrl/api/v1/health" -TimeoutSec 5
-                if ($taskHealth.status -eq 'ok') { $taskPublicReady = $true; break }
-            } catch { }
-            Start-Sleep -Seconds 1
+        for ($taskTunnelAttempt = 0; $taskTunnelAttempt -lt 2; $taskTunnelAttempt++) {
+            if ($taskTunnelAttempt -eq 0) {
+                Invoke-Compose -Arguments @('up', '-d', 'demo-share')
+            } else {
+                Write-Host 'The previous temporary tunnel expired. Reconnecting the tunnel only; database data is retained...'
+                Invoke-Compose -Arguments @('up', '-d', '--force-recreate', '--no-deps', 'demo-share')
+            }
+            $taskShareContainer = (& docker @taskCompose ps -q demo-share | Out-String).Trim()
+            $taskShareStarted = (& docker inspect --format '{{.State.StartedAt}}' $taskShareContainer | Out-String).Trim()
+            $taskStateFile = Join-Path $taskArtifacts 'share-state.json'
+            $taskPublicUrl = $null
+            if (Test-Path -LiteralPath $taskStateFile) {
+                try {
+                    $taskPreviousShare = Get-Content -LiteralPath $taskStateFile -Raw | ConvertFrom-Json
+                    if ($taskPreviousShare.container -eq $taskShareContainer -and $taskPreviousShare.started -eq $taskShareStarted -and
+                        $taskPreviousShare.url -match '^https://[a-z0-9-]+\.trycloudflare\.com$') {
+                        $taskPublicUrl = $taskPreviousShare.url
+                    }
+                } catch { }
+            }
+            for ($taskAttempt = 0; $taskAttempt -lt 30 -and -not $taskPublicUrl; $taskAttempt++) {
+                $taskTunnelLog = (& docker @taskCompose logs --no-color --since $taskShareStarted --tail 100 demo-share | Out-String)
+                $taskMatches = [regex]::Matches($taskTunnelLog, 'https://[a-z0-9-]+\.trycloudflare\.com')
+                if ($taskMatches.Count -gt 0) { $taskPublicUrl = $taskMatches[$taskMatches.Count - 1].Value; break }
+                Start-Sleep -Seconds 2
+            }
+            if (-not $taskPublicUrl) { continue }
+            $taskRecentLog = (& docker @taskCompose logs --no-color --since $taskShareStarted --tail 10 demo-share | Out-String)
+            if ($taskRecentLog -match 'Unauthorized: Tunnel not found' -and $taskRecentLog -notmatch 'Registered tunnel connection') { continue }
+            Write-Host "API tunnel allocated: $taskPublicUrl"
+            Write-Host 'Checking the public Web/API connection...'
+            for ($taskAttempt = 0; $taskAttempt -lt 30; $taskAttempt++) {
+                try {
+                    $taskHealth = Invoke-RestMethod -Uri "$taskPublicUrl/api/v1/health" -TimeoutSec 5
+                    if ($taskHealth.status -eq 'ok') { $taskPublicReady = $true; break }
+                } catch { }
+                if ($taskAttempt % 5 -eq 4) { Write-Host 'Waiting for Cloudflare DNS and API readiness...' }
+                Start-Sleep -Seconds 2
+            }
+            if ($taskPublicReady) { break }
         }
-        if (-not $taskPublicReady) { throw "The tunnel link was allocated but could not reach the API yet: $taskPublicUrl . Check internet access or retry startup." }
+        if (-not $taskPublicReady) { throw 'The demo tunnel could not reconnect. Check internet access or use -Local for desktop testing.' }
         $taskOpenUrl = $taskPublicUrl
         Set-Content -LiteralPath (Join-Path $taskArtifacts 'share-url.txt') -Value $taskPublicUrl -Encoding ASCII
         @{container=$taskShareContainer; started=$taskShareStarted; url=$taskPublicUrl} | ConvertTo-Json | Set-Content -LiteralPath $taskStateFile -Encoding ASCII
         Write-Host ''
-        Write-Host "MOBILE / SHARE: $taskPublicUrl" -ForegroundColor Green
-        Write-Host 'Send that HTTPS link to your tester. Keep this PC and Docker running.'
+    }
+    $taskUsingWorker = $false
+    if (-not $Local -and ($Cloudflare -or (Test-Path -LiteralPath (Join-Path $taskArtifacts 'cloudflare-worker.json')))) {
+        Write-Host 'Connecting the local demo API to the stable Cloudflare Worker URL...'
+        $taskPublishArguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+            (Join-Path $PSScriptRoot 'publish_cloudflare.ps1'), '-ApiOrigin', $taskPublicUrl)
+        if ($Cloudflare) { $taskPublishArguments += '-Force' }
+        Invoke-Checked -Command 'powershell.exe' -Arguments $taskPublishArguments
+        $taskWorker = Get-Content -LiteralPath (Join-Path $taskArtifacts 'cloudflare-worker.json') -Raw | ConvertFrom-Json
+        $taskOpenUrl = $taskWorker.url
+        $taskUsingWorker = $true
+    }
+    Set-Content -LiteralPath (Join-Path $taskArtifacts 'project-url.txt') -Value $taskOpenUrl -Encoding ASCII
+    if (-not $Local) {
+        Write-Host "MOBILE / SHARE: $taskOpenUrl" -ForegroundColor Green
+        Write-Host 'Send that HTTPS link to your tester. Keep this PC and Docker running for the local API.'
         Write-Host 'This is a public demo link, accessible to anyone who has it.'
     }
     Write-Host "THIS COMPUTER: $taskLocalUrl" -ForegroundColor Cyan
@@ -176,7 +202,8 @@ try {
             Copy-Item -LiteralPath 'build/app/outputs/flutter-apk/app-debug.apk' -Destination (Join-Path $taskArtifacts 'MyHome-demo.apk') -Force
         } finally { Pop-Location }
         Write-Host "ANDROID APK: $(Join-Path $taskArtifacts 'MyHome-demo.apk')" -ForegroundColor Green
-        Write-Host 'Rebuild with -Android if you restart sharing and the HTTPS link changes.'
+        if ($taskUsingWorker) { Write-Host 'This APK uses the stable Worker URL. Start_MyHome.cmd reconnects the local API after restarts.' }
+        else { Write-Host 'Rebuild with -Android if you restart sharing and the HTTPS link changes.' }
     }
     Write-Host "DEMO LOGINS:   $(Join-Path $taskArtifacts 'demo-accounts.json')"
     Write-Host 'Stop sharing with Stop_MyHome.cmd. Closing this window alone does not stop Docker.'

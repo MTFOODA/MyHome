@@ -33,6 +33,9 @@ def calculate(category, price, rental_period=None, custom_months=None, total_bed
     config = settings()
     policy = config.commission_policy_version
     rental = category in ("private_rental", "shared_rental")
+    if not rental:
+        rental_period = None
+        custom_months = None
     months = {"one_year": 12, "three_years": 36, "five_years": 60, "custom": custom_months, "old_rent": 12}.get(
         rental_period
     )
@@ -142,7 +145,7 @@ def quote(body: QuoteInput, context=Depends(authenticated), db: Session = Depend
                 Decimal(preview["buyer_fee"]),
                 Decimal(preview["seller_fee"]),
                 preview["months"],
-                body.rental_period == "old_rent",
+                preview["old_rent"],
             )
             return preview | settle(reference, body.price) | {"owner_price": str(body.price)}
         result = settle(
