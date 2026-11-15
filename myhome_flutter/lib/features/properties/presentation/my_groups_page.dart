@@ -1,4 +1,5 @@
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_layout.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
@@ -23,7 +24,7 @@ class _MyGroupsPageState extends State<MyGroupsPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppScaffold(
     appBar: AppBar(title: Text(words(context, 'myGroups'))),
     body: FutureBuilder(
       future: _groups,
@@ -52,7 +53,7 @@ class _MyGroupsPageState extends State<MyGroupsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const AppImageIcon(Icons.groups_outlined, size: 40),
+                      const AppIcon(Icons.groups_outlined, size: 40),
                       const SizedBox(height: 12),
                       Text(
                         group['title'] as String,
@@ -79,7 +80,7 @@ class _MyGroupsPageState extends State<MyGroupsPage> {
                                   ChatPage(groupId: group['id'] as String),
                             ),
                           ),
-                          icon: const AppImageIcon(Icons.chat_outlined),
+                          icon: const AppIcon(Icons.chat_outlined),
                           label: Text(salesText(context, 'chat')),
                         )
                       else

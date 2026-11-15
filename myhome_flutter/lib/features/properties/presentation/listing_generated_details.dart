@@ -24,7 +24,7 @@ void updateGeneratedDetails(
   if (!cubit.manualLocation && place.isNotEmpty) {
     cubit.values['approximate_location'] = place;
   }
-  if (cubit.manualDetails || cubit.propertyKind == null) return;
+  if (cubit.propertyKind == null) return;
   final kind = label(cubit.propertyKind!);
   final category = label(cubit.values['category']?.toString() ?? 'addProperty');
   cubit.values['title'] = [

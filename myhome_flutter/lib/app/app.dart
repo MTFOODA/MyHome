@@ -64,18 +64,22 @@ class MyHome extends StatelessWidget {
           ),
       ],
       child: BlocBuilder<SettingsCubit, AppSettings>(
-        builder: (context, state) => MaterialApp(
-          debugShowCheckedModeBanner: false,
-          builder: (context, child) =>
-              AppBackdrop(child: child ?? const SizedBox.shrink()),
-          onGenerateTitle: (context) => context.l10n.appName,
-          theme: ThemeConfig.lightTheme(),
-          darkTheme: ThemeConfig.darkTheme(),
-          themeMode: state.themeMode,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: LocaleConfig.supported,
-          locale: state.locale,
-          home: const _PublicHomeGate(),
+        builder: (context, state) => LayoutBuilder(
+          builder: (context, constraints) => MaterialApp(
+            debugShowCheckedModeBanner: false,
+            builder: (context, child) =>
+                AppBackdrop(child: child ?? const SizedBox.shrink()),
+            onGenerateTitle: (context) => context.l10n.appName,
+            theme: ThemeConfig.lightTheme(viewportWidth: constraints.maxWidth),
+            darkTheme: ThemeConfig.darkTheme(
+              viewportWidth: constraints.maxWidth,
+            ),
+            themeMode: state.themeMode,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: LocaleConfig.supported,
+            locale: state.locale,
+            home: const _PublicHomeGate(),
+          ),
         ),
       ),
     ),

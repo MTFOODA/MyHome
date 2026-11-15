@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../domain/location_repository.dart';
 import '../domain/property_repository.dart';
 import 'listing_cubit.dart';
@@ -98,13 +98,7 @@ class _ListingLocationStepState extends State<ListingLocationStep> {
           key: const Key('listingGovernorate'),
           isExpanded: true,
           initialValue: cubit.values['governorate_id'] as String?,
-          decoration: InputDecoration(
-            labelText: words(context, 'governorate'),
-            prefixIcon: const Padding(
-              padding: EdgeInsets.all(8),
-              child: PropertyIllustration('location', size: 32),
-            ),
-          ),
+          decoration: InputDecoration(labelText: words(context, 'governorate')),
           items: [
             for (final g in widget.catalog?.governorates ?? <LocationOption>[])
               DropdownMenuItem(
@@ -139,15 +133,8 @@ class _ListingLocationStepState extends State<ListingLocationStep> {
         ),
         const SizedBox(height: 16),
         Text(words(context, 'areaLocationHint')),
-        if (cubit.values['approximate_location'] != null)
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const PropertyIllustration('location'),
-            title: Text('${cubit.values['approximate_location']}'),
-          ),
         SwitchListTile.adaptive(
           contentPadding: EdgeInsets.zero,
-          secondary: const PropertyIllustration('location', size: 36),
           title: Text(words(context, 'customLandmark')),
           value: cubit.manualLocation,
           onChanged: (value) {
@@ -161,7 +148,7 @@ class _ListingLocationStepState extends State<ListingLocationStep> {
             maxLength: 250,
             decoration: InputDecoration(
               labelText: words(context, 'location'),
-              prefixIcon: const PropertyIllustration('location', size: 32),
+              prefixIcon: const AppIcon(Icons.edit_location_alt_outlined),
             ),
             onChanged: (text) => cubit.values['approximate_location'] = text,
           ),
@@ -169,16 +156,16 @@ class _ListingLocationStepState extends State<ListingLocationStep> {
         OutlinedButton.icon(
           key: const Key('openLocationMap'),
           onPressed: _map,
-          icon: const PropertyIllustration('location', size: 36),
+          icon: const AppIcon(Icons.map_outlined),
           label: Text(words(context, 'chooseOnMap')),
         ),
         if (point != null)
           ListTile(
-            leading: const PropertyIllustration('location', size: 36),
+            leading: const AppIcon(Icons.check_circle_outline),
             title: Text(words(context, 'mapLocationAttached')),
             trailing: IconButton(
               tooltip: words(context, 'remove'),
-              icon: const AppImageIcon(Icons.close),
+              icon: const AppIcon(Icons.close),
               onPressed: () {
                 cubit.values.remove('latitude');
                 cubit.values.remove('longitude');
@@ -193,10 +180,10 @@ class _ListingLocationStepState extends State<ListingLocationStep> {
           maxLength: 2048,
           decoration: InputDecoration(
             labelText: words(context, 'pasteMapLink'),
-            prefixIcon: const PropertyIllustration('location', size: 32),
+            prefixIcon: const AppIcon(Icons.link_rounded),
             suffixIcon: IconButton(
               tooltip: words(context, 'paste'),
-              icon: const AppImageIcon(Icons.content_paste),
+              icon: const AppIcon(Icons.content_paste),
               onPressed: () async {
                 final data = await Clipboard.getData(Clipboard.kTextPlain);
                 if (mounted && data?.text != null) _link.text = data!.text!;
@@ -207,7 +194,7 @@ class _ListingLocationStepState extends State<ListingLocationStep> {
         TextButton.icon(
           key: const Key('applyMapLink'),
           onPressed: _busy ? null : _parseLink,
-          icon: const PropertyIllustration('location', size: 28),
+          icon: const AppIcon(Icons.add_link_rounded),
           label: Text(words(context, 'applyMapLink')),
         ),
         if (_error != null) Text(words(context, _error!)),

@@ -1,9 +1,10 @@
+import '../../../core/widgets/app_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
 import 'auth_cubit.dart';
 import 'auth_page.dart';
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_icon.dart';
 
 class IntentsPage extends StatefulWidget {
   final bool settings;
@@ -78,7 +79,7 @@ class _IntentsPageState extends State<IntentsPage> {
               padding: const EdgeInsets.all(18),
               child: Row(
                 children: [
-                  PropertyIllustration(
+                  FeatureSymbol(
                     family == 'owner' ? 'home' : 'location',
                     size: 48,
                   ),
@@ -120,7 +121,7 @@ class _IntentsPageState extends State<IntentsPage> {
     },
     builder: (context, state) {
       final busy = state.status == AuthStatus.busy;
-      return Scaffold(
+      return AppScaffold(
         appBar: AppBar(
           title: Text(words(context, 'roles')),
           automaticallyImplyLeading: widget.settings,
@@ -128,7 +129,9 @@ class _IntentsPageState extends State<IntentsPage> {
         body: SingleChildScrollView(
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 760),
+              constraints: BoxConstraints(
+                maxWidth: AppLayout.formWidth(context),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -189,10 +192,7 @@ class _IntentsPageState extends State<IntentsPage> {
                                 type: MaterialType.transparency,
                                 child: CheckboxListTile(
                                   key: ValueKey('intent_$intent'),
-                                  secondary: PropertyIllustration(
-                                    intent,
-                                    size: 40,
-                                  ),
+                                  secondary: FeatureSymbol(intent, size: 40),
                                   title: Text(
                                     words(
                                       context,

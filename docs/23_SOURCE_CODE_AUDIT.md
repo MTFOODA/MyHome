@@ -1,3 +1,11 @@
+## Responsive layout and meaningful icons - 2026-11-16
+
+Removed manual-details flag, switch and title/description inputs; generated content still passes existing API validation. Native icons replace arbitrary raster substitutions globally, preserving disabled colors, RTL directions and interaction states. Responsive scaffold/body frames and control themes are shared across screens; small guest header and intrinsic drawer header avoid overflow. Review and financial quote paths remain intact. 87 Flutter checks, 4 render scenarios and analyzer pass. Existing backend security/financial verification is unchanged; no new production-readiness claim.
+
+Read [guide 40](40_RESPONSIVE_LAYOUT_AND_ICONS.md). Earlier entries below are historical.
+
+---
+
 ## Visual listing, complete source catalogue and open maps - 2026-11-15
 
 The current increment is documented in [guide 39](39_VISUAL_LISTING_AND_OPEN_MAPS.md): owner drawer Add property, precise Continue validation, generated title/description from illustrated choices, net/gross area, capacity only in shared housing, utilities in one step, conditional furnishing, and authenticated owner covers before approval. Backgrounds follow `UI/ui .jpeg` in the existing teal light/dark palette; authored icons use bundled raster artwork.

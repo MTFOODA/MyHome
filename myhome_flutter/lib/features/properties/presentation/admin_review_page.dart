@@ -1,3 +1,4 @@
+import '../../../core/widgets/app_layout.dart';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
@@ -19,7 +20,7 @@ class _AdminReviewPageState extends State<AdminReviewPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppScaffold(
     appBar: AppBar(title: Text(words(context, 'adminQueue'))),
     body: FutureBuilder(
       future: _queue,

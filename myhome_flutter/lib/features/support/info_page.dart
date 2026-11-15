@@ -1,4 +1,5 @@
-import '../../core/widgets/property_illustration.dart';
+import '../../core/widgets/app_layout.dart';
+import '../../core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 import '../../core/config/locale_config.dart';
 import '../../core/widgets/brand_logo.dart';
@@ -9,12 +10,14 @@ class InfoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(about ? l.about : l.guide)),
       body: SingleChildScrollView(
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 760),
+            constraints: BoxConstraints(
+              maxWidth: AppLayout.readingWidth(context),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -23,7 +26,7 @@ class InfoPage extends StatelessWidget {
                   if (about)
                     const BrandWordmark(width: 240)
                   else
-                    AppImageIcon(
+                    AppIcon(
                       Icons.explore_outlined,
                       size: 64,
                       color: Theme.of(context).colorScheme.primary,
@@ -62,7 +65,7 @@ class InfoPage extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                AppImageIcon(
+                                AppIcon(
                                   item.$1,
                                   color: Theme.of(context).colorScheme.primary,
                                 ),

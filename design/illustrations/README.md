@@ -1,9 +1,11 @@
 # MyHome pictorial UI assets
 
-Generated with the built-in imagegen tool, then copied unchanged into the app. No API key or raster-editing fallback was used. Each atlas is consumed by equal-cell clipping in `PropertyIllustration`; assets are bundled locally for all platforms.
+Current policy (2026-11-16): use native semantic icons for navigation and controls, and distinct property-type symbols. These original generated masters are retained unchanged as design history and excluded from the Flutter runtime bundle. The equal-cell `PropertyIllustration` renderer was removed; no image generation or raster editing was done in this update. Real property photography and selected app branding remain in use.
 
-- `myhome_flutter/assets/illustrations/property-atlas.png`: 4×4 property/service atlas; generated source `exec-7b3f1f66-0791-47fc-bd05-ccd6448f4f9a.png`.
-- `myhome_flutter/assets/illustrations/navigation-atlas.png`: 4×4 controls/navigation atlas; generated source `exec-5e266a38-06c0-4a78-b919-43c8fe35eaf1.png`.
+The historical masters were generated with the built-in imagegen tool without a paid API key; their exact prompts are preserved below. Do not blanket-replace native controls with these tiles.
+
+- `design/illustrations/masters/property-atlas.png`: 4×4 property/service atlas; generated source `exec-7b3f1f66-0791-47fc-bd05-ccd6448f4f9a.png`.
+- `design/illustrations/masters/navigation-atlas.png`: 4×4 controls/navigation atlas; generated source `exec-5e266a38-06c0-4a78-b919-43c8fe35eaf1.png`.
 
 Final prompt set:
 

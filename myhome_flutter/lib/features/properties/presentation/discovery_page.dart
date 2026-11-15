@@ -1,4 +1,5 @@
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_layout.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
@@ -61,7 +62,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      constraints: const BoxConstraints(maxWidth: 640),
+      constraints: BoxConstraints(maxWidth: AppLayout.formWidth(context)),
       clipBehavior: Clip.antiAlias,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -102,7 +103,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
           icon: Badge(
             isLabelVisible: _filterCount > 0,
             label: Text('$_filterCount'),
-            child: const AppImageIcon(Icons.tune, size: 28),
+            child: const AppIcon(Icons.tune, size: 28),
           ),
         ),
         const SizedBox(width: 12),
@@ -118,11 +119,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
             child: Row(
               children: [
                 const SizedBox(width: 18),
-                AppImageIcon(
-                  Icons.search,
-                  color: scheme.onSurfaceVariant,
-                  size: 25,
-                ),
+                AppIcon(Icons.search, color: scheme.onSurfaceVariant, size: 25),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
@@ -152,12 +149,12 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                       setState(_query.clear);
                       _search();
                     },
-                    icon: const AppImageIcon(Icons.close, size: 20),
+                    icon: const AppIcon(Icons.close, size: 20),
                   ),
                 PopupMenuButton<String>(
                   key: const Key('searchType'),
                   tooltip: words(context, 'category'),
-                  icon: const AppImageIcon(Icons.keyboard_arrow_down_rounded),
+                  icon: const AppIcon(Icons.keyboard_arrow_down_rounded),
                   onSelected: (value) =>
                       _category(value.isEmpty ? null : value),
                   itemBuilder: (context) =>
@@ -206,7 +203,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
             child: OutlinedButton.icon(
               key: ValueKey('quick-type-${entry.$1}'),
               onPressed: () => _category(entry.$1.isEmpty ? null : entry.$1),
-              icon: AppImageIcon(entry.$2, size: 21),
+              icon: AppIcon(entry.$2, size: 21),
               label: Text(
                 words(context, entry.$1.isEmpty ? 'allHomes' : entry.$1),
               ),
@@ -239,7 +236,9 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
       child: SingleChildScrollView(
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
+            constraints: BoxConstraints(
+              maxWidth: AppLayout.contentWidth(context),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -307,7 +306,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                           padding: const EdgeInsets.all(32),
                           child: Column(
                             children: [
-                              AppImageIcon(
+                              AppIcon(
                                 Icons.home_outlined,
                                 size: 64,
                                 color: Theme.of(context).colorScheme.primary,
@@ -349,10 +348,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                             key: const Key('togglePropertyMap'),
                             onPressed: () =>
                                 setState(() => _mapView = !_mapView),
-                            icon: const PropertyIllustration(
-                              'location',
-                              size: 32,
-                            ),
+                            icon: const FeatureSymbol('location', size: 32),
                             label: Text(
                               words(context, _mapView ? 'listView' : 'mapView'),
                             ),

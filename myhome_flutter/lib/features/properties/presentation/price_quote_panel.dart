@@ -1,4 +1,4 @@
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -141,7 +141,7 @@ class _PriceQuotePanelState extends State<PriceQuotePanel> {
                 _fingerprint = null;
                 _schedule();
               }),
-              icon: const AppImageIcon(Icons.refresh),
+              icon: const AppIcon(Icons.refresh),
               label: Text(words(context, 'quoteRetry')),
             ),
           ] else if (_quote == null || _quote!['requires_agreement'] == true)

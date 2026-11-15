@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_icon.dart';
+import '../../../core/widgets/app_layout.dart';
 
 class ListingChoice extends StatelessWidget {
   final String label, illustration;
@@ -38,31 +39,41 @@ class ListingChoice extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(18),
             onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  PropertyIllustration(illustration, size: 56),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      label,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  if (selected)
-                    const AppImageIcon(Icons.check_circle_rounded)
-                  else
-                    Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: colors.outline),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: AppLayout.wide(context) ? 112 : 84,
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(AppLayout.wide(context) ? 22 : 16),
+                child: Row(
+                  children: [
+                    if (FeatureSymbol.iconFor(illustration) != null) ...[
+                      FeatureSymbol(
+                        illustration,
+                        size: AppLayout.wide(context) ? 40 : 30,
+                      ),
+                      const SizedBox(width: 16),
+                    ],
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
-                ],
+                    const SizedBox(width: 6),
+                    if (selected)
+                      const AppIcon(Icons.check_circle_rounded)
+                    else
+                      Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: colors.outline),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -74,16 +85,26 @@ class ListingChoice extends StatelessWidget {
 
 class ListingChoiceGrid extends StatelessWidget {
   final List<Widget> children;
-  const ListingChoiceGrid({super.key, required this.children});
+  final bool compact;
+  const ListingChoiceGrid({
+    super.key,
+    required this.children,
+    this.compact = false,
+  });
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      final width = constraints.maxWidth >= 540
-          ? (constraints.maxWidth - 12) / 2
-          : constraints.maxWidth;
+      final columns = compact && constraints.maxWidth >= 260
+          ? 2
+          : children.length >= 5 && constraints.maxWidth >= 1000
+          ? 3
+          : constraints.maxWidth >= 560
+          ? 2
+          : 1;
+      final width = (constraints.maxWidth - (columns - 1) * 16) / columns;
       return Wrap(
-        spacing: 12,
-        runSpacing: 12,
+        spacing: 16,
+        runSpacing: 16,
         children: [
           for (final child in children) SizedBox(width: width, child: child),
         ],
@@ -147,7 +168,7 @@ class ListingQuantity extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: FilledButton.icon(
                   onPressed: () => Navigator.pop(sheetContext, selected),
-                  icon: const AppImageIcon(Icons.check_circle_outline),
+                  icon: const AppIcon(Icons.check_circle_outline),
                   label: Text(words(context, 'chooseValue')),
                 ),
               ),
@@ -170,7 +191,7 @@ class ListingQuantity extends StatelessWidget {
         children: [
           Row(
             children: [
-              PropertyIllustration(field),
+              FeatureSymbol(field),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -220,7 +241,6 @@ class ListingQuantity extends StatelessWidget {
               ))
                 ChoiceChip(
                   key: ValueKey('$field-$number'),
-                  avatar: PropertyIllustration(field, size: 18),
                   label: Text('$number'),
                   selected: value == number,
                   onSelected: (_) => onChanged(number),

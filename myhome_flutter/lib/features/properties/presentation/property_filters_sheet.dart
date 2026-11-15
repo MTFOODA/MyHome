@@ -1,4 +1,4 @@
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../../../core/input/number_input.dart';
@@ -131,7 +131,7 @@ class _PropertyFiltersSheetState extends State<PropertyFiltersSheet> {
         childrenPadding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
         shape: const Border(),
         collapsedShape: const Border(),
-        leading: AppImageIcon(icon),
+        leading: AppIcon(icon),
         title: Text(
           words(context, key),
           style: const TextStyle(fontWeight: FontWeight.w600),
@@ -170,7 +170,7 @@ class _PropertyFiltersSheetState extends State<PropertyFiltersSheet> {
                 key: const Key('closeFilters'),
                 tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                 onPressed: () => Navigator.pop(context),
-                icon: const AppImageIcon(Icons.close),
+                icon: const AppIcon(Icons.close),
               ),
             ],
           ),
@@ -246,7 +246,7 @@ class _PropertyFiltersSheetState extends State<PropertyFiltersSheet> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 if (_draft['category'] == category) ...[
-                                  AppImageIcon(
+                                  AppIcon(
                                     Icons.check,
                                     size: 18,
                                     color: scheme.primary,

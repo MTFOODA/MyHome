@@ -1,7 +1,8 @@
+import '../../../core/widgets/app_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../domain/location_repository.dart';
 import 'location_picker_cubit.dart';
 import 'property_map.dart';
@@ -36,7 +37,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
   Widget build(BuildContext context) =>
       BlocBuilder<LocationPickerCubit, LocationPickerState>(
         bloc: _cubit,
-        builder: (context, state) => Scaffold(
+        builder: (context, state) => AppScaffold(
           appBar: AppBar(title: Text(words(context, 'chooseOnMap'))),
           body: SafeArea(
             child: Padding(
@@ -64,7 +65,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
                   OutlinedButton.icon(
                     key: const Key('useDeviceLocation'),
                     onPressed: state.busy ? null : _cubit.locate,
-                    icon: const PropertyIllustration('location', size: 28),
+                    icon: const AppIcon(Icons.my_location_rounded),
                     label: Text(
                       words(
                         context,
@@ -77,7 +78,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
                     onPressed: state.selected == null
                         ? null
                         : () => Navigator.pop(context, state.selected),
-                    icon: const PropertyIllustration('location', size: 28),
+                    icon: const AppIcon(Icons.check_circle_outline),
                     label: Text(words(context, 'confirmLocation')),
                   ),
                 ],

@@ -1,4 +1,5 @@
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_layout.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -127,36 +128,36 @@ class _SalesAdminPageState extends State<SalesAdminPage> {
   @override
   Widget build(BuildContext context) {
     if (context.watch<AuthCubit>().state.account?.role != 'admin') {
-      return Scaffold(
+      return AppScaffold(
         appBar: AppBar(),
         body: Center(child: Text(salesText(context, 'NETWORK_ERROR'))),
       );
     }
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(salesText(context, 'salesAdmin'))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
+            constraints: BoxConstraints(maxWidth: AppLayout.formWidth(context)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (_busy) const LinearProgressIndicator(),
                 FilledButton.icon(
                   onPressed: _busy ? null : _newStaff,
-                  icon: const AppImageIcon(Icons.person_add_outlined),
+                  icon: const AppIcon(Icons.person_add_outlined),
                   label: Text(salesText(context, 'newStaff')),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
                   onPressed: _busy ? null : _terms,
-                  icon: const AppImageIcon(Icons.description_outlined),
+                  icon: const AppIcon(Icons.description_outlined),
                   label: Text(salesText(context, 'terms')),
                 ),
                 OutlinedButton.icon(
                   onPressed: _busy ? null : _qr,
-                  icon: const AppImageIcon(Icons.qr_code),
+                  icon: const AppIcon(Icons.qr_code),
                   label: Text(salesText(context, 'qrSettings')),
                 ),
                 const SizedBox(height: 20),
@@ -288,13 +289,13 @@ class _EligibilityReviewsPageState extends State<EligibilityReviewsPage> {
   @override
   Widget build(BuildContext context) {
     final account = context.watch<AuthCubit>().state.account;
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text(salesText(context, 'eligibility')),
         actions: [
           IconButton(
             onPressed: () => setState(() => _rows = _repo.eligibilityReviews()),
-            icon: const AppImageIcon(Icons.refresh),
+            icon: const AppIcon(Icons.refresh),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_layout.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../domain/chat_repository.dart';
@@ -43,7 +44,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppScaffold(
     appBar: AppBar(title: Text(salesText(context, 'chat'))),
     body: BlocConsumer<ChatCubit, ChatState>(
       bloc: _cubit,
@@ -107,7 +108,12 @@ class _ChatPageState extends State<ChatPage> {
                               ? AlignmentDirectional.centerEnd
                               : AlignmentDirectional.centerStart,
                           child: Container(
-                            constraints: const BoxConstraints(maxWidth: 520),
+                            constraints: BoxConstraints(
+                              maxWidth: (AppLayout.width(context) * .76).clamp(
+                                240,
+                                760,
+                              ),
+                            ),
                             margin: const EdgeInsets.only(bottom: 12),
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
@@ -175,7 +181,7 @@ class _ChatPageState extends State<ChatPage> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const AppImageIcon(Icons.send),
+                        : const AppIcon(Icons.send),
                     tooltip: salesText(context, 'sendMessage'),
                   ),
                 ],

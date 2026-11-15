@@ -1,4 +1,4 @@
-import '../../core/widgets/property_illustration.dart';
+import '../../core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/config/marketplace_strings.dart';
@@ -47,7 +47,7 @@ class _SearchPageState extends State<SearchPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                AppImageIcon(
+                AppIcon(
                   Icons.people_outline,
                   size: 64,
                   color: Theme.of(context).colorScheme.primary,

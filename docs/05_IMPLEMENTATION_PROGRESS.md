@@ -1,3 +1,15 @@
+## Responsive layout and meaningful icons - 2026-11-16
+
+[x] UI-040: Remove manual listing-copy controls and state; retain automatic generated copy.
+
+[x] UI-041: Shared responsive page frames, fonts, fields and actions; distinct native symbols and a translation control with destination-language text.
+
+Verification: 87 Flutter regression tests and 4 responsive render scenarios; analyzer clean. Screenshots cover AR/EN, light/dark and 320/390/1440/1920px. No new database migration. No entire marketplace phase is marked complete.
+
+Read [guide 40](40_RESPONSIVE_LAYOUT_AND_ICONS.md). Earlier entries below are historical.
+
+---
+
 ## Visual listing, complete source catalogue and open maps - 2026-11-15
 
 The current increment is documented in [guide 39](39_VISUAL_LISTING_AND_OPEN_MAPS.md): owner drawer Add property, precise Continue validation, generated title/description from illustrated choices, net/gross area, capacity only in shared housing, utilities in one step, conditional furnishing, and authenticated owner covers before approval. Backgrounds follow `UI/ui .jpeg` in the existing teal light/dark palette; authored icons use bundled raster artwork.

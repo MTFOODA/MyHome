@@ -1,3 +1,13 @@
+## Responsive layout and meaningful icons - 2026-11-16
+
+Build/deployment: Web release and Android debug PASS; public Worker bundle hash matches the local build. Catalogue/map-link/private-photo and private-path HTTP checks PASS; both local APIs healthy. Gateway reused existing origin/version; keep PC/Docker/internet running. No physical-device/browser GUI claim.
+
+Current UI checks: **87 Flutter regression tests PASS**, **4 responsive render scenarios PASS**, **Flutter analyzer clean**. Ten layout/language/accessibility tests are included in the 87; the four renderer scenarios are separate. Sixteen synthetic screenshots cover home, property kind, location and verification across AR/EN, dark/light and four widths. Logs: ignored `artifacts/layout-refinement-*.log`. Existing backend80/Worker11 results below are previous verified baseline, not rerun for this presentation-only change. See guide 40 for build/deployment evidence and limits.
+
+Read [guide 40](40_RESPONSIVE_LAYOUT_AND_ICONS.md). Earlier entries below are historical.
+
+---
+
 ## Visual listing, complete source catalogue and open maps - 2026-11-15
 
 The current increment is documented in [guide 39](39_VISUAL_LISTING_AND_OPEN_MAPS.md): owner drawer Add property, precise Continue validation, generated title/description from illustrated choices, net/gross area, capacity only in shared housing, utilities in one step, conditional furnishing, and authenticated owner covers before approval. Backgrounds follow `UI/ui .jpeg` in the existing teal light/dark palette; authored icons use bundled raster artwork.

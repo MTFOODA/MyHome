@@ -1,3 +1,5 @@
+> Update 2026-11-16: [Guide 40](40_RESPONSIVE_LAYOUT_AND_ICONS.md) supersedes the illustrated-control and optional manual-copy presentation described below. Title/description are now always generated, controls use semantic native icons, and the atlases are archived outside the app bundle. Open-map, catalogue, media and financial behavior below remains current.
+
 # إضافة العقار المصوّرة والخرائط المفتوحة — 2026-11-15
 
 هذا التحديث يجمع طلب إصلاح «استمرار» وإضافة العقار للقائمة الجانبية، مع طلب المناطق والخرائط والمساحة والمرافق والفرش والصور والخلفيات. يحل محل ترتيب الخطوات القديم، ويحافظ على التسعير النهائي والصفقات والصلاحيات السابقة.

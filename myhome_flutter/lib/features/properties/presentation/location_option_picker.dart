@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/config/marketplace_strings.dart';
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../domain/property_repository.dart';
 
 class LocationOptionPicker extends StatelessWidget {
@@ -52,9 +52,8 @@ class LocationOptionPicker extends StatelessWidget {
                                 controller: query,
                                 decoration: InputDecoration(
                                   labelText: words(context, 'searchArea'),
-                                  prefixIcon: const PropertyIllustration(
-                                    'location',
-                                    size: 32,
+                                  prefixIcon: const AppIcon(
+                                    Icons.search_rounded,
                                   ),
                                 ),
                                 onChanged: (_) => set(() {}),
@@ -67,10 +66,9 @@ class LocationOptionPicker extends StatelessWidget {
                                   key: ValueKey(
                                     'location-option-${filtered[index].id}',
                                   ),
-                                  leading: const PropertyIllustration(
-                                    'location',
-                                    size: 36,
-                                  ),
+                                  trailing: filtered[index].id == selected
+                                      ? const AppIcon(Icons.check_rounded)
+                                      : null,
                                   title: Text(name(filtered[index])),
                                   selected: filtered[index].id == selected,
                                   onTap: () => Navigator.pop(
@@ -109,14 +107,12 @@ class LocationOptionPicker extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
-            const PropertyIllustration('location', size: 36),
-            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 current == null ? words(context, 'area') : name(current),
               ),
             ),
-            const AppImageIcon(Icons.expand_more),
+            const AppIcon(Icons.expand_more),
           ],
         ),
       ),

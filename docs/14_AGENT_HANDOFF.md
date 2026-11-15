@@ -1,3 +1,11 @@
+## Responsive layout and meaningful icons - 2026-11-16
+
+Resume from the responsive UI increment in guide 40. `AppScaffold` and `AppLayout` provide shared frames; `ThemeConfig` receives viewport width. `AppIcon` preserves native icon behavior; `FeatureSymbol` maps distinct structured answers. Manual listing-copy state and controls are removed. Existing automatic generation and final-step financial calculator remain. Historical atlases moved unchanged to `design/illustrations/masters/` and are no longer bundled. Current checks: 87 Flutter tests, 4 new render scenarios, analyzer clean. Database head remains `20261116_listing_details`. Existing 80 PostgreSQL/11 Worker baseline tests are from the preceding increment, not rerun for this UI-only change. Keep PC/Docker/internet online for the stable Worker gateway.
+
+Read [guide 40](40_RESPONSIVE_LAYOUT_AND_ICONS.md). Earlier entries below are historical.
+
+---
+
 ## Visual listing, complete source catalogue and open maps - 2026-11-15
 
 The current increment is documented in [guide 39](39_VISUAL_LISTING_AND_OPEN_MAPS.md): owner drawer Add property, precise Continue validation, generated title/description from illustrated choices, net/gross area, capacity only in shared housing, utilities in one step, conditional furnishing, and authenticated owner covers before approval. Backgrounds follow `UI/ui .jpeg` in the existing teal light/dark palette; authored icons use bundled raster artwork.

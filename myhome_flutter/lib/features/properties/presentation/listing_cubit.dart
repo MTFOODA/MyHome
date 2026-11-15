@@ -23,7 +23,7 @@ class ListingCubit extends Cubit<ListingState> {
   String nationalId = '', birthDate = '';
   bool consent = false;
   String? propertyKind;
-  bool manualDetails = false, manualLocation = false;
+  bool manualLocation = false;
   String? _propertyId, _identityId, _ownershipId;
   String? get draftId => _propertyId;
   final Map<UploadImage, String> _uploaded = {};
@@ -172,7 +172,7 @@ class ListingCubit extends Cubit<ListingState> {
     return switch (step) {
       'category' => 'chooseCategory',
       'information' =>
-        !manualDetails && propertyKind == null
+        propertyKind == null
             ? 'choosePropertyKind'
             : (values['title']?.toString().trim().length ?? 0) < 5
             ? 'titleTooShort'

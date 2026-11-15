@@ -30,4 +30,3 @@ flutter:
   generate: true
   assets:
     - assets/branding/
-    - assets/illustrations/

@@ -29,7 +29,10 @@ MyHome/
 ### Current Phase
 Check docs/05_IMPLEMENTATION_PROGRESS.md for the current phase and task status.
 
-### Current requirements and implementation (2026-11-15)
+### Current requirements and implementation (2026-11-16)
+- Latest UI amendment: read `docs/40_RESPONSIVE_LAYOUT_AND_ICONS.md`. Manual title/description controls are removed; generated copy remains. Shared `AppLayout`/`AppScaffold` and viewport-aware theme scale all screens. Native `AppIcon`/distinct `FeatureSymbol` replace raster substitutions; atlases remain archived outside the Flutter bundle. Translation control shows target language. Current verification: 87 Flutter tests, 4 responsive render scenarios, analyzer clean. Older illustration instructions below are historical.
+
+### Previous verified increment (2026-11-15)
 - Read `docs/39_VISUAL_LISTING_AND_OPEN_MAPS.md` first for the latest increment: illustrated auto-copy listing flow, precise validation feedback, Add property in owner drawer, net/gross area, capacity only for shared housing, grouped utilities, conditional furnishing and protected owner covers. Current checks: 78 Flutter, 80 PostgreSQL, 11 Worker tests, 8 render tests; analyzer/Ruff clean. Web/APK and both local APIs updated.
 - Map stack: FlutterMap 8.3.2 + open-source dragmarker/geolocator; no paid API/key/geocoding. Explicit device permission, independent validated coordinates, draggable pin, detail/current-page discovery maps, tile failure fallback. OSM attribution, native UA, normal HTTP caching, zero pan prefetch; configurable source via `/locations/map-config`. Keep the PC/Docker online for the Worker gateway.
 - New migration head `20261116_listing_details`: nullable legacy area_measurement/furnished/location_url and optional nonshared capacity; 6,081 pinned open-data area records added, preserving old IDs. Main/demo backed up before additive migration. No reseed/reset. Data attribution/license is bundled in `backend_fastapi/app/data/` and the area selector. All remaining old reports below are historical snapshots.

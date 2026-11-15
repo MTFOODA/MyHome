@@ -1,3 +1,19 @@
+## Responsive layout and meaningful icons - 2026-11-16
+
+[x] Manual title/description section removed from listing information.
+
+[x] Repeated white-backed image substitutions removed; property choices use distinct symbols and controls use familiar native glyphs.
+
+[x] Narrow fixed form widths and small actions replaced by shared responsive dimensions; actions stack on narrow screens.
+
+[x] Language control identifies translation and target language; drawer/header accommodate larger text.
+
+Verification: 87 Flutter tests, 4 render scenarios and clean analyzer. Owner-list test now settles scroll-triggered list layout before interacting; hide/search behavior is preserved.
+
+Read [guide 40](40_RESPONSIVE_LAYOUT_AND_ICONS.md). Earlier entries below are historical.
+
+---
+
 ## Visual listing, complete source catalogue and open maps - 2026-11-15
 
 The current increment is documented in [guide 39](39_VISUAL_LISTING_AND_OPEN_MAPS.md): owner drawer Add property, precise Continue validation, generated title/description from illustrated choices, net/gross area, capacity only in shared housing, utilities in one step, conditional furnishing, and authenticated owner covers before approval. Backgrounds follow `UI/ui .jpeg` in the existing teal light/dark palette; authored icons use bundled raster artwork.

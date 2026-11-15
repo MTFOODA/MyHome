@@ -1,3 +1,4 @@
+import '../../../core/widgets/app_layout.dart';
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../domain/property_repository.dart';
@@ -53,7 +54,7 @@ class _HousingGroupPageState extends State<HousingGroupPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppScaffold(
     appBar: AppBar(title: Text(words(context, 'applications'))),
     body: FutureBuilder(
       future: _applications,

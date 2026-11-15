@@ -1,4 +1,5 @@
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_layout.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../auth/presentation/auth_cubit.dart';
@@ -35,7 +36,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppScaffold(
     appBar: AppBar(title: Text(words(context, 'details'))),
     body: FutureBuilder(
       future: _details,
@@ -61,7 +62,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const AppImageIcon(Icons.info_outline, size: 56),
+                  const AppIcon(Icons.info_outline, size: 56),
                   const SizedBox(height: 16),
                   Text(
                     data['title'] as String,
@@ -92,7 +93,9 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
         return SingleChildScrollView(
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 900),
+              constraints: BoxConstraints(
+                maxWidth: AppLayout.formWidth(context),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -201,7 +204,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                                 }
                                 if (mounted) setState(() => _saving = false);
                               },
-                        icon: const AppImageIcon(Icons.handshake_outlined),
+                        icon: const AppIcon(Icons.handshake_outlined),
                         label: Text(salesText(context, 'start')),
                       ),
                     const SizedBox(height: 24),
@@ -331,7 +334,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                               }
                               if (mounted) setState(() => _saving = false);
                             },
-                      icon: const AppImageIcon(Icons.favorite_border),
+                      icon: const AppIcon(Icons.favorite_border),
                       label: Text(words(context, 'save')),
                     ),
                   ],

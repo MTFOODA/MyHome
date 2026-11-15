@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myhome_flutter/core/config/marketplace_strings.dart';
-import 'package:myhome_flutter/core/widgets/property_illustration.dart';
+import 'package:myhome_flutter/core/widgets/app_icon.dart';
 import 'package:myhome_flutter/features/auth/domain/auth_repository.dart';
 import 'package:myhome_flutter/features/properties/presentation/listing_choices.dart';
 import 'package:myhome_flutter/features/properties/presentation/listing_page.dart';
@@ -66,13 +66,13 @@ void main() {
         await nextStep(tester);
         await tap(tester, find.byKey(const ValueKey('property-kind-villa')));
         expect(find.byType(TextFormField), findsNothing);
-        expect(find.byType(PropertyIllustration), findsWidgets);
+        expect(find.byType(FeatureSymbol), findsWidgets);
         expect(tester.takeException(), isNull);
       });
     }
   }
   testWidgets(
-    'manual short description explains why Continue cannot advance; correction advances',
+    'listing copy is automatic and manual title/description controls are absent',
     (tester) async {
       await openListing(tester);
       await tap(
@@ -81,19 +81,11 @@ void main() {
       );
       await nextStep(tester);
       expect(find.byType(TextFormField), findsNothing);
-      await tap(tester, find.byType(SwitchListTile));
-      await tester.enterText(find.byType(TextFormField).at(0), 'dssdsdsdsd');
-      await tester.enterText(find.byType(TextFormField).at(1), 'sdsdsdsddsd');
+      expect(find.byType(SwitchListTile), findsNothing);
+      expect(find.textContaining('Write my own'), findsNothing);
       await nextStep(tester);
-      expect(
-        find.byKey(const ValueKey('property-kind-apartment')),
-        findsOneWidget,
-      );
-      expect(find.textContaining('at least 20 characters'), findsWidgets);
-      await tester.enterText(
-        find.byType(TextFormField).at(1),
-        'A detailed apartment description with enough useful information.',
-      );
+      expect(find.text('Choose a property type to continue.'), findsOneWidget);
+      await tap(tester, find.byKey(const ValueKey('property-kind-apartment')));
       await nextStep(tester);
       expect(find.byKey(const Key('listingGovernorate')), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -304,48 +296,6 @@ void main() {
       await tap(tester, find.byType(FilledButton));
       expect(number, 0);
       expect(find.byType(TextField), findsNothing);
-      expect(tester.takeException(), isNull);
-    },
-  );
-  testWidgets(
-    'all sixteen artwork cells decode without errors at narrow dark width',
-    (tester) async {
-      tester.view.physicalSize = const Size(320, 900);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: ThemeData.dark(),
-          home: Scaffold(
-            body: Wrap(
-              children: [
-                for (final name in [
-                  'home',
-                  'sale_cash',
-                  'sale_installments',
-                  'private_rental',
-                  'shared_rental',
-                  'location',
-                  'dimensions',
-                  'water',
-                  'electricity',
-                  'gas',
-                  'elevator',
-                  'red_brick',
-                  'plastered',
-                  'lux',
-                  'super_lux',
-                  'documents',
-                ])
-                  PropertyIllustration(name),
-              ],
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.byType(Image), findsNWidgets(16));
       expect(tester.takeException(), isNull);
     },
   );

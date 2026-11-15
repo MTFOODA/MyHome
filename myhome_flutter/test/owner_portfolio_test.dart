@@ -170,6 +170,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(repo.requests.length, 1);
       await tester.ensureVisible(find.byKey(const ValueKey('visibility-1')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const ValueKey('visibility-1')));
       await tester.tap(find.byKey(const ValueKey('visibility-1')));
       await tester.pumpAndSettle();
       expect(repo.changed, ['1:paused']);

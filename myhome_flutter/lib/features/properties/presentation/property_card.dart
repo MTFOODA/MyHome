@@ -1,4 +1,4 @@
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../domain/property_repository.dart';
@@ -30,12 +30,14 @@ class PropertyCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (!property.unavailable)
-              SizedBox(
-                height: 190,
-                child: PropertyPhoto(
-                  id: property.coverId,
-                  repository: repository,
-                  private: property.coverPrivate,
+              LayoutBuilder(
+                builder: (context, constraints) => SizedBox(
+                  height: (constraints.maxWidth * .56).clamp(180, 340),
+                  child: PropertyPhoto(
+                    id: property.coverId,
+                    repository: repository,
+                    private: property.coverPrivate,
+                  ),
                 ),
               ),
             Padding(
@@ -59,7 +61,7 @@ class PropertyCard extends StatelessWidget {
                   if (property.unavailable) ...[
                     const SizedBox(height: 12),
                     Chip(
-                      avatar: AppImageIcon(
+                      avatar: AppIcon(
                         property.availability == 'paused'
                             ? Icons.visibility_off_outlined
                             : Icons.info_outline,
@@ -83,13 +85,13 @@ class PropertyCard extends StatelessWidget {
                       spacing: 12,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        const AppImageIcon(Icons.square_foot, size: 18),
+                        const AppIcon(Icons.square_foot, size: 18),
                         Text('${property.areaM2} m²'),
                         if (property.areaMeasurement != null)
                           Text(words(context, property.areaMeasurement!)),
-                        const AppImageIcon(Icons.bed_outlined, size: 18),
+                        const AppIcon(Icons.bed_outlined, size: 18),
                         Text('${property.bedrooms}'),
-                        const AppImageIcon(Icons.bathtub_outlined, size: 18),
+                        const AppIcon(Icons.bathtub_outlined, size: 18),
                         Text('${property.bathrooms}'),
                       ],
                     ),
@@ -111,7 +113,7 @@ class PropertyCard extends StatelessWidget {
                         IconButton(
                           onPressed: onSave,
                           tooltip: words(context, saved ? 'remove' : 'save'),
-                          icon: AppImageIcon(
+                          icon: AppIcon(
                             saved ? Icons.favorite : Icons.favorite_border,
                           ),
                         ),

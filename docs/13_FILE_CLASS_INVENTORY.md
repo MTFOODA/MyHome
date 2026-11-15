@@ -1,3 +1,11 @@
+## Responsive layout and meaningful icons - 2026-11-16
+
+New shared presentation components: `core/widgets/app_layout.dart` (`AppLayout`, `AppScaffold`) and `core/widgets/app_icon.dart` (`AppIcon`, `ColorSymbol`, `FeatureSymbol`). The obsolete `property_illustration.dart` is removed. `test/responsive_layout_test.dart` adds 10 behavior/layout checks; `test/render_responsive_layout.dart` renders four platform-size scenarios. Atlases are archived under `design/illustrations/masters/`, outside Flutter assets. No domain/repository/API duplication or schema changes.
+
+Read [guide 40](40_RESPONSIVE_LAYOUT_AND_ICONS.md). Earlier entries below are historical.
+
+---
+
 ## Visual listing, complete source catalogue and open maps - 2026-11-15
 
 The current increment is documented in [guide 39](39_VISUAL_LISTING_AND_OPEN_MAPS.md): owner drawer Add property, precise Continue validation, generated title/description from illustrated choices, net/gross area, capacity only in shared housing, utilities in one step, conditional furnishing, and authenticated owner covers before approval. Backgrounds follow `UI/ui .jpeg` in the existing teal light/dark palette; authored icons use bundled raster artwork.

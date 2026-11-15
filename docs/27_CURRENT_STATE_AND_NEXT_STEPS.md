@@ -1,3 +1,11 @@
+## Responsive layout and meaningful icons - 2026-11-16
+
+The manual title/description section is removed; choices generate the advertisement automatically. Shared responsive sizing now covers the application, and meaningful native symbols replace repeated raster tiles. The language control includes translation and destination-language text. Guide 40 includes current screenshots and checks (87 Flutter tests, 4 render scenarios, analyzer clean). Existing map, catalogue, media and commission features are preserved; remaining product tasks below stay pending.
+
+Read [guide 40](40_RESPONSIVE_LAYOUT_AND_ICONS.md). Earlier entries below are historical.
+
+---
+
 ## Visual listing, complete source catalogue and open maps - 2026-11-15
 
 The current increment is documented in [guide 39](39_VISUAL_LISTING_AND_OPEN_MAPS.md): owner drawer Add property, precise Continue validation, generated title/description from illustrated choices, net/gross area, capacity only in shared housing, utilities in one step, conditional furnishing, and authenticated owner covers before approval. Backgrounds follow `UI/ui .jpeg` in the existing teal light/dark palette; authored icons use bundled raster artwork.

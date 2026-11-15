@@ -4,7 +4,7 @@ import '../domain/property_repository.dart';
 import 'listing_cubit.dart';
 import 'price_quote_panel.dart';
 import 'listing_choices.dart';
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_icon.dart';
 
 class ListingPricingStep extends StatefulWidget {
   final ListingCubit cubit;
@@ -62,7 +62,7 @@ class _ListingPricingStepState extends State<ListingPricingStep> {
         labelText: words(context, label ?? key),
         prefixIcon: Padding(
           padding: const EdgeInsets.all(8),
-          child: PropertyIllustration(
+          child: FeatureSymbol(
             key == 'price'
                 ? widget.cubit.values['category'] as String
                 : 'rental_period',
@@ -83,10 +83,6 @@ class _ListingPricingStepState extends State<ListingPricingStep> {
         for (final amount in amounts)
           ChoiceChip(
             key: ValueKey('preset-$field-$amount'),
-            avatar: PropertyIllustration(
-              widget.cubit.values['category'] as String,
-              size: 18,
-            ),
             label: Text('$amount ${words(context, 'egp')}'),
             selected: widget.cubit.values[field] == '$amount',
             onSelected: (_) => _set(field, '$amount'),
@@ -107,7 +103,7 @@ class _ListingPricingStepState extends State<ListingPricingStep> {
         Align(
           alignment: AlignmentDirectional.centerStart,
           child: Chip(
-            avatar: PropertyIllustration(category, size: 28),
+            avatar: FeatureSymbol(category, size: 28),
             label: Text(words(context, category)),
           ),
         ),
@@ -121,7 +117,7 @@ class _ListingPricingStepState extends State<ListingPricingStep> {
               labelText: words(context, 'rentalTermChoice'),
               prefixIcon: const Padding(
                 padding: EdgeInsets.all(8),
-                child: PropertyIllustration('rental_period', size: 32),
+                child: FeatureSymbol('rental_period', size: 32),
               ),
             ),
             items: [
@@ -183,7 +179,7 @@ class _ListingPricingStepState extends State<ListingPricingStep> {
             for (final value in [true, false])
               ChoiceChip(
                 key: ValueKey('pricing-negotiable-$value'),
-                avatar: AppImageIcon(
+                avatar: AppIcon(
                   value ? Icons.handshake_outlined : Icons.price_check,
                   color: Theme.of(context).colorScheme.primary,
                 ),

@@ -1,4 +1,5 @@
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_layout.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../core/widgets/brand_logo.dart';
@@ -74,7 +75,7 @@ class _AuthPageState extends State<AuthPage> {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
         final busy = state.status == AuthStatus.busy;
-        return Scaffold(
+        return AppScaffold(
           body: Stack(
             children: [
               PositionedDirectional(
@@ -100,7 +101,9 @@ class _AuthPageState extends State<AuthPage> {
                     ),
                     child: Center(
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 460),
+                        constraints: BoxConstraints(
+                          maxWidth: AppLayout.authWidth(context),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -114,7 +117,7 @@ class _AuthPageState extends State<AuthPage> {
                                   onPressed: busy
                                       ? null
                                       : () => Navigator.pop(context),
-                                  icon: const AppImageIcon(
+                                  icon: const AppIcon(
                                     Icons.arrow_back,
                                     color: Colors.white,
                                   ),
@@ -129,10 +132,7 @@ class _AuthPageState extends State<AuthPage> {
                                 onPressed: () => context
                                     .read<SettingsCubit>()
                                     .toggleLanguage(),
-                                icon: const AppImageIcon(
-                                  Icons.translate,
-                                  size: 18,
-                                ),
+                                icon: const AppIcon(Icons.translate, size: 18),
                                 label: Text(
                                   Localizations.localeOf(
                                             context,
@@ -201,7 +201,7 @@ class _AuthPageState extends State<AuthPage> {
                                           maxLength: 100,
                                           decoration: InputDecoration(
                                             labelText: l.fullName,
-                                            prefixIcon: const AppImageIcon(
+                                            prefixIcon: const AppIcon(
                                               Icons.person_outline,
                                             ),
                                           ),
@@ -226,7 +226,7 @@ class _AuthPageState extends State<AuthPage> {
                                         textInputAction: TextInputAction.next,
                                         decoration: InputDecoration(
                                           labelText: l.email,
-                                          prefixIcon: const AppImageIcon(
+                                          prefixIcon: const AppIcon(
                                             Icons.mail_outline,
                                           ),
                                         ),
@@ -261,7 +261,7 @@ class _AuthPageState extends State<AuthPage> {
                                         },
                                         decoration: InputDecoration(
                                           labelText: l.password,
-                                          prefixIcon: const AppImageIcon(
+                                          prefixIcon: const AppIcon(
                                             Icons.lock_outline,
                                           ),
                                           suffixIcon: IconButton(
@@ -271,7 +271,7 @@ class _AuthPageState extends State<AuthPage> {
                                             onPressed: () => setState(
                                               () => _obscure = !_obscure,
                                             ),
-                                            icon: AppImageIcon(
+                                            icon: AppIcon(
                                               _obscure
                                                   ? Icons
                                                         .visibility_off_outlined
@@ -307,7 +307,7 @@ class _AuthPageState extends State<AuthPage> {
                                           ],
                                           decoration: InputDecoration(
                                             labelText: l.confirmPassword,
-                                            prefixIcon: const AppImageIcon(
+                                            prefixIcon: const AppIcon(
                                               Icons.lock_outline,
                                             ),
                                             suffixIcon: IconButton(
@@ -318,7 +318,7 @@ class _AuthPageState extends State<AuthPage> {
                                                 () => _obscureConfirm =
                                                     !_obscureConfirm,
                                               ),
-                                              icon: AppImageIcon(
+                                              icon: AppIcon(
                                                 _obscureConfirm
                                                     ? Icons
                                                           .visibility_off_outlined

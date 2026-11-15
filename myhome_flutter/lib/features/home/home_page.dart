@@ -1,3 +1,4 @@
+import '../../core/widgets/app_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../app/app.dart';
@@ -5,7 +6,7 @@ import '../../core/config/locale_config.dart';
 import '../../core/config/marketplace_strings.dart';
 import '../../core/config/settings_cubit.dart';
 import '../../core/widgets/brand_logo.dart';
-import '../../core/widgets/property_illustration.dart';
+import '../../core/widgets/app_icon.dart';
 import '../auth/presentation/auth_cubit.dart';
 import '../profile/profile_page.dart';
 import '../properties/domain/property_repository.dart';
@@ -91,7 +92,7 @@ class _HomePageState extends State<HomePage> {
       if (mounted) setState(() => _tab = tab);
     }
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -108,12 +109,29 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         actions: [
-          IconButton(
-            tooltip: l.language,
+          TextButton.icon(
+            key: const Key('changeLanguage'),
             onPressed: () => context.read<SettingsCubit>().toggleLanguage(),
-            icon: const AppImageIcon(Icons.translate),
+            style: TextButton.styleFrom(
+              minimumSize: const Size(0, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+            icon: const AppIcon(Icons.translate_rounded, size: 22),
+            label: Text(
+              Localizations.localeOf(context).languageCode == 'ar'
+                  ? (AppLayout.width(context) < 380 ? 'EN' : 'English')
+                  : (AppLayout.width(context) < 380 ? 'ع' : 'العربية'),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            ),
           ),
-          if (account == null)
+          if (account == null && AppLayout.width(context) < 400)
+            IconButton(
+              key: const Key('openSignIn'),
+              tooltip: l.signIn,
+              onPressed: () => requireSignIn(context),
+              icon: const AppIcon(Icons.login_rounded),
+            )
+          else if (account == null)
             TextButton(
               key: const Key('openSignIn'),
               onPressed: () => requireSignIn(context),
@@ -126,7 +144,8 @@ class _HomePageState extends State<HomePage> {
         child: SafeArea(
           child: ListView(
             children: [
-              DrawerHeader(
+              Padding(
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -153,7 +172,7 @@ class _HomePageState extends State<HomePage> {
               if (account?.canManageProperties ?? false)
                 ListTile(
                   key: const Key('drawerAddProperty'),
-                  leading: const PropertyIllustration('home'),
+                  leading: const FeatureSymbol('home'),
                   title: Text(words(context, 'addProperty')),
                   onTap: () {
                     Navigator.pop(context);
@@ -167,7 +186,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               if (account != null)
                 ListTile(
-                  leading: const PropertyIllustration('home'),
+                  leading: const FeatureSymbol('home'),
                   title: Text(words(context, 'manageProperties')),
                   onTap: () {
                     Navigator.pop(context);
@@ -345,7 +364,7 @@ class _HomePageState extends State<HomePage> {
                   builder: (_) => ListingPage(repository: repo),
                 ),
               ),
-              icon: const PropertyIllustration('home', size: 34),
+              icon: const FeatureSymbol('home', size: 34),
               label: Text(words(context, 'addProperty')),
             )
           : null,

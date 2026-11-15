@@ -90,17 +90,9 @@ const marketplaceWords = <String, (String, String)>{
     'Choose a property type. We will build the title and description from your answers; no typing is needed.',
     'اختار نوع العقار، وهنجهّز العنوان والوصف تلقائيًا من إجاباتك من غير كتابة.',
   ),
-  'writeDetails': (
-    'Write my own title and description (optional)',
-    'أكتب العنوان والوصف بنفسي (اختياري)',
-  ),
-  'generatedPreview': (
-    'Automatic preview · updates with your answers',
-    'معاينة تلقائية · بتتحدث مع إجاباتك',
-  ),
   'areaLocationHint': (
-    'The selected area is the approximate public location. You can add a landmark or coordinates if you wish.',
-    'المنطقة المختارة هي الموقع التقريبي المعلن. ممكن تضيف علامة مميزة أو إحداثيات لو حبيت.',
+    'Choose the residential area, then add a map pin or sharing link if you wish.',
+    'اختار المنطقة السكنية، وممكن تضيف دبوس على الخريطة أو رابط المكان لو حبيت.',
   ),
   'customLandmark': (
     'Add a more detailed location (optional)',
@@ -120,8 +112,8 @@ const marketplaceWords = <String, (String, String)>{
     'اختار نوع الإعلان عشان تكمّل.',
   ),
   'choosePropertyKind': (
-    'Choose a property type, or switch on writing your own details.',
-    'اختار نوع العقار، أو فعّل كتابة التفاصيل بنفسك.',
+    'Choose a property type to continue.',
+    'اختار نوع العقار عشان تكمّل.',
   ),
   'titleTooShort': (
     'The title needs at least 5 characters.',

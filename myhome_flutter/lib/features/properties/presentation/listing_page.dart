@@ -1,3 +1,4 @@
+import '../../../core/widgets/app_layout.dart';
 import 'package:file_selector/file_selector.dart';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ import 'listing_pricing_step.dart';
 import 'listing_choices.dart';
 import 'listing_generated_details.dart';
 import 'listing_location_step.dart';
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_icon.dart';
 
 class ListingPage extends StatefulWidget {
   final PropertyRepository repository;
@@ -72,13 +73,6 @@ class _ListingPageState extends State<ListingPage> {
     child: TextFormField(
       key: ValueKey('${_step}_$key'),
       controller: _controller(key),
-      maxLength: key == 'title'
-          ? 150
-          : key == 'description'
-          ? 5000
-          : key == 'approximate_location'
-          ? 250
-          : null,
       maxLines: lines,
       keyboardType: number
           ? const TextInputType.numberWithOptions(decimal: true)
@@ -86,18 +80,8 @@ class _ListingPageState extends State<ListingPage> {
       decoration: InputDecoration(
         prefixIcon: Padding(
           padding: const EdgeInsets.all(8),
-          child: PropertyIllustration(key, size: 32),
+          child: FeatureSymbol(key, size: 32),
         ),
-        errorText:
-            _invalid &&
-                key == 'title' &&
-                (_cubit.values[key]?.toString().trim().length ?? 0) < 5
-            ? words(context, 'titleTooShort')
-            : _invalid &&
-                  key == 'description' &&
-                  (_cubit.values[key]?.toString().trim().length ?? 0) < 20
-            ? words(context, 'descriptionTooShort')
-            : null,
         labelText: words(
           context,
           {'approximate_location': 'location', 'price': 'ownerPrice'}[key] ??
@@ -130,12 +114,13 @@ class _ListingPageState extends State<ListingPage> {
     ],
   );
   Widget yesNo(String key) => ListingChoiceGrid(
+    compact: true,
     children: [
       for (final value in [true, false])
         ListingChoice(
           key: ValueKey('answer-$key-$value'),
           label: words(context, value ? 'yes' : 'no'),
-          illustration: key,
+          illustration: value ? 'answerYes' : 'answerNo',
           selected: _cubit.values[key] == value,
           onTap: () => _set(key, value),
         ),
@@ -252,39 +237,6 @@ class _ListingPageState extends State<ListingPage> {
                   ),
               ],
             ),
-            const SizedBox(height: 16),
-            SwitchListTile.adaptive(
-              contentPadding: EdgeInsets.zero,
-              secondary: const ColorSymbol(Icons.edit_note),
-              title: Text(words(context, 'writeDetails')),
-              value: _cubit.manualDetails,
-              onChanged: (value) => setState(() {
-                _cubit.manualDetails = value;
-                updateGeneratedDetails(context, _cubit, _catalog);
-              }),
-            ),
-            if (_cubit.manualDetails) ...[
-              field('title'),
-              field('description', lines: 5),
-            ] else if (_cubit.propertyKind != null)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        words(context, 'generatedPreview'),
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                      const SizedBox(height: 8),
-                      Text('${_cubit.values['title']}'),
-                      const SizedBox(height: 8),
-                      Text('${_cubit.values['description']}'),
-                    ],
-                  ),
-                ),
-              ),
           ],
         );
       case 'location':
@@ -302,19 +254,6 @@ class _ListingPageState extends State<ListingPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                const PropertyIllustration('dimensions'),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    words(context, 'area_m2'),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -334,7 +273,6 @@ class _ListingPageState extends State<ListingPage> {
                 ])
                   ChoiceChip(
                     key: ValueKey('area-$area'),
-                    avatar: const AppImageIcon(Icons.square_foot, size: 18),
                     label: Text('$area ${words(context, 'squareMetres')}'),
                     selected: _cubit.values['area_m2'] == '$area',
                     onSelected: (_) => _set('area_m2', '$area'),
@@ -423,7 +361,7 @@ class _ListingPageState extends State<ListingPage> {
               onPressed: _cubit.photos.length >= 12
                   ? null
                   : () => pick('photo'),
-              icon: const AppImageIcon(Icons.add_photo_alternate_outlined),
+              icon: const AppIcon(Icons.add_photo_alternate_outlined),
               label: Text(words(context, 'addPhotos')),
             ),
             for (var i = 0; i < _cubit.photos.length; i++)
@@ -435,7 +373,7 @@ class _ListingPageState extends State<ListingPage> {
                   fit: BoxFit.cover,
                   cacheWidth: 120,
                   errorBuilder: (_, _, _) =>
-                      const AppImageIcon(Icons.broken_image_outlined),
+                      const AppIcon(Icons.broken_image_outlined),
                 ),
                 title: Text('${i + 1}. ${_cubit.photos[i].name}'),
                 trailing: Row(
@@ -448,13 +386,13 @@ class _ListingPageState extends State<ListingPage> {
                               final file = _cubit.photos.removeAt(i);
                               _cubit.photos.insert(i - 1, file);
                             }),
-                      icon: const AppImageIcon(Icons.arrow_upward),
+                      icon: const AppIcon(Icons.arrow_upward),
                     ),
                     IconButton(
                       tooltip: words(context, 'remove'),
                       onPressed: () =>
                           setState(() => _cubit.photos.removeAt(i)),
-                      icon: const AppImageIcon(Icons.close),
+                      icon: const AppIcon(Icons.close),
                     ),
                   ],
                 ),
@@ -476,7 +414,7 @@ class _ListingPageState extends State<ListingPage> {
                 labelText: words(context, 'nationalId'),
                 prefixIcon: const Padding(
                   padding: EdgeInsets.all(8),
-                  child: PropertyIllustration('documents', size: 32),
+                  child: AppIcon(Icons.badge_outlined, size: 28),
                 ),
               ),
               onChanged: (value) =>
@@ -497,7 +435,7 @@ class _ListingPageState extends State<ListingPage> {
             OutlinedButton.icon(
               key: const Key('pickIdentity'),
               onPressed: () => pick('identity'),
-              icon: const AppImageIcon(Icons.badge_outlined),
+              icon: const AppIcon(Icons.badge_outlined),
               label: Text(
                 _cubit.identity?.name ?? words(context, 'identityImage'),
               ),
@@ -506,7 +444,7 @@ class _ListingPageState extends State<ListingPage> {
             OutlinedButton.icon(
               key: const Key('pickOwnership'),
               onPressed: () => pick('ownership'),
-              icon: const AppImageIcon(Icons.description_outlined),
+              icon: const AppIcon(Icons.description_outlined),
               label: Text(
                 _cubit.ownership?.name ?? words(context, 'ownershipImage'),
               ),
@@ -514,7 +452,6 @@ class _ListingPageState extends State<ListingPage> {
             CheckboxListTile(
               key: const Key('listingConsent'),
               contentPadding: EdgeInsets.zero,
-              secondary: const ColorSymbol(Icons.verified_user_outlined),
               title: Text(words(context, 'consent')),
               value: _cubit.consent,
               onChanged: (value) => setState(() => _cubit.consent = value!),
@@ -544,7 +481,7 @@ class _ListingPageState extends State<ListingPage> {
             ))
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: PropertyIllustration(entry.key),
+                leading: FeatureSymbol(entry.key),
                 title: Text(
                   words(
                     context,
@@ -595,101 +532,112 @@ class _ListingPageState extends State<ListingPage> {
         step,
   );
   @override
-  Widget build(BuildContext context) =>
-      BlocConsumer<ListingCubit, ListingState>(
-        bloc: _cubit,
-        listener: (context, state) {
-          if (state.submitted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(words(context, 'submitted'))),
-            );
-            Navigator.pop(context, true);
-          }
-        },
-        builder: (context, state) {
-          final steps = _cubit.steps;
-          final step = steps[_step.clamp(0, steps.length - 1)];
-          return PopScope(
-            canPop: !state.busy,
-            child: Scaffold(
-              appBar: AppBar(title: Text(words(context, 'addProperty'))),
-              body: SingleChildScrollView(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 720),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget build(
+    BuildContext context,
+  ) => BlocConsumer<ListingCubit, ListingState>(
+    bloc: _cubit,
+    listener: (context, state) {
+      if (state.submitted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(words(context, 'submitted'))));
+        Navigator.pop(context, true);
+      }
+    },
+    builder: (context, state) {
+      final steps = _cubit.steps;
+      final step = steps[_step.clamp(0, steps.length - 1)];
+      return PopScope(
+        canPop: !state.busy,
+        child: AppScaffold(
+          appBar: AppBar(title: Text(words(context, 'addProperty'))),
+          body: SingleChildScrollView(
+            child: Center(
+              child: ConstrainedBox(
+                key: const Key('listingContent'),
+                constraints: BoxConstraints(
+                  maxWidth: AppLayout.formWidth(context),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(AppLayout.gutter(context)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      LinearProgressIndicator(
+                        value: state.busy
+                            ? state.progress
+                            : (_step + 1) / steps.length,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        '${_step + 1} / ${steps.length}',
+                        textDirection: TextDirection.ltr,
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
                         children: [
-                          LinearProgressIndicator(
-                            value: state.busy
-                                ? state.progress
-                                : (_step + 1) / steps.length,
+                          FeatureSymbol(
+                            step,
+                            size: AppLayout.wide(context) ? 48 : 36,
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            '${_step + 1} / ${steps.length}',
-                            textDirection: TextDirection.ltr,
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              title(step),
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
                           ),
-                          const SizedBox(height: 24),
-                          Row(
-                            children: [
-                              PropertyIllustration(step, size: 64),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Text(
-                                  title(step),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.headlineSmall,
-                                ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      IgnorePointer(
+                        ignoring: state.busy,
+                        child: AnimatedSwitcher(
+                          duration: MediaQuery.disableAnimationsOf(context)
+                              ? Duration.zero
+                              : const Duration(milliseconds: 220),
+                          child: KeyedSubtree(
+                            key: ValueKey(step),
+                            child: content(step),
+                          ),
+                        ),
+                      ),
+                      if (_invalid || state.error != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Semantics(
+                            liveRegion: true,
+                            child: Text(
+                              words(
+                                context,
+                                state.error ??
+                                    _cubit.validationIssue(step) ??
+                                    'required',
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          IgnorePointer(
-                            ignoring: state.busy,
-                            child: AnimatedSwitcher(
-                              duration: MediaQuery.disableAnimationsOf(context)
-                                  ? Duration.zero
-                                  : const Duration(milliseconds: 220),
-                              child: KeyedSubtree(
-                                key: ValueKey(step),
-                                child: content(step),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
                               ),
                             ),
                           ),
-                          if (_invalid || state.error != null)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: Semantics(
-                                liveRegion: true,
-                                child: Text(
-                                  words(
-                                    context,
-                                    state.error ??
-                                        _cubit.validationIssue(step) ??
-                                        'required',
-                                  ),
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.error,
-                                  ),
+                        ),
+                      const SizedBox(height: 28),
+                      LayoutBuilder(
+                        builder: (context, constraints) => OverflowBar(
+                          alignment: _step > 0
+                              ? MainAxisAlignment.spaceBetween
+                              : MainAxisAlignment.end,
+                          overflowAlignment: OverflowBarAlignment.end,
+                          spacing: 12,
+                          overflowSpacing: 12,
+                          children: [
+                            if (_step > 0)
+                              SizedBox(
+                                width: AppLayout.actionWidth(
+                                  context,
+                                  constraints.maxWidth,
                                 ),
-                              ),
-                            ),
-                          const SizedBox(height: 28),
-                          OverflowBar(
-                            alignment: MainAxisAlignment.spaceBetween,
-                            overflowAlignment: OverflowBarAlignment.end,
-                            spacing: 12,
-                            overflowSpacing: 12,
-                            children: [
-                              if (_step > 0)
-                                TextButton.icon(
-                                  icon: const AppImageIcon(
-                                    Icons.arrow_back_rounded,
-                                  ),
+                                child: TextButton.icon(
+                                  icon: const AppIcon(Icons.arrow_back_rounded),
                                   onPressed: state.busy
                                       ? null
                                       : () => setState(() {
@@ -699,9 +647,15 @@ class _ListingPageState extends State<ListingPage> {
                                         }),
                                   label: Text(words(context, 'back')),
                                 ),
-                              FilledButton.icon(
+                              ),
+                            SizedBox(
+                              width: AppLayout.actionWidth(
+                                context,
+                                constraints.maxWidth,
+                              ),
+                              child: FilledButton.icon(
                                 key: const Key('listingContinue'),
-                                icon: AppImageIcon(
+                                icon: AppIcon(
                                   _step == steps.length - 1
                                       ? Icons.verified_outlined
                                       : Icons.arrow_forward_rounded,
@@ -739,16 +693,18 @@ class _ListingPageState extends State<ListingPage> {
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
             ),
-          );
-        },
+          ),
+        ),
       );
+    },
+  );
 }

@@ -1,4 +1,5 @@
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_layout.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -175,7 +176,7 @@ class _SalesListPageState extends State<SalesListPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppScaffold(
     appBar: AppBar(
       title: Text(
         salesText(
@@ -186,7 +187,7 @@ class _SalesListPageState extends State<SalesListPage> {
       actions: [
         IconButton(
           onPressed: () => setState(_reload),
-          icon: const AppImageIcon(Icons.refresh),
+          icon: const AppIcon(Icons.refresh),
         ),
       ],
     ),
@@ -216,10 +217,10 @@ class _SalesListPageState extends State<SalesListPage> {
             for (final row in rows)
               Card(
                 child: ListTile(
-                  leading: const AppImageIcon(Icons.handshake_outlined),
+                  leading: const AppIcon(Icons.handshake_outlined),
                   title: Text(row['title'] as String),
                   subtitle: Text(salesText(context, row['stage'] as String)),
-                  trailing: const AppImageIcon(Icons.chevron_right),
+                  trailing: const AppIcon(Icons.chevron_right),
                   onTap: () async {
                     await Navigator.push(
                       context,
@@ -288,7 +289,7 @@ class _SalesDetailPageState extends State<SalesDetailPage> {
     padding: const EdgeInsets.only(top: 8),
     child: OutlinedButton.icon(
       onPressed: _cubit.state.busy ? null : run,
-      icon: AppImageIcon(icon),
+      icon: AppIcon(icon),
       label: Text(salesText(context, label)),
     ),
   );
@@ -440,7 +441,7 @@ class _SalesDetailPageState extends State<SalesDetailPage> {
     builder: (context, state) {
       final data = state.deal;
       if (data == null) {
-        return Scaffold(
+        return AppScaffold(
           appBar: AppBar(title: Text(salesText(context, 'deals'))),
           body: Center(
             child: state.busy
@@ -459,13 +460,13 @@ class _SalesDetailPageState extends State<SalesDetailPage> {
       final agreed = side == 'buyer'
           ? data['buyer_consented'] == true
           : data['seller_consented'] == true;
-      return Scaffold(
+      return AppScaffold(
         appBar: AppBar(
           title: Text(data['title'] as String),
           actions: [
             IconButton(
               onPressed: state.busy ? null : _cubit.load,
-              icon: const AppImageIcon(Icons.refresh),
+              icon: const AppIcon(Icons.refresh),
             ),
           ],
         ),
@@ -473,7 +474,9 @@ class _SalesDetailPageState extends State<SalesDetailPage> {
           padding: const EdgeInsets.all(20),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 840),
+              constraints: BoxConstraints(
+                maxWidth: AppLayout.formWidth(context),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -801,7 +804,7 @@ class _SalesDetailPageState extends State<SalesDetailPage> {
                                           invoice as Map,
                                         ),
                                       ),
-                                icon: const AppImageIcon(Icons.qr_code),
+                                icon: const AppIcon(Icons.qr_code),
                                 tooltip: salesText(context, 'pay'),
                               )
                             : null,
@@ -916,7 +919,7 @@ class _ReviewDocumentsPageState extends State<ReviewDocumentsPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppScaffold(
     appBar: AppBar(title: Text(salesText(context, 'documents'))),
     body: FutureBuilder(
       future: _documents,

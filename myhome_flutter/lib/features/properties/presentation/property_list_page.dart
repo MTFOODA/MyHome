@@ -1,4 +1,5 @@
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_layout.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../domain/property_repository.dart';
@@ -65,7 +66,9 @@ class _PropertyListPageState extends State<PropertyListPage> {
           separatorBuilder: (_, _) => const SizedBox(height: 16),
           itemBuilder: (context, index) => Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 700),
+              constraints: BoxConstraints(
+                maxWidth: AppLayout.formWidth(context),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -100,7 +103,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
       },
     );
     if (widget.embedded) return body;
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text(words(context, widget.mine ? 'manageProperties' : 'save')),
       ),
@@ -116,7 +119,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
                 );
                 if (mounted) setState(_load);
               },
-              child: const AppImageIcon(Icons.add),
+              child: const AppIcon(Icons.add),
             )
           : null,
     );

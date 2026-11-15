@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/config/marketplace_strings.dart';
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../domain/location_repository.dart';
 
 class MapPropertyPin {
@@ -98,7 +98,7 @@ class _PropertyMapState extends State<PropertyMap> {
             button: true,
             child: GestureDetector(
               onTap: () => widget.onProperty?.call(property.id),
-              child: const PropertyIllustration('home', size: 48),
+              child: const FeatureSymbol('home', size: 48),
             ),
           ),
         ),
@@ -154,10 +154,7 @@ class _PropertyMapState extends State<PropertyMap> {
                             disableDrag: widget.onSelected == null || _offline,
                             builder: (_, _, _) => Semantics(
                               label: words(context, 'dragPin'),
-                              child: const PropertyIllustration(
-                                'location',
-                                size: 56,
-                              ),
+                              child: const FeatureSymbol('location', size: 56),
                             ),
                             onDragStart: (_, _) => _dragging = true,
                             onDragUpdate: (_, point) => widget.onSelected?.call(

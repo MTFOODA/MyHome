@@ -1,4 +1,5 @@
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_layout.dart';
+import '../../../core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
@@ -48,7 +49,7 @@ class _OwnerPortfolioPageState extends State<OwnerPortfolioPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppScaffold(
     appBar: AppBar(title: Text(words(context, 'manageProperties'))),
     floatingActionButton:
         (context.watch<AuthCubit>().state.account?.canManageProperties ?? false)
@@ -62,7 +63,7 @@ class _OwnerPortfolioPageState extends State<OwnerPortfolioPage> {
               );
               if (mounted) setState(_reload);
             },
-            child: const AppImageIcon(Icons.add),
+            child: const AppIcon(Icons.add),
           )
         : null,
     body: FutureBuilder(
@@ -96,7 +97,9 @@ class _OwnerPortfolioPageState extends State<OwnerPortfolioPage> {
               for (final count in snapshot.data!)
                 Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 760),
+                    constraints: BoxConstraints(
+                      maxWidth: AppLayout.formWidth(context),
+                    ),
                     child: Card(
                       child: Padding(
                         padding: const EdgeInsets.all(20),
@@ -105,7 +108,7 @@ class _OwnerPortfolioPageState extends State<OwnerPortfolioPage> {
                           children: [
                             ListTile(
                               contentPadding: EdgeInsets.zero,
-                              leading: AppImageIcon(
+                              leading: AppIcon(
                                 count.group == 'sale'
                                     ? Icons.sell_outlined
                                     : count.group == 'shared_rental'
@@ -135,7 +138,7 @@ class _OwnerPortfolioPageState extends State<OwnerPortfolioPage> {
                             TextButton.icon(
                               onPressed: () =>
                                   _open(count.group, history: true),
-                              icon: const AppImageIcon(Icons.history),
+                              icon: const AppIcon(Icons.history),
                               label: Text(
                                 '${words(context, 'history')} (${count.history})',
                               ),
@@ -228,7 +231,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
     BuildContext context,
   ) => BlocBuilder<OwnerListingsCubit, OwnerListingsState>(
     bloc: _cubit,
-    builder: (context, state) => Scaffold(
+    builder: (context, state) => AppScaffold(
       appBar: AppBar(
         title: Text(
           '${words(context, widget.group)}${state.loading ? '' : ' (${state.total})'}',
@@ -237,7 +240,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
           IconButton(
             tooltip: words(context, 'refresh'),
             onPressed: () => _cubit.search(),
-            icon: const AppImageIcon(Icons.refresh),
+            icon: const AppIcon(Icons.refresh),
           ),
         ],
       ),
@@ -256,7 +259,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                     ButtonSegment(
                       value: 'history',
                       label: Text(words(context, 'history')),
-                      icon: const AppImageIcon(Icons.history),
+                      icon: const AppIcon(Icons.history),
                     ),
                   ],
                   selected: {_cubit.scope},
@@ -290,14 +293,14 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                         decoration: InputDecoration(
                           labelText: words(context, 'quickSearch'),
                           counterText: '',
-                          prefixIcon: const AppImageIcon(Icons.search),
+                          prefixIcon: const AppIcon(Icons.search),
                           suffixIcon: IconButton(
                             tooltip: words(context, 'reset'),
                             onPressed: () {
                               controller.clear();
                               _cubit.search(text: '');
                             },
-                            icon: const AppImageIcon(Icons.close),
+                            icon: const AppIcon(Icons.close),
                           ),
                         ),
                         onSubmitted: (v) => _cubit.search(text: v.trim()),
@@ -372,7 +375,9 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                         final item = state.items[index];
                         return Center(
                           child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 700),
+                            constraints: BoxConstraints(
+                              maxWidth: AppLayout.formWidth(context),
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.only(bottom: 20),
                               child: Column(
@@ -426,7 +431,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                                                       ? 'active'
                                                       : 'paused',
                                                 ),
-                                          icon: AppImageIcon(
+                                          icon: AppIcon(
                                             item.availability == 'paused'
                                                 ? Icons.visibility
                                                 : Icons.visibility_off_outlined,
@@ -441,7 +446,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                                                       ? 'sold'
                                                       : 'rented',
                                                 ),
-                                          icon: const AppImageIcon(
+                                          icon: const AppIcon(
                                             Icons.check_circle_outline,
                                           ),
                                           label: Text(

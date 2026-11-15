@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
-import '../../../core/widgets/property_illustration.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../domain/property_repository.dart';
 
 class PropertyPhoto extends StatefulWidget {
@@ -48,7 +48,7 @@ class _PropertyPhotoState extends State<PropertyPhoto> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const PropertyIllustration('photos', size: 56),
+          const FeatureSymbol('photos', size: 56),
           Text(words(context, 'photoUnavailable'), textAlign: TextAlign.center),
         ],
       ),
@@ -57,7 +57,7 @@ class _PropertyPhotoState extends State<PropertyPhoto> {
   @override
   Widget build(BuildContext context) {
     if (widget.id == null) {
-      return const Center(child: PropertyIllustration('home', size: 80));
+      return const Center(child: FeatureSymbol('home', size: 80));
     }
     if (!widget.private) {
       return Image.network(

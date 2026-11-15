@@ -1,3 +1,11 @@
+## Responsive layout and meaningful icons - 2026-11-16
+
+The latest owner feedback replaces the all-raster icon rule: use distinct semantic native icons for controls and property types. Listing title/description are generated automatically; manual editing is removed. Responsive shared page widths and control sizes are applied throughout Flutter. Backend permissions, all-in pricing and open maps are preserved.
+
+Read [guide 40](40_RESPONSIVE_LAYOUT_AND_ICONS.md). Earlier entries below are historical.
+
+---
+
 ## Visual listing, complete source catalogue and open maps - 2026-11-15
 
 The current increment is documented in [guide 39](39_VISUAL_LISTING_AND_OPEN_MAPS.md): owner drawer Add property, precise Continue validation, generated title/description from illustrated choices, net/gross area, capacity only in shared housing, utilities in one step, conditional furnishing, and authenticated owner covers before approval. Backgrounds follow `UI/ui .jpeg` in the existing teal light/dark palette; authored icons use bundled raster artwork.
