@@ -1,3 +1,4 @@
+import '../../core/widgets/property_illustration.dart';
 import 'package:flutter/material.dart';
 import '../../core/config/locale_config.dart';
 import '../../core/widgets/brand_logo.dart';
@@ -22,7 +23,7 @@ class InfoPage extends StatelessWidget {
                   if (about)
                     const BrandWordmark(width: 240)
                   else
-                    Icon(
+                    AppImageIcon(
                       Icons.explore_outlined,
                       size: 64,
                       color: Theme.of(context).colorScheme.primary,
@@ -61,7 +62,7 @@ class InfoPage extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(
+                                AppImageIcon(
                                   item.$1,
                                   color: Theme.of(context).colorScheme.primary,
                                 ),

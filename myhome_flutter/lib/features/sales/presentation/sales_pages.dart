@@ -1,3 +1,4 @@
+import '../../../core/widgets/property_illustration.dart';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -185,7 +186,7 @@ class _SalesListPageState extends State<SalesListPage> {
       actions: [
         IconButton(
           onPressed: () => setState(_reload),
-          icon: const Icon(Icons.refresh),
+          icon: const AppImageIcon(Icons.refresh),
         ),
       ],
     ),
@@ -215,10 +216,10 @@ class _SalesListPageState extends State<SalesListPage> {
             for (final row in rows)
               Card(
                 child: ListTile(
-                  leading: const Icon(Icons.handshake_outlined),
+                  leading: const AppImageIcon(Icons.handshake_outlined),
                   title: Text(row['title'] as String),
                   subtitle: Text(salesText(context, row['stage'] as String)),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const AppImageIcon(Icons.chevron_right),
                   onTap: () async {
                     await Navigator.push(
                       context,
@@ -287,7 +288,7 @@ class _SalesDetailPageState extends State<SalesDetailPage> {
     padding: const EdgeInsets.only(top: 8),
     child: OutlinedButton.icon(
       onPressed: _cubit.state.busy ? null : run,
-      icon: Icon(icon),
+      icon: AppImageIcon(icon),
       label: Text(salesText(context, label)),
     ),
   );
@@ -464,7 +465,7 @@ class _SalesDetailPageState extends State<SalesDetailPage> {
           actions: [
             IconButton(
               onPressed: state.busy ? null : _cubit.load,
-              icon: const Icon(Icons.refresh),
+              icon: const AppImageIcon(Icons.refresh),
             ),
           ],
         ),
@@ -800,7 +801,7 @@ class _SalesDetailPageState extends State<SalesDetailPage> {
                                           invoice as Map,
                                         ),
                                       ),
-                                icon: const Icon(Icons.qr_code),
+                                icon: const AppImageIcon(Icons.qr_code),
                                 tooltip: salesText(context, 'pay'),
                               )
                             : null,

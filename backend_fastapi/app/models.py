@@ -79,7 +79,12 @@ class Area(Base):
 class Property(Timestamps, Base):
     __tablename__ = "properties"
     __table_args__ = (
-        CheckConstraint("area_m2 > 0 AND price > 0 AND bedrooms >= 0 AND bathrooms > 0 AND capacity > 0"),
+        CheckConstraint(
+            "area_m2 > 0 AND price > 0 AND bedrooms >= 0 AND bathrooms > 0 AND (capacity IS NULL OR capacity > 0)"
+        ),
+        CheckConstraint("category <> 'shared_rental' OR capacity IS NOT NULL"),
+        CheckConstraint("area_measurement IS NULL OR area_measurement IN ('net','gross')"),
+        CheckConstraint("furnished IS NULL OR finishing IN ('lux','super_lux')"),
         CheckConstraint("status IN ('draft','pending','approved','rejected')"),
         Index("properties_discovery_idx", "status", "area_id", "category", "price"),
     )
@@ -93,9 +98,12 @@ class Property(Timestamps, Base):
     latitude: Mapped[Decimal | None] = mapped_column(Numeric(10, 7))
     longitude: Mapped[Decimal | None] = mapped_column(Numeric(10, 7))
     area_m2: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    area_measurement: Mapped[str | None] = mapped_column(String(10))
+    location_url: Mapped[str | None] = mapped_column(String(2048))
+    furnished: Mapped[bool | None] = mapped_column(Boolean)
     bedrooms: Mapped[int] = mapped_column(Integer)
     bathrooms: Mapped[int] = mapped_column(Integer)
-    capacity: Mapped[int] = mapped_column(Integer)
+    capacity: Mapped[int | None] = mapped_column(Integer)
     water: Mapped[bool] = mapped_column(Boolean)
     electricity: Mapped[bool] = mapped_column(Boolean)
     gas: Mapped[bool] = mapped_column(Boolean)

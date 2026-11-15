@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
 import 'auth_cubit.dart';
 import 'auth_page.dart';
+import '../../../core/widgets/property_illustration.dart';
 
 class IntentsPage extends StatefulWidget {
   final bool settings;
@@ -77,11 +78,9 @@ class _IntentsPageState extends State<IntentsPage> {
               padding: const EdgeInsets.all(18),
               child: Row(
                 children: [
-                  Icon(
-                    family == 'owner'
-                        ? Icons.home_work_outlined
-                        : Icons.travel_explore_outlined,
-                    size: 32,
+                  PropertyIllustration(
+                    family == 'owner' ? 'home' : 'location',
+                    size: 48,
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -190,6 +189,10 @@ class _IntentsPageState extends State<IntentsPage> {
                                 type: MaterialType.transparency,
                                 child: CheckboxListTile(
                                   key: ValueKey('intent_$intent'),
+                                  secondary: PropertyIllustration(
+                                    intent,
+                                    size: 40,
+                                  ),
                                   title: Text(
                                     words(
                                       context,

@@ -5,6 +5,7 @@ import '../../core/config/locale_config.dart';
 import '../../core/config/marketplace_strings.dart';
 import '../../core/config/settings_cubit.dart';
 import '../../core/widgets/brand_logo.dart';
+import '../../core/widgets/property_illustration.dart';
 import '../auth/presentation/auth_cubit.dart';
 import '../profile/profile_page.dart';
 import '../properties/domain/property_repository.dart';
@@ -110,7 +111,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             tooltip: l.language,
             onPressed: () => context.read<SettingsCubit>().toggleLanguage(),
-            icon: const Icon(Icons.translate),
+            icon: const AppImageIcon(Icons.translate),
           ),
           if (account == null)
             TextButton(
@@ -141,7 +142,7 @@ class _HomePageState extends State<HomePage> {
               ),
               for (final tab in tabs)
                 ListTile(
-                  leading: Icon(icons[tab]),
+                  leading: ColorSymbol(icons[tab]!),
                   title: Text(labels[tab]!),
                   selected: current == tab,
                   onTap: () {
@@ -149,9 +150,24 @@ class _HomePageState extends State<HomePage> {
                     select(tab);
                   },
                 ),
+              if (account?.canManageProperties ?? false)
+                ListTile(
+                  key: const Key('drawerAddProperty'),
+                  leading: const PropertyIllustration('home'),
+                  title: Text(words(context, 'addProperty')),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<bool>(
+                        builder: (_) => ListingPage(repository: repo),
+                      ),
+                    );
+                  },
+                ),
               if (account != null)
                 ListTile(
-                  leading: const Icon(Icons.add_home_work_outlined),
+                  leading: const PropertyIllustration('home'),
                   title: Text(words(context, 'manageProperties')),
                   onTap: () {
                     Navigator.pop(context);
@@ -168,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               if (account != null)
                 ListTile(
-                  leading: const Icon(Icons.groups_outlined),
+                  leading: const ColorSymbol(Icons.groups_outlined),
                   title: Text(words(context, 'myGroups')),
                   onTap: () {
                     Navigator.pop(context);
@@ -182,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               if (account != null) ...[
                 ListTile(
-                  leading: const Icon(Icons.handshake_outlined),
+                  leading: const ColorSymbol(Icons.handshake_outlined),
                   title: Text(salesText(context, 'deals')),
                   onTap: () {
                     Navigator.pop(context);
@@ -195,7 +211,7 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.receipt_long_outlined),
+                  leading: const ColorSymbol(Icons.receipt_long_outlined),
                   title: Text(salesText(context, 'financeHistory')),
                   onTap: () {
                     Navigator.pop(context);
@@ -211,7 +227,7 @@ class _HomePageState extends State<HomePage> {
               ],
               if (account?.role == 'admin')
                 ListTile(
-                  leading: const Icon(Icons.manage_accounts_outlined),
+                  leading: const ColorSymbol(Icons.manage_accounts_outlined),
                   title: Text(salesText(context, 'salesAdmin')),
                   onTap: () {
                     Navigator.pop(context);
@@ -226,7 +242,7 @@ class _HomePageState extends State<HomePage> {
               if (account?.role == 'admin' ||
                   account?.staffRole == 'document_reviewer')
                 ListTile(
-                  leading: const Icon(Icons.gavel_outlined),
+                  leading: const ColorSymbol(Icons.gavel_outlined),
                   title: Text(salesText(context, 'eligibility')),
                   onTap: () {
                     Navigator.pop(context);
@@ -239,7 +255,7 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
               ListTile(
-                leading: const Icon(Icons.help_outline),
+                leading: const ColorSymbol(Icons.help_outline),
                 title: Text(l.guide),
                 onTap: () {
                   Navigator.pop(context);
@@ -251,7 +267,7 @@ class _HomePageState extends State<HomePage> {
               ),
               if (account?.role == 'admin')
                 ListTile(
-                  leading: const Icon(Icons.fact_check_outlined),
+                  leading: const ColorSymbol(Icons.fact_check_outlined),
                   title: Text(words(context, 'adminQueue')),
                   onTap: () {
                     Navigator.pop(context);
@@ -264,7 +280,7 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
               ListTile(
-                leading: const Icon(Icons.info_outline),
+                leading: const ColorSymbol(Icons.info_outline),
                 title: Text(l.about),
                 onTap: () {
                   Navigator.pop(context);
@@ -329,7 +345,7 @@ class _HomePageState extends State<HomePage> {
                   builder: (_) => ListingPage(repository: repo),
                 ),
               ),
-              icon: const Icon(Icons.add),
+              icon: const PropertyIllustration('home', size: 34),
               label: Text(words(context, 'addProperty')),
             )
           : null,
@@ -339,7 +355,8 @@ class _HomePageState extends State<HomePage> {
         destinations: tabs
             .map(
               (tab) => NavigationDestination(
-                icon: Icon(icons[tab]),
+                key: ValueKey('navigation-$tab'),
+                icon: ColorSymbol(icons[tab]!, size: 20),
                 label: labels[tab]!,
               ),
             )

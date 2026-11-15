@@ -112,7 +112,7 @@ def page(
         else None
     )
     return dict(
-        items=[summary(db, prop) | {"owner_price": str(prop.price)} for prop in props],
+        items=[summary(db, prop, owner_media=True) | {"owner_price": str(prop.price)} for prop in props],
         total=total,
         next_cursor=next_cursor,
         page_size=3,
@@ -151,7 +151,7 @@ def change_availability(
         raise HTTPException(409, "ACTIVE_DEAL_WORKFLOW_REQUIRED")
     target = body.availability
     if prop.availability == target:
-        return summary(db, prop)
+        return summary(db, prop, owner_media=True)
     if prop.closed_at is not None or prop.status != "approved":
         raise HTTPException(409, "APPROVED_OPEN_LISTING_REQUIRED")
     expected = "sold" if prop.category.startswith("sale_") else "rented"
@@ -165,4 +165,4 @@ def change_availability(
             prop.available_beds = 0
     db.add(AuditEvent(actor_id=context[0].id, action=f"listing.{previous}.{target}", target_id=prop.id))
     db.commit()
-    return summary(db, prop)
+    return summary(db, prop, owner_media=True)

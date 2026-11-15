@@ -1,3 +1,4 @@
+import '../../core/widgets/property_illustration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/config/locale_config.dart';
@@ -27,7 +28,7 @@ class ProfilePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (account == null) ...[
-                  const Icon(Icons.person_outline, size: 64),
+                  const AppImageIcon(Icons.person_outline, size: 64),
                   const SizedBox(height: 20),
                   Text(
                     l.guestTitle,
@@ -48,7 +49,7 @@ class ProfilePage extends StatelessWidget {
                               builder: (_) => const IntentsPage(settings: true),
                             ),
                           ),
-                    icon: const Icon(Icons.manage_accounts_outlined),
+                    icon: const AppImageIcon(Icons.manage_accounts_outlined),
                     label: Text(words(context, 'roles')),
                   ),
                   if (account.activeIntent != null)
@@ -84,7 +85,7 @@ class ProfilePage extends StatelessWidget {
                         ListTile(
                           title: Text(l.fullName),
                           subtitle: Text(account.name),
-                          leading: const Icon(Icons.person_outline),
+                          leading: const AppImageIcon(Icons.person_outline),
                         ),
                         const Divider(height: 1),
                         ListTile(
@@ -93,7 +94,7 @@ class ProfilePage extends StatelessWidget {
                             account.email,
                             textDirection: TextDirection.ltr,
                           ),
-                          leading: const Icon(Icons.mail_outline),
+                          leading: const AppImageIcon(Icons.mail_outline),
                         ),
                       ],
                     ),
@@ -108,7 +109,7 @@ class ProfilePage extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                Icon(
+                                AppImageIcon(
                                   account.ownerVerified
                                       ? Icons.verified_outlined
                                       : Icons.shield_outlined,
@@ -151,7 +152,7 @@ class ProfilePage extends StatelessWidget {
                     onPressed: busy
                         ? null
                         : () => context.read<AuthCubit>().refreshProfile(),
-                    icon: const Icon(Icons.refresh),
+                    icon: const AppImageIcon(Icons.refresh),
                     label: Text(l.refreshProfile),
                   ),
                 ],
@@ -162,7 +163,7 @@ class ProfilePage extends StatelessWidget {
                   child: Column(
                     children: [
                       ListTile(
-                        leading: const Icon(Icons.translate),
+                        leading: const AppImageIcon(Icons.translate),
                         title: Text(l.language),
                         trailing: TextButton(
                           onPressed: () =>
@@ -214,7 +215,7 @@ class ProfilePage extends StatelessWidget {
                     onPressed: busy
                         ? null
                         : () => context.read<AuthCubit>().logout(),
-                    icon: const Icon(Icons.logout),
+                    icon: const AppImageIcon(Icons.logout),
                     label: Text(l.signOut),
                   ),
                 ],

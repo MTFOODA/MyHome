@@ -10,7 +10,7 @@
 	header {
 		-Server
 		X-Content-Type-Options nosniff
-		Referrer-Policy no-referrer
+		Referrer-Policy strict-origin-when-cross-origin
 	}
 	@private path /.env* /.git* /artifacts/* /infrastructure/* /backend_fastapi/* /tools/*
 	handle @private {

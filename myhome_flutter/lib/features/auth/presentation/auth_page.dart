@@ -1,3 +1,4 @@
+import '../../../core/widgets/property_illustration.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../core/widgets/brand_logo.dart';
@@ -113,7 +114,7 @@ class _AuthPageState extends State<AuthPage> {
                                   onPressed: busy
                                       ? null
                                       : () => Navigator.pop(context),
-                                  icon: const Icon(
+                                  icon: const AppImageIcon(
                                     Icons.arrow_back,
                                     color: Colors.white,
                                   ),
@@ -128,7 +129,10 @@ class _AuthPageState extends State<AuthPage> {
                                 onPressed: () => context
                                     .read<SettingsCubit>()
                                     .toggleLanguage(),
-                                icon: const Icon(Icons.translate, size: 18),
+                                icon: const AppImageIcon(
+                                  Icons.translate,
+                                  size: 18,
+                                ),
                                 label: Text(
                                   Localizations.localeOf(
                                             context,
@@ -197,7 +201,7 @@ class _AuthPageState extends State<AuthPage> {
                                           maxLength: 100,
                                           decoration: InputDecoration(
                                             labelText: l.fullName,
-                                            prefixIcon: const Icon(
+                                            prefixIcon: const AppImageIcon(
                                               Icons.person_outline,
                                             ),
                                           ),
@@ -222,7 +226,7 @@ class _AuthPageState extends State<AuthPage> {
                                         textInputAction: TextInputAction.next,
                                         decoration: InputDecoration(
                                           labelText: l.email,
-                                          prefixIcon: const Icon(
+                                          prefixIcon: const AppImageIcon(
                                             Icons.mail_outline,
                                           ),
                                         ),
@@ -257,7 +261,7 @@ class _AuthPageState extends State<AuthPage> {
                                         },
                                         decoration: InputDecoration(
                                           labelText: l.password,
-                                          prefixIcon: const Icon(
+                                          prefixIcon: const AppImageIcon(
                                             Icons.lock_outline,
                                           ),
                                           suffixIcon: IconButton(
@@ -267,7 +271,7 @@ class _AuthPageState extends State<AuthPage> {
                                             onPressed: () => setState(
                                               () => _obscure = !_obscure,
                                             ),
-                                            icon: Icon(
+                                            icon: AppImageIcon(
                                               _obscure
                                                   ? Icons
                                                         .visibility_off_outlined
@@ -303,7 +307,7 @@ class _AuthPageState extends State<AuthPage> {
                                           ],
                                           decoration: InputDecoration(
                                             labelText: l.confirmPassword,
-                                            prefixIcon: const Icon(
+                                            prefixIcon: const AppImageIcon(
                                               Icons.lock_outline,
                                             ),
                                             suffixIcon: IconButton(
@@ -314,7 +318,7 @@ class _AuthPageState extends State<AuthPage> {
                                                 () => _obscureConfirm =
                                                     !_obscureConfirm,
                                               ),
-                                              icon: Icon(
+                                              icon: AppImageIcon(
                                                 _obscureConfirm
                                                     ? Icons
                                                           .visibility_off_outlined

@@ -1,3 +1,4 @@
+import '../../../core/widgets/property_illustration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
@@ -51,7 +52,7 @@ class _MyGroupsPageState extends State<MyGroupsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.groups_outlined, size: 40),
+                      const AppImageIcon(Icons.groups_outlined, size: 40),
                       const SizedBox(height: 12),
                       Text(
                         group['title'] as String,
@@ -78,7 +79,7 @@ class _MyGroupsPageState extends State<MyGroupsPage> {
                                   ChatPage(groupId: group['id'] as String),
                             ),
                           ),
-                          icon: const Icon(Icons.chat_outlined),
+                          icon: const AppImageIcon(Icons.chat_outlined),
                           label: Text(salesText(context, 'chat')),
                         )
                       else

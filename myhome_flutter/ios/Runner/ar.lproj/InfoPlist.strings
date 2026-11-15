@@ -1,2 +1,3 @@
 "CFBundleDisplayName" = "بيتي";
 "CFBundleName" = "بيتي";
+"NSLocationWhenInUseUsageDescription" = "بيتي بيستخدم موقع جهازك بس لما تطلبه لتحديد مكان العقار.";

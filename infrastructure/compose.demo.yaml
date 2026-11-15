@@ -7,6 +7,9 @@ services:
       DOCUMENT_KEY: ${DEMO_DOCUMENT_KEY:?Run python tools/setup_demo.py}
       STORAGE_PATH: /data
       OCR_ENABLED: "false"
+      MAP_TILE_URL: ${MAP_TILE_URL:-}
+      MAP_ATTRIBUTION: ${MAP_ATTRIBUTION:-© OpenStreetMap contributors}
+      MAP_ATTRIBUTION_URL: ${MAP_ATTRIBUTION_URL:-https://www.openstreetmap.org/copyright}
       COMMISSION_ENABLED: "true"
       CORS_ORIGINS: http://localhost:8081,http://127.0.0.1:8081
     ports:

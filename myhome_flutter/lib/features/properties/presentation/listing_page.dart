@@ -7,6 +7,10 @@ import '../../auth/presentation/auth_cubit.dart';
 import '../domain/property_repository.dart';
 import 'listing_cubit.dart';
 import 'listing_pricing_step.dart';
+import 'listing_choices.dart';
+import 'listing_generated_details.dart';
+import 'listing_location_step.dart';
+import '../../../core/widgets/property_illustration.dart';
 
 class ListingPage extends StatefulWidget {
   final PropertyRepository repository;
@@ -21,6 +25,23 @@ class _ListingPageState extends State<ListingPage> {
   int _step = 0;
   bool _invalid = false, _catalogFailed = false;
   bool _quoteReady = false;
+  final _controllers = <String, TextEditingController>{};
+
+  TextEditingController _controller(String key) {
+    final text = _cubit.values[key]?.toString() ?? '';
+    final controller = _controllers.putIfAbsent(
+      key,
+      () => TextEditingController(text: text),
+    );
+    if (controller.text != text) {
+      controller.value = TextEditingValue(
+        text: text,
+        selection: TextSelection.collapsed(offset: text.length),
+      );
+    }
+    return controller;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +60,9 @@ class _ListingPageState extends State<ListingPage> {
 
   @override
   void dispose() {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
     _cubit.close();
     super.dispose();
   }
@@ -47,54 +71,108 @@ class _ListingPageState extends State<ListingPage> {
     padding: const EdgeInsets.only(bottom: 18),
     child: TextFormField(
       key: ValueKey('${_step}_$key'),
-      initialValue: _cubit.values[key]?.toString(),
+      controller: _controller(key),
+      maxLength: key == 'title'
+          ? 150
+          : key == 'description'
+          ? 5000
+          : key == 'approximate_location'
+          ? 250
+          : null,
       maxLines: lines,
       keyboardType: number
           ? const TextInputType.numberWithOptions(decimal: true)
           : TextInputType.text,
       decoration: InputDecoration(
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(8),
+          child: PropertyIllustration(key, size: 32),
+        ),
+        errorText:
+            _invalid &&
+                key == 'title' &&
+                (_cubit.values[key]?.toString().trim().length ?? 0) < 5
+            ? words(context, 'titleTooShort')
+            : _invalid &&
+                  key == 'description' &&
+                  (_cubit.values[key]?.toString().trim().length ?? 0) < 20
+            ? words(context, 'descriptionTooShort')
+            : null,
         labelText: words(
           context,
           {'approximate_location': 'location', 'price': 'ownerPrice'}[key] ??
               key,
         ),
       ),
-      onChanged: (value) => setState(
-        () => _cubit.setValue(
-          key,
-          number ? ListingCubit.latinDigits(value) : value,
-        ),
-      ),
+      onChanged: (value) =>
+          _set(key, number ? ListingCubit.latinDigits(value) : value),
     ),
   );
-  Widget choices(String key, List<String> options) => Wrap(
-    spacing: 12,
-    runSpacing: 12,
-    children: options
-        .map(
-          (value) => ChoiceChip(
-            label: Text(words(context, value)),
-            selected: _cubit.values[key] == value,
-            onSelected: (_) => setState(() => _cubit.setValue(key, value)),
-          ),
-        )
-        .toList(),
+  void _set(String key, dynamic value) => setState(() {
+    _cubit.setValue(key, value);
+    if (key == 'finishing' && !['lux', 'super_lux'].contains(value)) {
+      _cubit.values.remove('furnished');
+    }
+    updateGeneratedDetails(context, _cubit, _catalog);
+    if (_invalid && _cubit.valid(_cubit.steps[_step])) _invalid = false;
+  });
+
+  Widget choices(String key, List<String> options) => ListingChoiceGrid(
+    children: [
+      for (final value in options)
+        ListingChoice(
+          key: ValueKey('choice-$key-$value'),
+          label: words(context, value),
+          illustration: value,
+          selected: _cubit.values[key] == value,
+          onTap: () => _set(key, value),
+        ),
+    ],
   );
-  Widget yesNo(String key) => Wrap(
-    spacing: 16,
-    children: [true, false]
-        .map(
-          (value) => ChoiceChip(
-            label: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-              child: Text(words(context, value ? 'yes' : 'no')),
-            ),
-            selected: _cubit.values[key] == value,
-            onSelected: (_) => setState(() => _cubit.setValue(key, value)),
-          ),
-        )
-        .toList(),
+  Widget yesNo(String key) => ListingChoiceGrid(
+    children: [
+      for (final value in [true, false])
+        ListingChoice(
+          key: ValueKey('answer-$key-$value'),
+          label: words(context, value ? 'yes' : 'no'),
+          illustration: key,
+          selected: _cubit.values[key] == value,
+          onTap: () => _set(key, value),
+        ),
+    ],
   );
+
+  Widget quantity(
+    String key, {
+    int minimum = 1,
+    int maximum = 100,
+    List<int> presets = const [1, 2, 3, 4],
+  }) => ListingQuantity(
+    field: key,
+    value: int.tryParse('${_cubit.values[key]}'),
+    minimum: minimum,
+    maximum: maximum,
+    presets: presets,
+    onChanged: (value) => _set(key, '$value'),
+  );
+
+  Future<void> chooseBirthDate() async {
+    final current = DateTime.tryParse(_cubit.birthDate);
+    final date = await showDatePicker(
+      context: context,
+      initialDate: current ?? DateTime(2000),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+    );
+    if (date != null && mounted) {
+      setState(
+        () => _cubit.birthDate =
+            '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}',
+      );
+    }
+  }
+
   Future<void> pick(String kind) async {
     const types = [
       XTypeGroup(
@@ -148,84 +226,170 @@ class _ListingPageState extends State<ListingPage> {
         );
       case 'information':
         return Column(
-          children: [field('title'), field('description', lines: 5)],
-        );
-      case 'location':
-        final ar = Localizations.localeOf(context).languageCode == 'ar';
-        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_catalogFailed)
-              TextButton(
-                onPressed: _load,
-                child: Text(words(context, 'retry')),
-              ),
-            DropdownButtonFormField<String>(
-              initialValue: _cubit.values['governorate_id'] as String?,
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: words(context, 'governorate'),
-              ),
-              items: (_catalog?.governorates ?? [])
-                  .map(
-                    (g) => DropdownMenuItem(
-                      value: g.id,
-                      child: Text(ar ? g.nameAr : g.nameEn),
-                    ),
-                  )
-                  .toList(),
+            Text(words(context, 'automaticDetailsHint')),
+            const SizedBox(height: 16),
+            ListingChoiceGrid(
+              children: [
+                for (final kind in [
+                  'apartment',
+                  'studio',
+                  'duplex',
+                  'villa',
+                  'room',
+                ])
+                  ListingChoice(
+                    key: ValueKey('property-kind-$kind'),
+                    label: words(context, kind),
+                    illustration: kind,
+                    selected: _cubit.propertyKind == kind,
+                    onTap: () => setState(() {
+                      _cubit.propertyKind = kind;
+                      updateGeneratedDetails(context, _cubit, _catalog);
+                      _invalid = false;
+                    }),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              secondary: const ColorSymbol(Icons.edit_note),
+              title: Text(words(context, 'writeDetails')),
+              value: _cubit.manualDetails,
               onChanged: (value) => setState(() {
-                _cubit.setValue('governorate_id', value);
-                _cubit.values.remove('area_id');
+                _cubit.manualDetails = value;
+                updateGeneratedDetails(context, _cubit, _catalog);
               }),
             ),
-            const SizedBox(height: 18),
-            DropdownButtonFormField<String>(
-              key: ValueKey(_cubit.values['governorate_id']),
-              initialValue: _cubit.values['area_id'] as String?,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: words(context, 'area')),
-              items: (_catalog?.areas ?? [])
-                  .where(
-                    (a) => a.governorateId == _cubit.values['governorate_id'],
-                  )
-                  .map(
-                    (a) => DropdownMenuItem(
-                      value: a.id,
-                      child: Text(ar ? a.nameAr : a.nameEn),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) =>
-                  setState(() => _cubit.setValue('area_id', value)),
-            ),
-            const SizedBox(height: 18),
-            field('approximate_location'),
-            field('latitude', number: true),
-            field('longitude', number: true),
+            if (_cubit.manualDetails) ...[
+              field('title'),
+              field('description', lines: 5),
+            ] else if (_cubit.propertyKind != null)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        words(context, 'generatedPreview'),
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text('${_cubit.values['title']}'),
+                      const SizedBox(height: 8),
+                      Text('${_cubit.values['description']}'),
+                    ],
+                  ),
+                ),
+              ),
           ],
+        );
+      case 'location':
+        return ListingLocationStep(
+          cubit: _cubit,
+          catalog: _catalog,
+          catalogFailed: _catalogFailed,
+          reload: _load,
+          changed: () => setState(() {
+            updateGeneratedDetails(context, _cubit, _catalog);
+            _invalid = false;
+          }),
         );
       case 'dimensions':
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            'area_m2',
-            'bedrooms',
-            'bathrooms',
-            'capacity',
-          ].map((key) => field(key, number: true)).toList(),
+            Row(
+              children: [
+                const PropertyIllustration('dimensions'),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    words(context, 'area_m2'),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final area in [
+                  65,
+                  75,
+                  85,
+                  95,
+                  105,
+                  115,
+                  125,
+                  135,
+                  150,
+                  175,
+                  200,
+                ])
+                  ChoiceChip(
+                    key: ValueKey('area-$area'),
+                    avatar: const AppImageIcon(Icons.square_foot, size: 18),
+                    label: Text('$area ${words(context, 'squareMetres')}'),
+                    selected: _cubit.values['area_m2'] == '$area',
+                    onSelected: (_) => _set('area_m2', '$area'),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            field('area_m2', number: true),
+            choices('area_measurement', ['net', 'gross']),
+            const SizedBox(height: 16),
+            quantity('bedrooms', minimum: 0, presets: [0, 1, 2, 3, 4]),
+            quantity('bathrooms'),
+            if (_cubit.values['category'] == 'shared_rental')
+              quantity('capacity', maximum: 500, presets: [1, 2, 4, 6, 8]),
+          ],
         );
-      case 'water':
-      case 'electricity':
-      case 'gas':
+      case 'utilities':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final utility in ['water', 'electricity', 'gas']) ...[
+              Text(
+                words(context, utility),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              yesNo(utility),
+              const SizedBox(height: 24),
+            ],
+          ],
+        );
       case 'elevator':
       case 'negotiable':
         return yesNo(step);
       case 'finishing':
-        return choices('finishing', [
-          'red_brick',
-          'plastered',
-          'lux',
-          'super_lux',
-        ]);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            choices('finishing', [
+              'red_brick',
+              'plastered',
+              'lux',
+              'super_lux',
+            ]),
+            if (['lux', 'super_lux'].contains(_cubit.values['finishing'])) ...[
+              const SizedBox(height: 24),
+              Text(
+                words(context, 'furnished'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              yesNo('furnished'),
+            ],
+          ],
+        );
       case 'pricing':
         return ListingPricingStep(
           cubit: _cubit,
@@ -239,8 +403,13 @@ class _ListingPageState extends State<ListingPage> {
       case 'beds':
         return Column(
           children: [
-            field('total_beds', number: true),
-            field('available_beds', number: true),
+            quantity('total_beds', maximum: 500),
+            quantity(
+              'available_beds',
+              minimum: 0,
+              maximum: 500,
+              presets: [0, 1, 2, 3, 4],
+            ),
           ],
         );
       case 'photos':
@@ -250,10 +419,11 @@ class _ListingPageState extends State<ListingPage> {
             Text(words(context, 'coverHint')),
             const SizedBox(height: 20),
             OutlinedButton.icon(
+              key: const Key('pickPropertyPhotos'),
               onPressed: _cubit.photos.length >= 12
                   ? null
                   : () => pick('photo'),
-              icon: const Icon(Icons.add_photo_alternate_outlined),
+              icon: const AppImageIcon(Icons.add_photo_alternate_outlined),
               label: Text(words(context, 'addPhotos')),
             ),
             for (var i = 0; i < _cubit.photos.length; i++)
@@ -265,7 +435,7 @@ class _ListingPageState extends State<ListingPage> {
                   fit: BoxFit.cover,
                   cacheWidth: 120,
                   errorBuilder: (_, _, _) =>
-                      const Icon(Icons.broken_image_outlined),
+                      const AppImageIcon(Icons.broken_image_outlined),
                 ),
                 title: Text('${i + 1}. ${_cubit.photos[i].name}'),
                 trailing: Row(
@@ -278,13 +448,13 @@ class _ListingPageState extends State<ListingPage> {
                               final file = _cubit.photos.removeAt(i);
                               _cubit.photos.insert(i - 1, file);
                             }),
-                      icon: const Icon(Icons.arrow_upward),
+                      icon: const AppImageIcon(Icons.arrow_upward),
                     ),
                     IconButton(
                       tooltip: words(context, 'remove'),
                       onPressed: () =>
                           setState(() => _cubit.photos.removeAt(i)),
-                      icon: const Icon(Icons.close),
+                      icon: const AppImageIcon(Icons.close),
                     ),
                   ],
                 ),
@@ -298,43 +468,53 @@ class _ListingPageState extends State<ListingPage> {
             Text(words(context, 'privateDocs')),
             const SizedBox(height: 20),
             TextFormField(
+              key: const Key('listingNationalId'),
               initialValue: _cubit.nationalId,
               keyboardType: TextInputType.number,
               maxLength: 14,
               decoration: InputDecoration(
                 labelText: words(context, 'nationalId'),
+                prefixIcon: const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: PropertyIllustration('documents', size: 32),
+                ),
               ),
               onChanged: (value) =>
                   _cubit.nationalId = ListingCubit.latinDigits(value),
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              initialValue: _cubit.birthDate,
-              keyboardType: TextInputType.datetime,
-              decoration: InputDecoration(
-                labelText: words(context, 'birthDate'),
+            OutlinedButton.icon(
+              key: const Key('chooseBirthDate'),
+              onPressed: chooseBirthDate,
+              icon: const ColorSymbol(Icons.calendar_month),
+              label: Text(
+                _cubit.birthDate.isEmpty
+                    ? words(context, 'chooseBirthDate')
+                    : _cubit.birthDate,
               ),
-              onChanged: (value) =>
-                  _cubit.birthDate = ListingCubit.latinDigits(value),
             ),
             const SizedBox(height: 20),
             OutlinedButton.icon(
+              key: const Key('pickIdentity'),
               onPressed: () => pick('identity'),
-              icon: const Icon(Icons.badge_outlined),
+              icon: const AppImageIcon(Icons.badge_outlined),
               label: Text(
                 _cubit.identity?.name ?? words(context, 'identityImage'),
               ),
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
+              key: const Key('pickOwnership'),
               onPressed: () => pick('ownership'),
-              icon: const Icon(Icons.description_outlined),
+              icon: const AppImageIcon(Icons.description_outlined),
               label: Text(
                 _cubit.ownership?.name ?? words(context, 'ownershipImage'),
               ),
             ),
             CheckboxListTile(
+              key: const Key('listingConsent'),
               contentPadding: EdgeInsets.zero,
+              secondary: const ColorSymbol(Icons.verified_user_outlined),
               title: Text(words(context, 'consent')),
               value: _cubit.consent,
               onChanged: (value) => setState(() => _cubit.consent = value!),
@@ -346,19 +526,25 @@ class _ListingPageState extends State<ListingPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (final entry in _cubit.payload().entries.where(
-              (entry) => !{
-                'price',
-                'rental_period',
-                'custom_months',
-                'deposit',
-                'negotiable',
-                'down_payment',
-                'installment_count',
-                'installment_amount',
-              }.contains(entry.key),
+              (entry) =>
+                  !(entry.key == 'capacity' &&
+                      _cubit.values['category'] != 'shared_rental') &&
+                  !{
+                    'latitude',
+                    'longitude',
+                    'price',
+                    'rental_period',
+                    'custom_months',
+                    'deposit',
+                    'negotiable',
+                    'down_payment',
+                    'installment_count',
+                    'installment_amount',
+                  }.contains(entry.key),
             ))
               ListTile(
                 contentPadding: EdgeInsets.zero,
+                leading: PropertyIllustration(entry.key),
                 title: Text(
                   words(
                     context,
@@ -398,7 +584,8 @@ class _ListingPageState extends State<ListingPage> {
   String title(String step) => words(
     context,
     {
-          'information': 'title',
+          'information': 'propertyKind',
+          'utilities': 'listingUtilities',
           'dimensions': 'area_m2',
           'pricing': 'pricingFinal',
           'review': 'propertyReview',
@@ -441,11 +628,24 @@ class _ListingPageState extends State<ListingPage> {
                                 : (_step + 1) / steps.length,
                           ),
                           const SizedBox(height: 12),
-                          Text('${_step + 1} / ${steps.length}'),
-                          const SizedBox(height: 24),
                           Text(
-                            title(step),
-                            style: Theme.of(context).textTheme.headlineSmall,
+                            '${_step + 1} / ${steps.length}',
+                            textDirection: TextDirection.ltr,
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              PropertyIllustration(step, size: 64),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  title(step),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.headlineSmall,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 24),
                           IgnorePointer(
@@ -466,7 +666,12 @@ class _ListingPageState extends State<ListingPage> {
                               child: Semantics(
                                 liveRegion: true,
                                 child: Text(
-                                  words(context, state.error ?? 'required'),
+                                  words(
+                                    context,
+                                    state.error ??
+                                        _cubit.validationIssue(step) ??
+                                        'required',
+                                  ),
                                   style: TextStyle(
                                     color: Theme.of(context).colorScheme.error,
                                   ),
@@ -474,10 +679,17 @@ class _ListingPageState extends State<ListingPage> {
                               ),
                             ),
                           const SizedBox(height: 28),
-                          Row(
+                          OverflowBar(
+                            alignment: MainAxisAlignment.spaceBetween,
+                            overflowAlignment: OverflowBarAlignment.end,
+                            spacing: 12,
+                            overflowSpacing: 12,
                             children: [
                               if (_step > 0)
-                                TextButton(
+                                TextButton.icon(
+                                  icon: const AppImageIcon(
+                                    Icons.arrow_back_rounded,
+                                  ),
                                   onPressed: state.busy
                                       ? null
                                       : () => setState(() {
@@ -485,15 +697,25 @@ class _ListingPageState extends State<ListingPage> {
                                           _quoteReady = false;
                                           _invalid = false;
                                         }),
-                                  child: Text(words(context, 'back')),
+                                  label: Text(words(context, 'back')),
                                 ),
-                              const Spacer(),
-                              FilledButton(
+                              FilledButton.icon(
+                                key: const Key('listingContinue'),
+                                icon: AppImageIcon(
+                                  _step == steps.length - 1
+                                      ? Icons.verified_outlined
+                                      : Icons.arrow_forward_rounded,
+                                ),
                                 onPressed:
                                     state.busy ||
                                         (step == 'pricing' && !_quoteReady)
                                     ? null
                                     : () {
+                                        updateGeneratedDetails(
+                                          context,
+                                          _cubit,
+                                          _catalog,
+                                        );
                                         if (!_cubit.valid(step)) {
                                           setState(() => _invalid = true);
                                           return;
@@ -508,7 +730,7 @@ class _ListingPageState extends State<ListingPage> {
                                           });
                                         }
                                       },
-                                child: Text(
+                                label: Text(
                                   words(
                                     context,
                                     _step == steps.length - 1

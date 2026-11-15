@@ -1,3 +1,22 @@
+## Visual listing, complete source catalogue and open maps - 2026-11-15
+
+The current increment is documented in [guide 39](39_VISUAL_LISTING_AND_OPEN_MAPS.md): owner drawer Add property, precise Continue validation, generated title/description from illustrated choices, net/gross area, capacity only in shared housing, utilities in one step, conditional furnishing, and authenticated owner covers before approval. Backgrounds follow `UI/ui .jpeg` in the existing teal light/dark palette; authored icons use bundled raster artwork.
+
+FlutterMap/OpenStreetMap replaces the proposed Google integration: tap and drag a pin, explicit device permission, independent bounded latitude/longitude persistence, pasted-link parsing without geocoding, protected details/current-results discovery maps, visible attribution and tile-offline fallback. No paid map API/key/billing. Source and attribution can change through API environment config. The public OSM tile service has usage limits; caching/UA/Referer and zero pan prefetch are configured.
+
+Migration head: `20261116_listing_details`; main/demo backups retained before additive migration. Pinned CC BY 4.0 data adds 6,081 districts/shiyakhas across all 27 governorates and retains every old project area ID. No reset/reseed, no assumed net/gross or furnishing values for old listings. Unknown informal/development names remain describable with a landmark/pin.
+
+Verified: **78 Flutter tests, 80 PostgreSQL tests, 11 Worker tests and 8 render tests**; analyzer/Ruff clean. Web release/Android debug and local main/demo API deployment; public Worker HTTP smoke evidence is kept in ignored artifacts. Calls/matching and production banking remain pending. Windows/iOS native builds, physical GPS and browser GUI tests are not claimed. The stable Worker URL still requires the PC/Docker/internet online. Earlier reports below remain historical.
+
+---
+
+- [x] PROP-204: Illustrated listing, actionable validation, owner drawer entry, grouped utilities, area basis, shared-only capacity, conditional furnishing and private owner photos.
+<!-- DONE: PROP-204 | Files: listing_*.dart, property_photo.dart, property_illustration.dart, app_backdrop.dart, schemas.py, properties.py, portfolio.py | Tests: 78 Flutter, 80 PostgreSQL, responsive AR/EN/dark renders | Verified: 2026-11-15 -->
+- [x] MAP-201: Open-source tap/drag property map, explicit permission, persistence, marker viewing, map-link parsing and bounded/offline tile behavior.
+<!-- DONE: MAP-201 | Files: location_repository.dart, device_location_repository.dart, location_picker_*.dart, property_map.dart, map_links.py, catalog.py | Tests: real marker drag/fallback tests and PostgreSQL coordinate persistence/security tests | Verified: 2026-11-15 -->
+- [x] LOC-202: Pinned 6,081-row open-data catalogue for all 27 governorates, searchable selector and additive import preserving existing IDs.
+<!-- DONE: LOC-202 | Files: app/data/, 20261116_listing_details.py, location_option_picker.dart | Tests: actual migration, coverage/uniqueness/legacy ID tests, public API checks | Verified: 2026-11-15 -->
+
 ## Current onboarding, final-step calculator and stable Worker gateway - 2026-11-15
 
 This verified increment supersedes earlier onboarding fee-placement and temporary-link-only instructions; historical reports remain below. First login uses owner/seeker families with explicit subtypes and multiple intents. Pricing and commission details appear only in the final listing pricing step, with easy rental duration selection and an automatic server-calculated all-in quote. Existing fixed-reference money rules and backend role enforcement are preserved; no database/schema migration was added.

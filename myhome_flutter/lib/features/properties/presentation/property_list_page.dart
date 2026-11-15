@@ -1,3 +1,4 @@
+import '../../../core/widgets/property_illustration.dart';
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../domain/property_repository.dart';
@@ -115,7 +116,7 @@ class _PropertyListPageState extends State<PropertyListPage> {
                 );
                 if (mounted) setState(_load);
               },
-              child: const Icon(Icons.add),
+              child: const AppImageIcon(Icons.add),
             )
           : null,
     );

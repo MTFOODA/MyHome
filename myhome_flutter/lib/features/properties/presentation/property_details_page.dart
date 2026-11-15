@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+import '../../../core/widgets/property_illustration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../auth/presentation/auth_cubit.dart';
@@ -9,6 +9,9 @@ import '../../sales/presentation/financial_card.dart';
 import '../../sales/presentation/sales_strings.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../domain/property_repository.dart';
+import '../domain/location_repository.dart';
+import 'property_map.dart';
+import 'property_photo.dart';
 
 class PropertyDetailsPage extends StatefulWidget {
   final String id;
@@ -25,7 +28,6 @@ class PropertyDetailsPage extends StatefulWidget {
 class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
   late Future<Map<String, dynamic>> _details;
   bool _saving = false;
-  final _privatePhotos = <String, Future<List<int>>>{};
   @override
   void initState() {
     super.initState();
@@ -59,7 +61,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.info_outline, size: 56),
+                  const AppImageIcon(Icons.info_outline, size: 56),
                   const SizedBox(height: 16),
                   Text(
                     data['title'] as String,
@@ -100,50 +102,33 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                       SizedBox(
                         height: 300,
                         child: PageView(
-                          children: photos
-                              .map(
-                                (id) => Padding(
-                                  padding: const EdgeInsets.all(4),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: account?.id == data['owner_id']
-                                        ? FutureBuilder(
-                                            future: _privatePhotos.putIfAbsent(
-                                              id,
-                                              () => widget.repository
-                                                  .privateImage(id),
-                                            ),
-                                            builder: (context, snapshot) =>
-                                                snapshot.hasData
-                                                ? Image.memory(
-                                                    Uint8List.fromList(
-                                                      snapshot.data!,
-                                                    ),
-                                                    fit: BoxFit.cover,
-                                                  )
-                                                : const Center(
-                                                    child: Icon(
-                                                      Icons.image_outlined,
-                                                    ),
-                                                  ),
-                                          )
-                                        : Image.network(
-                                            widget.repository.photoUrl(id),
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, _, _) => const Center(
-                                              child: Icon(
-                                                Icons
-                                                    .image_not_supported_outlined,
-                                              ),
-                                            ),
-                                          ),
+                          children: [
+                            for (final id in photos)
+                              Padding(
+                                padding: const EdgeInsets.all(4),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: PropertyPhoto(
+                                    id: id,
+                                    repository: widget.repository,
+                                    private:
+                                        account?.id == data['owner_id'] ||
+                                        account?.role == 'admin',
                                   ),
                                 ),
-                              )
-                              .toList(),
+                              ),
+                          ],
                         ),
                       ),
                     const SizedBox(height: 20),
+                    if (PropertyLocation.fromValues(data)
+                        case final point?) ...[
+                      SizedBox(
+                        height: 310,
+                        child: PropertyMap(selected: point),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     Text(
                       data['title'] as String,
                       style: Theme.of(context).textTheme.headlineMedium,
@@ -216,7 +201,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                                 }
                                 if (mounted) setState(() => _saving = false);
                               },
-                        icon: const Icon(Icons.handshake_outlined),
+                        icon: const AppImageIcon(Icons.handshake_outlined),
                         label: Text(salesText(context, 'start')),
                       ),
                     const SizedBox(height: 24),
@@ -226,7 +211,9 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                       'area_m2',
                       'bedrooms',
                       'bathrooms',
-                      'capacity',
+                      if (data['category'] == 'shared_rental') 'capacity',
+                      if (data['area_measurement'] != null) 'area_measurement',
+                      if (data['furnished'] != null) 'furnished',
                       'finishing',
                       'water',
                       'electricity',
@@ -344,7 +331,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                               }
                               if (mounted) setState(() => _saving = false);
                             },
-                      icon: const Icon(Icons.favorite_border),
+                      icon: const AppImageIcon(Icons.favorite_border),
                       label: Text(words(context, 'save')),
                     ),
                   ],

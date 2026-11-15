@@ -11,6 +11,8 @@ import '../features/auth/presentation/auth_page.dart';
 import '../features/auth/presentation/intents_page.dart';
 import '../features/home/home_page.dart';
 import '../features/properties/domain/property_repository.dart';
+import '../features/properties/domain/location_repository.dart';
+import '../core/widgets/app_backdrop.dart';
 import '../features/sales/domain/sales_repository.dart';
 import '../features/chat/domain/chat_repository.dart';
 import '../localizations/app_localizations.dart';
@@ -21,10 +23,12 @@ class MyHome extends StatelessWidget {
   final SalesRepository? salesRepository;
   final ChatRepository? chatRepository;
   final SettingsCubit? settings;
+  final LocationRepository? locationRepository;
   const MyHome({
     super.key,
     this.repository,
     this.settings,
+    this.locationRepository,
     this.propertyRepository,
     this.salesRepository,
     this.chatRepository,
@@ -42,6 +46,11 @@ class MyHome extends StatelessWidget {
     ],
     child: MultiRepositoryProvider(
       providers: [
+        if (locationRepository != null ||
+            locator.isRegistered<LocationRepository>())
+          RepositoryProvider<LocationRepository>.value(
+            value: locationRepository ?? locator<LocationRepository>(),
+          ),
         RepositoryProvider<PropertyRepository>.value(
           value: propertyRepository ?? locator<PropertyRepository>(),
         ),
@@ -57,6 +66,8 @@ class MyHome extends StatelessWidget {
       child: BlocBuilder<SettingsCubit, AppSettings>(
         builder: (context, state) => MaterialApp(
           debugShowCheckedModeBanner: false,
+          builder: (context, child) =>
+              AppBackdrop(child: child ?? const SizedBox.shrink()),
           onGenerateTitle: (context) => context.l10n.appName,
           theme: ThemeConfig.lightTheme(),
           darkTheme: ThemeConfig.darkTheme(),

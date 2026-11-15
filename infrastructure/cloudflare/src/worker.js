@@ -63,6 +63,7 @@ export async function handleRequest(request, env, upstreamFetch = fetch) {
     responseHeaders.set("Cache-Control", "no-store");
     responseHeaders.set("Pragma", "no-cache");
     responseHeaders.set("X-Content-Type-Options", "nosniff");
+    responseHeaders.set("Referrer-Policy", "strict-origin-when-cross-origin");
     for (const name of ["set-cookie", "content-length", "access-control-allow-origin",
       "access-control-allow-credentials", "access-control-allow-headers", "access-control-allow-methods"]) responseHeaders.delete(name);
     const location = responseHeaders.get("location");

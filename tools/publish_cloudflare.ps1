@@ -32,7 +32,8 @@ try {
     }
     # Publish only the small gateway. Flutter files stay on the isolated demo-web
     # service; the Worker forwards both Web and API to that controlled origin.
-    $taskInputs = @($ApiOrigin, (Get-Content -LiteralPath (Join-Path $taskArtifacts 'share-web.fingerprint') -Raw))
+    # The Worker is a gateway: updating Flutter files needs no Worker upload.
+    $taskInputs = @($ApiOrigin)
     foreach ($taskFile in @('wrangler.jsonc', 'package-lock.json', 'src/worker.js')) {
         $taskInputs += (Get-FileHash -LiteralPath $taskFile -Algorithm SHA256).Hash
     }
@@ -58,13 +59,18 @@ try {
         $taskLines = [System.Collections.Generic.List[string]]::new()
         Set-Content -LiteralPath $LogPath -Value '' -Encoding UTF8
         try {
-            & node '--import=./scripts/wrangler-network.mjs' (Join-Path $taskPackage 'node_modules/wrangler/bin/wrangler.js') @Arguments 2>&1 | ForEach-Object {
+            for ($taskNetworkAttempt = 0; $taskNetworkAttempt -lt 2; $taskNetworkAttempt++) {
+              & node '--import=./scripts/wrangler-network.mjs' (Join-Path $taskPackage 'node_modules/wrangler/bin/wrangler.js') @Arguments 2>&1 | ForEach-Object {
                 $taskLine = if ($_ -is [System.Management.Automation.ErrorRecord]) { $_.Exception.Message } else { $_.ToString() }
                 $taskLines.Add($taskLine)
                 Add-Content -LiteralPath $LogPath -Value $taskLine -Encoding UTF8
                 if ($ShowOutput) { Write-Host $taskLine }
             }
-            $taskExit = $LASTEXITCODE
+              $taskExit = $LASTEXITCODE
+              if ($taskExit -eq 0 -or $taskNetworkAttempt -gt 0 -or ($taskLines -join "`n") -notmatch 'fetch failed|CONNECT_TIMEOUT|ECONNRESET|ETIMEDOUT') { break }
+              Write-Host 'Temporary Cloudflare connection failure; retrying once...'
+              Start-Sleep -Seconds 2
+            }
         } finally { $ErrorActionPreference = $taskPriorPreference }
         if ($taskExit -ne 0) {
             throw "Cloudflare command failed. See $LogPath. If your session expired, run infrastructure/cloudflare/node_modules/.bin/wrangler.cmd login."

@@ -26,7 +26,7 @@ def owned(db, user, property_id):
     return prop
 
 
-def summary(db, prop):
+def summary(db, prop, *, owner_media=False):
     photo = db.scalar(select(Asset).where(Asset.property_id == prop.id, Asset.kind == "photo").order_by(Asset.position))
     area = db.get(Area, prop.area_id)
     return dict(
@@ -38,7 +38,11 @@ def summary(db, prop):
         area_m2=str(prop.area_m2),
         bedrooms=prop.bedrooms,
         bathrooms=prop.bathrooms,
-        capacity=prop.capacity,
+        capacity=prop.capacity if prop.category == "shared_rental" else None,
+        area_measurement=prop.area_measurement,
+        furnished=prop.furnished,
+        latitude=str(prop.latitude) if prop.latitude is not None else None,
+        longitude=str(prop.longitude) if prop.longitude is not None else None,
         area_id=prop.area_id,
         location_ar=area.name_ar,
         location_en=area.name_en,
@@ -61,7 +65,10 @@ def summary(db, prop):
         else "month"
         if prop.reference_months
         else "sale",
-        cover_id=str(photo.id) if photo and prop.status == "approved" and prop.availability == "active" else None,
+        cover_id=str(photo.id)
+        if photo and (owner_media or (prop.status == "approved" and prop.availability == "active"))
+        else None,
+        cover_private=owner_media,
     )
 
 
@@ -179,7 +186,7 @@ def discover(
 def mine(context=Depends(authenticated), db: Session = Depends(db_session)):
     return {
         "items": [
-            summary(db, prop)
+            summary(db, prop, owner_media=True)
             for prop in db.scalars(
                 select(Property)
                 .where(Property.owner_id == context[0].id)
@@ -315,7 +322,7 @@ def details(property_id: UUID, context=Depends(authenticated), db: Session = Dep
         if candidate and favorite:
             return saved_tombstone(favorite, candidate)
         raise HTTPException(404, "PROPERTY_NOT_FOUND")
-    result = summary(db, prop)
+    result = summary(db, prop, owner_media=prop.owner_id == context[0].id)
     result.update(
         ListingInput.model_validate({field: getattr(prop, field) for field in ListingInput.model_fields}).model_dump(
             mode="json"

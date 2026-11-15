@@ -82,9 +82,12 @@ class ListingInput(StrictModel):
     latitude: Decimal | None = Field(default=None, ge=22, le=32)
     longitude: Decimal | None = Field(default=None, ge=24, le=37)
     area_m2: Decimal = Field(gt=0, le=100000, decimal_places=2)
+    area_measurement: Literal["net", "gross"] | None = None
+    furnished: StrictBool | None = None
+    location_url: str | None = Field(default=None, max_length=2048)
     bedrooms: int = Field(ge=0, le=100)
     bathrooms: int = Field(ge=1, le=100)
-    capacity: int = Field(ge=1, le=500)
+    capacity: int | None = Field(default=None, ge=1, le=500)
     water: StrictBool
     electricity: StrictBool
     gas: StrictBool
@@ -103,6 +106,13 @@ class ListingInput(StrictModel):
 
     @model_validator(mode="after")
     def conditional_fields(self):
+        if self.category != "shared_rental":
+            self.capacity = None  # Not an occupancy claim for sale or private rental.
+        if self.finishing not in ("lux", "super_lux") and self.furnished is not None:
+            raise ValueError("FURNISHING_NOT_APPLICABLE")
+        if self.location_url:
+            from app.map_links import validate_map_url
+            self.location_url = validate_map_url(self.location_url)
         if (self.latitude is None) != (self.longitude is None):
             raise ValueError("COORDINATES_REQUIRE_BOTH")
         rental = self.category in ("private_rental", "shared_rental")
@@ -125,6 +135,7 @@ class ListingInput(StrictModel):
             if (
                 self.total_beds is None
                 or self.available_beds is None
+                or self.capacity is None
                 or self.available_beds > self.total_beds
                 or self.total_beds > self.capacity
             ):

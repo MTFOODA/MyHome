@@ -2,7 +2,11 @@ class PropertySummary {
   final String id, title, category, price, areaM2, locationAr, locationEn;
   final String? coverId;
   final bool negotiable;
-  final int bedrooms, bathrooms, capacity;
+  final int bedrooms, bathrooms;
+  final int? capacity;
+  final bool coverPrivate;
+  final double? latitude, longitude;
+  final String? areaMeasurement;
   final String status;
   final String availability;
   final bool unavailable;
@@ -20,6 +24,10 @@ class PropertySummary {
     required this.bedrooms,
     required this.bathrooms,
     required this.capacity,
+    this.coverPrivate = false,
+    this.latitude,
+    this.longitude,
+    this.areaMeasurement,
     this.coverId,
     this.status = 'approved',
     this.availability = 'active',
@@ -39,7 +47,11 @@ class PropertySummary {
         negotiable: value['negotiable'] as bool,
         bedrooms: value['bedrooms'] as int,
         bathrooms: value['bathrooms'] as int,
-        capacity: value['capacity'] as int,
+        capacity: value['capacity'] as int?,
+        coverPrivate: value['cover_private'] == true,
+        latitude: double.tryParse('${value['latitude']}'),
+        longitude: double.tryParse('${value['longitude']}'),
+        areaMeasurement: value['area_measurement'] as String?,
         coverId: value['cover_id'] as String?,
         status: value['status'] as String? ?? 'approved',
         availability: value['availability'] as String? ?? 'active',

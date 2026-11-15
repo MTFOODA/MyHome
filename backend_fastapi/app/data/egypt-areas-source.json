@@ -1,0 +1,9 @@
+{
+  "source": "https://github.com/open-admin-data/egypt-administrative-divisions",
+  "commit": "76b47b22872288c0d8b0c757975980e6986945e8",
+  "license": "CC-BY-4.0",
+  "date": "2026-09-08",
+  "transform": "Preserve source record IDs with oad prefix; map governors to existing stable project IDs; append parent district to local-area labels. Coordinates not imported or presented as property locations.",
+  "records": 6081,
+  "sha256": "4198939b8346d8c251d4f484cc7b5ba263a6f22f81b693fd01baccb5aa6936f0"
+}

@@ -1,2 +1,3 @@
 "CFBundleDisplayName" = "MyHome";
 "CFBundleName" = "MyHome";
+"NSLocationWhenInUseUsageDescription" = "MyHome uses your device location only when you request it to set the property pin.";

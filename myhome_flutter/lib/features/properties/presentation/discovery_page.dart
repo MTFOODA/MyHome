@@ -1,3 +1,4 @@
+import '../../../core/widgets/property_illustration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
@@ -5,6 +6,8 @@ import '../domain/property_repository.dart';
 import 'discovery_bloc.dart';
 import 'property_card.dart';
 import 'property_filters_sheet.dart';
+import '../domain/location_repository.dart';
+import 'property_map.dart';
 
 class DiscoveryPage extends StatefulWidget {
   final PropertyRepository repository;
@@ -24,6 +27,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
   final _query = TextEditingController();
   Map<String, dynamic> _filters = {};
   LocationCatalog? _catalog;
+  bool _mapView = false;
   int get _filterCount => _filters.entries
       .where((entry) => entry.key != 'sort' || entry.value != 'newest')
       .length;
@@ -98,7 +102,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
           icon: Badge(
             isLabelVisible: _filterCount > 0,
             label: Text('$_filterCount'),
-            child: const Icon(Icons.tune, size: 28),
+            child: const AppImageIcon(Icons.tune, size: 28),
           ),
         ),
         const SizedBox(width: 12),
@@ -114,7 +118,11 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
             child: Row(
               children: [
                 const SizedBox(width: 18),
-                Icon(Icons.search, color: scheme.onSurfaceVariant, size: 25),
+                AppImageIcon(
+                  Icons.search,
+                  color: scheme.onSurfaceVariant,
+                  size: 25,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
@@ -144,12 +152,12 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                       setState(_query.clear);
                       _search();
                     },
-                    icon: const Icon(Icons.close, size: 20),
+                    icon: const AppImageIcon(Icons.close, size: 20),
                   ),
                 PopupMenuButton<String>(
                   key: const Key('searchType'),
                   tooltip: words(context, 'category'),
-                  icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                  icon: const AppImageIcon(Icons.keyboard_arrow_down_rounded),
                   onSelected: (value) =>
                       _category(value.isEmpty ? null : value),
                   itemBuilder: (context) =>
@@ -198,7 +206,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
             child: OutlinedButton.icon(
               key: ValueKey('quick-type-${entry.$1}'),
               onPressed: () => _category(entry.$1.isEmpty ? null : entry.$1),
-              icon: Icon(entry.$2, size: 21),
+              icon: AppImageIcon(entry.$2, size: 21),
               label: Text(
                 words(context, entry.$1.isEmpty ? 'allHomes' : entry.$1),
               ),
@@ -299,7 +307,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                           padding: const EdgeInsets.all(32),
                           child: Column(
                             children: [
-                              Icon(
+                              AppImageIcon(
                                 Icons.home_outlined,
                                 size: 64,
                                 color: Theme.of(context).colorScheme.primary,
@@ -319,42 +327,82 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                           ),
                         );
                       }
+                      final pins = [
+                        for (final property in results.items)
+                          if (property.latitude != null &&
+                              property.longitude != null)
+                            MapPropertyPin(
+                              property.id,
+                              property.title,
+                              PropertyLocation(
+                                property.latitude!,
+                                property.longitude!,
+                              ),
+                            ),
+                      ];
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text('${results.total} ${ar ? 'عقار' : 'homes'}'),
                           const SizedBox(height: 16),
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final columns = constraints.maxWidth >= 950
-                                  ? 3
-                                  : constraints.maxWidth >= 620
-                                  ? 2
-                                  : 1;
-                              final width =
-                                  (constraints.maxWidth - (columns - 1) * 16) /
-                                  columns;
-                              return Wrap(
-                                spacing: 16,
-                                runSpacing: 16,
-                                children: results.items
-                                    .map(
-                                      (property) => SizedBox(
-                                        width: width,
-                                        child: PropertyCard(
-                                          property: property,
-                                          repository: widget.repository,
-                                          onDetails: () =>
-                                              widget.onDetails(property.id),
-                                          onSave: () =>
-                                              widget.onSave(property.id),
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                              );
-                            },
+                          OutlinedButton.icon(
+                            key: const Key('togglePropertyMap'),
+                            onPressed: () =>
+                                setState(() => _mapView = !_mapView),
+                            icon: const PropertyIllustration(
+                              'location',
+                              size: 32,
+                            ),
+                            label: Text(
+                              words(context, _mapView ? 'listView' : 'mapView'),
+                            ),
                           ),
+                          const SizedBox(height: 16),
+                          if (_mapView)
+                            SizedBox(
+                              height: 430,
+                              child: pins.isEmpty
+                                  ? Center(
+                                      child: Text(words(context, 'noMapPins')),
+                                    )
+                                  : PropertyMap(
+                                      properties: pins,
+                                      onProperty: widget.onDetails,
+                                    ),
+                            )
+                          else
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final columns = constraints.maxWidth >= 950
+                                    ? 3
+                                    : constraints.maxWidth >= 620
+                                    ? 2
+                                    : 1;
+                                final width =
+                                    (constraints.maxWidth -
+                                        (columns - 1) * 16) /
+                                    columns;
+                                return Wrap(
+                                  spacing: 16,
+                                  runSpacing: 16,
+                                  children: results.items
+                                      .map(
+                                        (property) => SizedBox(
+                                          width: width,
+                                          child: PropertyCard(
+                                            property: property,
+                                            repository: widget.repository,
+                                            onDetails: () =>
+                                                widget.onDetails(property.id),
+                                            onSave: () =>
+                                                widget.onSave(property.id),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                );
+                              },
+                            ),
                           const SizedBox(height: 24),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,

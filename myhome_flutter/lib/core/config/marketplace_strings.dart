@@ -1,6 +1,168 @@
 import 'package:flutter/material.dart';
 
 const marketplaceWords = <String, (String, String)>{
+  'searchArea': (
+    'Find a city, district or village (optional search)',
+    'ابحث عن مدينة أو حي أو قرية (البحث اختياري)',
+  ),
+  'listingUtilities': ('Water, electricity and gas', 'المياه والكهرباء والغاز'),
+  'net': ('Net internal area', 'صافي المساحة الداخلية'),
+  'gross': (
+    'Gross · includes light wells and stairs',
+    'إجمالي · شامل المناور والسلالم',
+  ),
+  'area_measurement': ('Area measurement', 'طريقة حساب المساحة'),
+  'furnished': ('Furnished?', 'مفروشة ولا مش مفروشة؟'),
+  'checkUtilities': (
+    'Answer yes or no for water, electricity and gas.',
+    'اختار نعم أو لا لكل من المياه والكهرباء والغاز.',
+  ),
+  'checkFinishing': (
+    'Choose the finish. For Lux or Super Lux, also choose furnished or unfurnished.',
+    'اختار التشطيب. في اللوكس والسوبر لوكس حدّد كمان مفروشة ولا مش مفروشة.',
+  ),
+  'chooseOnMap': ('Choose on the map', 'اختار على الخريطة'),
+  'mapPickerHint': (
+    'Tap the property location, then drag the pin to adjust it. Confirm only a location you recognize.',
+    'اضغط على مكان العقار، واسحب الدبوس لتظبيطه. أكّد المكان بس لما تكون متأكد منه.',
+  ),
+  'dragPin': ('Drag the property pin', 'اسحب دبوس العقار'),
+  'locationOutside': (
+    'Choose a location inside Egypt.',
+    'اختار مكان داخل مصر.',
+  ),
+  'mapTilesUnavailable': (
+    'Map tiles could not load. Keep your saved pin, use device location, or paste a map link. Avoid selecting a point on a blank map.',
+    'تعذّر تحميل الخريطة. احتفظ بالمكان المحفوظ، أو استخدم موقع الجهاز، أو الصق رابط مكان. ما تختارش نقطة على خريطة فاضية.',
+  ),
+  'locationPermissionHint': (
+    'Device location is requested only when you press the button. Use it only if you are at the property.',
+    'إذن موقع الجهاز بيتطلب بس لما تضغط الزر. استخدمه لو أنت موجود في العقار.',
+  ),
+  'useCurrentLocation': ('Use my current location', 'استخدم موقعي الحالي'),
+  'confirmLocation': ('Confirm property location', 'تأكيد مكان العقار'),
+  'locating': ('Finding your location…', 'جاري تحديد موقعك…'),
+  'locationDisabled': (
+    'Turn on location services, or choose a pin manually.',
+    'فعّل خدمة الموقع، أو اختار مكان يدويًا على الخريطة.',
+  ),
+  'locationDenied': (
+    'Location permission was denied. You can still choose the location manually.',
+    'تم رفض إذن الموقع. لسه تقدر تختار المكان يدويًا.',
+  ),
+  'locationFailed': (
+    'Could not determine location. Retry or choose a pin.',
+    'تعذر تحديد الموقع. حاول تاني أو اختار دبوس على الخريطة.',
+  ),
+  'mapLocationAttached': (
+    'Property pin attached',
+    'تم تحديد مكان العقار على الخريطة',
+  ),
+  'pasteMapLink': (
+    'Map sharing link (optional)',
+    'رابط مشاركة المكان (اختياري)',
+  ),
+  'paste': ('Paste', 'لصق'),
+  'applyMapLink': ('Use map link', 'استخدم رابط المكان'),
+  'mapLinkNeedsPin': (
+    'Link attached. It does not contain readable coordinates; choose the exact pin on the map.',
+    'اتضاف الرابط، لكنه مفيهوش إحداثيات واضحة. اختار الدبوس الدقيق على الخريطة.',
+  ),
+  'mapLinkInvalid': (
+    'Paste a valid HTTPS OpenStreetMap or Google Maps sharing link for a place in Egypt.',
+    'الصق رابط HTTPS صحيح لمكان داخل مصر من OpenStreetMap أو مشاركة خرائط Google.',
+  ),
+  'location_url': ('Shared map link', 'رابط المكان'),
+  'photoUnavailable': ('Photo could not load', 'تعذّر تحميل الصورة'),
+  'mapView': ('Map view · this results page', 'الخريطة · نتائج الصفحة الحالية'),
+  'listView': ('Property list', 'قائمة العقارات'),
+  'noMapPins': (
+    'No saved map pins in these results yet.',
+    'النتائج دي لسه مفيهاش مواقع محفوظة على الخريطة.',
+  ),
+  'propertyKind': ('What kind of property?', 'نوع العقار إيه؟'),
+  'apartment': ('Apartment', 'شقة'),
+  'studio': ('Studio', 'استوديو'),
+  'duplex': ('Duplex', 'دوبلكس'),
+  'villa': ('Villa', 'فيلا'),
+  'room': ('Room', 'غرفة'),
+  'automaticDetailsHint': (
+    'Choose a property type. We will build the title and description from your answers; no typing is needed.',
+    'اختار نوع العقار، وهنجهّز العنوان والوصف تلقائيًا من إجاباتك من غير كتابة.',
+  ),
+  'writeDetails': (
+    'Write my own title and description (optional)',
+    'أكتب العنوان والوصف بنفسي (اختياري)',
+  ),
+  'generatedPreview': (
+    'Automatic preview · updates with your answers',
+    'معاينة تلقائية · بتتحدث مع إجاباتك',
+  ),
+  'areaLocationHint': (
+    'The selected area is the approximate public location. You can add a landmark or coordinates if you wish.',
+    'المنطقة المختارة هي الموقع التقريبي المعلن. ممكن تضيف علامة مميزة أو إحداثيات لو حبيت.',
+  ),
+  'customLandmark': (
+    'Add a more detailed location (optional)',
+    'أضيف وصف موقع أدق (اختياري)',
+  ),
+  'optionalCoordinates': (
+    'Map coordinates (optional)',
+    'إحداثيات الخريطة (اختياري)',
+  ),
+  'chooseBirthDate': ('Choose date of birth', 'اختار تاريخ الميلاد'),
+  'chooseValue': ('Choose a number', 'اختار العدد'),
+  'increase': ('Increase', 'زيادة'),
+  'decrease': ('Decrease', 'تقليل'),
+  'squareMetres': ('m²', 'م²'),
+  'chooseCategory': (
+    'Choose an advertisement type to continue.',
+    'اختار نوع الإعلان عشان تكمّل.',
+  ),
+  'choosePropertyKind': (
+    'Choose a property type, or switch on writing your own details.',
+    'اختار نوع العقار، أو فعّل كتابة التفاصيل بنفسك.',
+  ),
+  'titleTooShort': (
+    'The title needs at least 5 characters.',
+    'العنوان لازم يكون ٥ حروف على الأقل.',
+  ),
+  'descriptionTooShort': (
+    'The description needs at least 20 characters. Add more detail, or use automatic details.',
+    'الوصف لازم يكون ٢٠ حرف على الأقل. زوّد التفاصيل، أو استخدم الوصف التلقائي.',
+  ),
+  'chooseLocation': (
+    'Choose the governorate and residential area.',
+    'اختار المحافظة والمنطقة السكنية.',
+  ),
+  'checkLocation': (
+    'Add a location description of at least 5 characters. Optional coordinates must both be valid locations in Egypt.',
+    'وصف الموقع لازم يكون ٥ حروف على الأقل. لو أضفت إحداثيات، لازم الاتنين يكونوا داخل مصر.',
+  ),
+  'chooseDimensions': (
+    'Choose the area, net or gross measurement, bedrooms and bathrooms. Shared housing also needs maximum residents.',
+    'اختار المساحة وهل هي صافي ولا إجمالي، وعدد الغرف والحمامات. السكن الجماعي محتاج كمان عدد الأفراد.',
+  ),
+  'choosePhotos': (
+    'Choose 2–12 property photos, no larger than 8 MB each.',
+    'اختار من صورتين لـ١٢ صورة للعقار، بحد أقصى ٨ ميجا للصورة.',
+  ),
+  'checkVerification': (
+    'Enter the 14-digit ID, choose the matching birth date, upload both documents and accept their review.',
+    'اكتب الرقم القومي ١٤ رقم، واختار تاريخ الميلاد المطابق، وارفع المستندين ووافق على المراجعة.',
+  ),
+  'checkBeds': (
+    'Choose total and available beds. Available beds cannot exceed the total, and the total cannot exceed capacity.',
+    'اختار إجمالي الأسرة والمتاح منها. المتاح ما يزيدش عن الإجمالي، والإجمالي ما يزيدش عن سعة السكن.',
+  ),
+  'checkPricing': (
+    'Enter a valid price, answer negotiability and complete the required contract terms and deposit.',
+    'أدخل سعر صحيح، وحدد الفصال وكمّل مدة العقد والتأمين لو إيجار.',
+  ),
+  'chooseAnswer': (
+    'Choose one of the illustrated answers to continue.',
+    'اختار إجابة من الكروت المصوّرة عشان تكمّل.',
+  ),
   'sale': ('Sale', 'بيع'),
   'portfolioHint': (
     'Your listing types, published counts and completed deals.',

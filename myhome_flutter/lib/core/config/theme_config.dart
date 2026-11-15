@@ -14,9 +14,7 @@ class ThemeConfig {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
-      scaffoldBackgroundColor: dark
-          ? const Color(0xFF111C20)
-          : const Color(0xFFF7F9F9),
+      scaffoldBackgroundColor: Colors.transparent,
       appBarTheme: const AppBarTheme(centerTitle: false, elevation: 0),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,

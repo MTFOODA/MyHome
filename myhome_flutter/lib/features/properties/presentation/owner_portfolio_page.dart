@@ -1,3 +1,4 @@
+import '../../../core/widgets/property_illustration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
@@ -61,7 +62,7 @@ class _OwnerPortfolioPageState extends State<OwnerPortfolioPage> {
               );
               if (mounted) setState(_reload);
             },
-            child: const Icon(Icons.add),
+            child: const AppImageIcon(Icons.add),
           )
         : null,
     body: FutureBuilder(
@@ -104,7 +105,7 @@ class _OwnerPortfolioPageState extends State<OwnerPortfolioPage> {
                           children: [
                             ListTile(
                               contentPadding: EdgeInsets.zero,
-                              leading: Icon(
+                              leading: AppImageIcon(
                                 count.group == 'sale'
                                     ? Icons.sell_outlined
                                     : count.group == 'shared_rental'
@@ -134,7 +135,7 @@ class _OwnerPortfolioPageState extends State<OwnerPortfolioPage> {
                             TextButton.icon(
                               onPressed: () =>
                                   _open(count.group, history: true),
-                              icon: const Icon(Icons.history),
+                              icon: const AppImageIcon(Icons.history),
                               label: Text(
                                 '${words(context, 'history')} (${count.history})',
                               ),
@@ -236,7 +237,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
           IconButton(
             tooltip: words(context, 'refresh'),
             onPressed: () => _cubit.search(),
-            icon: const Icon(Icons.refresh),
+            icon: const AppImageIcon(Icons.refresh),
           ),
         ],
       ),
@@ -255,7 +256,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                     ButtonSegment(
                       value: 'history',
                       label: Text(words(context, 'history')),
-                      icon: const Icon(Icons.history),
+                      icon: const AppImageIcon(Icons.history),
                     ),
                   ],
                   selected: {_cubit.scope},
@@ -289,14 +290,14 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                         decoration: InputDecoration(
                           labelText: words(context, 'quickSearch'),
                           counterText: '',
-                          prefixIcon: const Icon(Icons.search),
+                          prefixIcon: const AppImageIcon(Icons.search),
                           suffixIcon: IconButton(
                             tooltip: words(context, 'reset'),
                             onPressed: () {
                               controller.clear();
                               _cubit.search(text: '');
                             },
-                            icon: const Icon(Icons.close),
+                            icon: const AppImageIcon(Icons.close),
                           ),
                         ),
                         onSubmitted: (v) => _cubit.search(text: v.trim()),
@@ -425,7 +426,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                                                       ? 'active'
                                                       : 'paused',
                                                 ),
-                                          icon: Icon(
+                                          icon: AppImageIcon(
                                             item.availability == 'paused'
                                                 ? Icons.visibility
                                                 : Icons.visibility_off_outlined,
@@ -440,7 +441,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                                                       ? 'sold'
                                                       : 'rented',
                                                 ),
-                                          icon: const Icon(
+                                          icon: const AppImageIcon(
                                             Icons.check_circle_outline,
                                           ),
                                           label: Text(

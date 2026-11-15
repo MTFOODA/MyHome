@@ -47,6 +47,9 @@ services:
       COMMISSION_SHARED_LONG: ${COMMISSION_SHARED_LONG:-0.5}
       COMMISSION_REGION_DISCOUNTS: '${COMMISSION_REGION_DISCOUNTS:-{}}'
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      MAP_TILE_URL: ${MAP_TILE_URL:-}
+      MAP_ATTRIBUTION: ${MAP_ATTRIBUTION:-© OpenStreetMap contributors}
+      MAP_ATTRIBUTION_URL: ${MAP_ATTRIBUTION_URL:-https://www.openstreetmap.org/copyright}
       PORT: 3000
     ports:
       - "127.0.0.1:3000:3000"

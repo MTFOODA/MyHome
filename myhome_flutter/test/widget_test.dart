@@ -114,7 +114,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(repo.loginCalls, 1);
       expect(find.byKey(const Key('openSignIn')), findsNothing);
-      await tester.tap(find.byIcon(Icons.person_outline).last);
+      await tester.tap(find.byKey(const ValueKey('navigation-account')));
       await tester.pumpAndSettle();
       expect(find.text('Mariam Ahmed'), findsWidgets);
       await tester.ensureVisible(find.byKey(const Key('logout')));
@@ -187,7 +187,7 @@ void main() {
         );
       await launch(tester, repo);
       expect(find.text('Find roommates'), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.person_outline).last);
+      await tester.tap(find.byKey(const ValueKey('navigation-account')));
       await tester.pumpAndSettle();
       await tester.tap(find.text('How will you use MyHome?'));
       await tester.pumpAndSettle();
@@ -222,7 +222,7 @@ void main() {
         Directionality.of(tester.element(find.byType(NavigationBar))),
         TextDirection.rtl,
       );
-      await tester.tap(find.byIcon(Icons.person_outline).last);
+      await tester.tap(find.byKey(const ValueKey('navigation-account')));
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('داكن'));
       await tester.tap(find.text('داكن'));

@@ -12,6 +12,7 @@ void fill(ListingCubit cubit) {
     'area_id': 'maadi',
     'approximate_location': 'Near the main street',
     'area_m2': '120',
+    'area_measurement': 'net',
     'bedrooms': '2',
     'bathrooms': '1',
     'capacity': '4',
@@ -37,6 +38,30 @@ void fill(ListingCubit cubit) {
 }
 
 void main() {
+  test(
+    'capacity is only required for shared housing; area basis and explicit furnishing are enforced',
+    () {
+      final cubit = ListingCubit(FakePropertyRepository());
+      addTearDown(cubit.close);
+      fill(cubit);
+      cubit.values.remove('capacity');
+      expect(cubit.valid('dimensions'), true);
+      expect(cubit.payload().containsKey('capacity'), false);
+      cubit.values['category'] = 'shared_rental';
+      expect(cubit.valid('dimensions'), false);
+      cubit.values['capacity'] = '4';
+      expect(cubit.valid('dimensions'), true);
+      cubit.values.remove('area_measurement');
+      expect(cubit.valid('dimensions'), false);
+      cubit.values['area_measurement'] = 'gross';
+      cubit.values['finishing'] = 'lux';
+      expect(cubit.valid('finishing'), false);
+      cubit.values['furnished'] = false;
+      expect(cubit.valid('finishing'), true);
+      cubit.values['finishing'] = 'plastered';
+      expect(cubit.payload().containsKey('furnished'), false);
+    },
+  );
   test('Arabic and Persian numerals preserve exact price input', () {
     expect(ListingCubit.latinDigits('١٢٣٫٤٥'), '123.45');
     expect(ListingCubit.latinDigits('۱۲۳'), '123');

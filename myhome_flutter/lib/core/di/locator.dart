@@ -11,6 +11,8 @@ import '../../features/sales/domain/sales_repository.dart';
 import '../../features/sales/data/api_sales_repository.dart';
 import '../../features/chat/domain/chat_repository.dart';
 import '../../features/chat/data/api_chat_repository.dart';
+import '../../features/properties/domain/location_repository.dart';
+import '../../features/properties/data/device_location_repository.dart';
 
 final locator = GetIt.instance;
 Future<void> setupLocator() async {
@@ -27,6 +29,9 @@ Future<void> setupLocator() async {
     ),
   );
   final auth = ApiAuthRepository(dio, const FlutterSecureStorage());
+  locator.registerSingleton<LocationRepository>(
+    DeviceLocationRepository(dio, auth),
+  );
   locator.registerSingleton<AuthRepository>(auth);
   locator.registerSingleton<SalesRepository>(ApiSalesRepository(auth));
   locator.registerSingleton<ChatRepository>(ApiChatRepository(auth));

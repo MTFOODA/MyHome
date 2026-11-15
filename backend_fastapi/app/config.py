@@ -15,6 +15,18 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:8080"
     ocr_enabled: bool = False
     rate_limit: int = 20
+    map_tile_url: str = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+    map_attribution: str = "© OpenStreetMap contributors"
+    map_attribution_url: str = "https://www.openstreetmap.org/copyright"
+
+    @field_validator("map_tile_url", mode="before")
+    @classmethod
+    def tile_template(cls, value):
+        value = value or "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        if not value.startswith("https://") or not all(part in value for part in ("{z}", "{x}", "{y}")):
+            raise ValueError("Map tiles need an HTTPS XYZ template")
+        return value
+
     commission_enabled: bool = True  # Approved all-in policy; persisted references govern existing listings.
     commission_old_rent: Decimal = Field(Decimal(".75"), ge=0, le=2)
     commission_sale_rate: Decimal = Field(Decimal(".01"), ge=0, le=Decimal(".10"))

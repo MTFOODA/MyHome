@@ -1,3 +1,4 @@
+import '../../../core/widgets/property_illustration.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -144,18 +145,18 @@ class _SalesAdminPageState extends State<SalesAdminPage> {
                 if (_busy) const LinearProgressIndicator(),
                 FilledButton.icon(
                   onPressed: _busy ? null : _newStaff,
-                  icon: const Icon(Icons.person_add_outlined),
+                  icon: const AppImageIcon(Icons.person_add_outlined),
                   label: Text(salesText(context, 'newStaff')),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
                   onPressed: _busy ? null : _terms,
-                  icon: const Icon(Icons.description_outlined),
+                  icon: const AppImageIcon(Icons.description_outlined),
                   label: Text(salesText(context, 'terms')),
                 ),
                 OutlinedButton.icon(
                   onPressed: _busy ? null : _qr,
-                  icon: const Icon(Icons.qr_code),
+                  icon: const AppImageIcon(Icons.qr_code),
                   label: Text(salesText(context, 'qrSettings')),
                 ),
                 const SizedBox(height: 20),
@@ -293,7 +294,7 @@ class _EligibilityReviewsPageState extends State<EligibilityReviewsPage> {
         actions: [
           IconButton(
             onPressed: () => setState(() => _rows = _repo.eligibilityReviews()),
-            icon: const Icon(Icons.refresh),
+            icon: const AppImageIcon(Icons.refresh),
           ),
         ],
       ),

@@ -1,7 +1,9 @@
+import '../../../core/widgets/property_illustration.dart';
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../domain/property_repository.dart';
 import '../../sales/presentation/sales_strings.dart';
+import 'property_photo.dart';
 
 class PropertyCard extends StatelessWidget {
   final PropertySummary property;
@@ -30,17 +32,11 @@ class PropertyCard extends StatelessWidget {
             if (!property.unavailable)
               SizedBox(
                 height: 190,
-                child: property.coverId == null
-                    ? const Center(
-                        child: Icon(Icons.home_work_outlined, size: 60),
-                      )
-                    : Image.network(
-                        repository.photoUrl(property.coverId!),
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => const Center(
-                          child: Icon(Icons.broken_image_outlined),
-                        ),
-                      ),
+                child: PropertyPhoto(
+                  id: property.coverId,
+                  repository: repository,
+                  private: property.coverPrivate,
+                ),
               ),
             Padding(
               padding: const EdgeInsets.all(18),
@@ -63,7 +59,7 @@ class PropertyCard extends StatelessWidget {
                   if (property.unavailable) ...[
                     const SizedBox(height: 12),
                     Chip(
-                      avatar: Icon(
+                      avatar: AppImageIcon(
                         property.availability == 'paused'
                             ? Icons.visibility_off_outlined
                             : Icons.info_outline,
@@ -87,11 +83,13 @@ class PropertyCard extends StatelessWidget {
                       spacing: 12,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        const Icon(Icons.square_foot, size: 18),
+                        const AppImageIcon(Icons.square_foot, size: 18),
                         Text('${property.areaM2} m²'),
-                        const Icon(Icons.bed_outlined, size: 18),
+                        if (property.areaMeasurement != null)
+                          Text(words(context, property.areaMeasurement!)),
+                        const AppImageIcon(Icons.bed_outlined, size: 18),
                         Text('${property.bedrooms}'),
-                        const Icon(Icons.bathtub_outlined, size: 18),
+                        const AppImageIcon(Icons.bathtub_outlined, size: 18),
                         Text('${property.bathrooms}'),
                       ],
                     ),
@@ -113,7 +111,7 @@ class PropertyCard extends StatelessWidget {
                         IconButton(
                           onPressed: onSave,
                           tooltip: words(context, saved ? 'remove' : 'save'),
-                          icon: Icon(
+                          icon: AppImageIcon(
                             saved ? Icons.favorite : Icons.favorite_border,
                           ),
                         ),

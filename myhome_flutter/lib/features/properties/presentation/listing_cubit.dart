@@ -22,6 +22,8 @@ class ListingCubit extends Cubit<ListingState> {
   UploadImage? identity, ownership;
   String nationalId = '', birthDate = '';
   bool consent = false;
+  String? propertyKind;
+  bool manualDetails = false, manualLocation = false;
   String? _propertyId, _identityId, _ownershipId;
   String? get draftId => _propertyId;
   final Map<UploadImage, String> _uploaded = {};
@@ -33,9 +35,7 @@ class ListingCubit extends Cubit<ListingState> {
     'information',
     'location',
     'dimensions',
-    'water',
-    'electricity',
-    'gas',
+    'utilities',
     'finishing',
     'elevator',
     if (values['category'] == 'shared_rental') 'beds',
@@ -68,15 +68,34 @@ class ListingCubit extends Cubit<ListingState> {
       case 'information':
         return nonempty('title', 5) && nonempty('description', 20);
       case 'location':
+        final lat = values['latitude']?.toString() ?? '';
+        final lon = values['longitude']?.toString() ?? '';
         return values['area_id'] != null &&
             nonempty('approximate_location', 5) &&
-            ((values['latitude']?.toString().isNotEmpty ?? false) ==
-                (values['longitude']?.toString().isNotEmpty ?? false));
+            ((lat.isEmpty && lon.isEmpty) ||
+                ((num.tryParse(lat) ?? -1) >= 22 &&
+                    (num.tryParse(lat) ?? 99) <= 32 &&
+                    (num.tryParse(lon) ?? -1) >= 24 &&
+                    (num.tryParse(lon) ?? 99) <= 37));
       case 'dimensions':
-        return (num.tryParse(values['area_m2']?.toString() ?? '') ?? 0) > 0 &&
+        return ['net', 'gross'].contains(values['area_measurement']) &&
+            RegExp(r'^\d+(\.\d{1,2})?$').hasMatch('${values['area_m2']}') &&
+            (num.tryParse(values['area_m2']?.toString() ?? '') ?? 0) > 0 &&
+            (num.tryParse(values['area_m2']?.toString() ?? '') ?? 0) <=
+                100000 &&
             (integer('bedrooms') ?? -1) >= 0 &&
+            (integer('bedrooms') ?? 101) <= 100 &&
             (integer('bathrooms') ?? 0) > 0 &&
-            (integer('capacity') ?? 0) > 0;
+            (integer('bathrooms') ?? 101) <= 100 &&
+            (values['category'] != 'shared_rental' ||
+                ((integer('capacity') ?? 0) > 0 &&
+                    (integer('capacity') ?? 501) <= 500));
+      case 'utilities':
+        return [
+          'water',
+          'electricity',
+          'gas',
+        ].every((field) => values[field] is bool);
       case 'water':
       case 'electricity':
       case 'gas':
@@ -84,7 +103,9 @@ class ListingCubit extends Cubit<ListingState> {
       case 'negotiable':
         return values[step] is bool;
       case 'finishing':
-        return values['finishing'] != null;
+        return values['finishing'] != null &&
+            (!['lux', 'super_lux'].contains(values['finishing']) ||
+                values['furnished'] is bool);
       case 'pricing':
         return (moneyCents(values['price']) ?? 0) > 0 &&
             valid('negotiable') &&
@@ -99,16 +120,19 @@ class ListingCubit extends Cubit<ListingState> {
         return values['rental_period'] != null &&
             (moneyCents(values['deposit']) ?? -1) >= 0 &&
             (values['rental_period'] != 'custom' ||
-                (integer('custom_months') ?? 0) > 0);
+                ((integer('custom_months') ?? 0) > 0 &&
+                    (integer('custom_months') ?? 1201) <= 1200));
       case 'installments':
         final down = moneyCents(values['down_payment']),
             amount = moneyCents(values['installment_amount']),
             count = integer('installment_count');
         return down != null &&
+            down >= 0 &&
             amount != null &&
             amount > 0 &&
             count != null &&
             count > 0 &&
+            count <= 600 &&
             down + amount * count == moneyCents(values['price']);
       case 'beds':
         final total = integer('total_beds'),
@@ -142,8 +166,39 @@ class ListingCubit extends Cubit<ListingState> {
     }
   }
 
+  /// Localized by the presentation layer; keep validation feedback actionable.
+  String? validationIssue(String step) {
+    if (valid(step)) return null;
+    return switch (step) {
+      'category' => 'chooseCategory',
+      'information' =>
+        !manualDetails && propertyKind == null
+            ? 'choosePropertyKind'
+            : (values['title']?.toString().trim().length ?? 0) < 5
+            ? 'titleTooShort'
+            : 'descriptionTooShort',
+      'location' =>
+        values['area_id'] == null ? 'chooseLocation' : 'checkLocation',
+      'dimensions' => 'chooseDimensions',
+      'photos' => 'choosePhotos',
+      'verification' => 'checkVerification',
+      'beds' => 'checkBeds',
+      'utilities' => 'checkUtilities',
+      'finishing' => 'checkFinishing',
+      'pricing' =>
+        values['category'] == 'sale_installments' && !valid('installments')
+            ? 'installmentError'
+            : 'checkPricing',
+      _ => 'chooseAnswer',
+    };
+  }
+
   Map<String, dynamic> payload() {
     final data = Map<String, dynamic>.of(values)..remove('governorate_id');
+    if (data['category'] != 'shared_rental') data.remove('capacity');
+    if (!['lux', 'super_lux'].contains(data['finishing'])) {
+      data.remove('furnished');
+    }
     for (final key in ['latitude', 'longitude']) {
       if (data[key] == null || data[key] == '') data.remove(key);
     }

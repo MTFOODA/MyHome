@@ -1,3 +1,4 @@
+import '../../../core/widgets/property_illustration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../domain/chat_repository.dart';
@@ -174,7 +175,7 @@ class _ChatPageState extends State<ChatPage> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Icon(Icons.send),
+                        : const AppImageIcon(Icons.send),
                     tooltip: salesText(context, 'sendMessage'),
                   ),
                 ],

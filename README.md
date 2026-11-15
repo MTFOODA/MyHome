@@ -23,6 +23,8 @@ Screenshots use synthetic test fixtures. The local application database is not s
 - اختيار أكثر من غرض للمستخدم وتغيير الوضع النشط؛ تبويب شركاء السكن يظهر للمستأجر المشترك فقط، والصلاحيات تُفرض أيضًا على الخادم.
 - أول دخول يبدأ باختيار مالك عقار أو مشتري/مستأجر وأنواع كل اختيار، دون تفاصيل عمولة. آخر خطوة لإضافة الإعلان تجمع السعر والمدة وحاسبة تلقائية لصافي المالك والسعر الشامل وحصص العمولة. [شرح الواجهات والحسابات](docs/37_ONBOARDING_AND_PRICE_CALCULATOR.md).
 - نموذج إعلان بخطوات إلزامية للبيع النقدي والتقسيط والإيجار الفردي والمشترك، المحافظة والمنطقة والصور والمرافق والتشطيب.
+- إضافة العقار من القائمة الجانبية، وخيارات مصوّرة تولّد العنوان والوصف تلقائيًا. مساحات شائعة مع صافي/إجمالي، عدد الأفراد للجماعي فقط، المرافق بصفحة واحدة، وسؤال الفرش للوكس والسوبر لوكس. صور المالك تظهر له قبل الاعتماد من المسار المحمي.
+- خرائط FlutterMap/OpenStreetMap تفاعلية بدبوس قابل للسحب، إذن موقع عند الطلب، ولصق رابط مشاركة؛ دون Google API أو حساب فوترة. كتالوج 6,081 مركزًا/قسمًا وشياخة/قرية إضافية لكل المحافظات، مع بحث في المناطق. [التنفيذ وسياسة الخرائط ومصدر البيانات](docs/39_VISUAL_LISTING_AND_OPEN_MAPS.md).
 - رفع إثبات الملكية والهوية بشكل خاص ومشفر، مقارنة رقم البطاقة وتاريخ الميلاد، OCR ومراجعة إدارية قبل النشر. OCR ليس نظام تحقق بيومتري أو ضمانًا لصحة الهوية.
 - طلبات السكن المشترك وقبولها مع منع حجز آخر سرير بالتزامن، وصلاحيات إنشاء مجموعة واختيار مستأجر مقبول كمشرف.
 - ترجمة عربية/إنجليزية، تفضيلات محفوظة، ودعم تقليل الحركة.
@@ -81,7 +83,7 @@ The previous NestJS backend and unused Flutter placeholders were removed. Histor
 
 ## Validation
 
-Current verification: **58 Flutter tests + 66 PostgreSQL API tests + 11 Worker tests**, 4 new onboarding/calculator preview-render tests, analyzer/Ruff clean, Web release and Android debug builds. [Onboarding/calculator evidence](docs/37_ONBOARDING_AND_PRICE_CALCULATOR.md). [Worker deployment and actual public HTTP checks](docs/38_CLOUDFLARE_WORKER.md). The existing deal/chat checks remain covered. iOS is not built on Windows; physical-device/browser GUI testing is not claimed.
+Current verification: **78 Flutter tests + 80 PostgreSQL API tests + 11 Worker tests**, 8 listing/onboarding/calculator render tests, analyzer/Ruff clean, Web release and Android debug builds. [Visual listing, protected photos, catalogue and open maps](docs/39_VISUAL_LISTING_AND_OPEN_MAPS.md). [Worker operation](docs/38_CLOUDFLARE_WORKER.md). Existing financial/chat/role checks remain covered. Windows/iOS native builds and physical-device/browser GUI testing are not claimed.
 
 ## تجربة ببيانات منفصلة / Isolated demo
 
