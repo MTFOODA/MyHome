@@ -1,3 +1,52 @@
+## Approved all-in pricing, supervised deals and moderated chat - 2026-11-15
+
+This section supersedes the preview-only and E2EE-message statements below, retained as history. The owner approved fixed original-price fees split equally, server-inspected text encrypted at rest, and mandatory legal eligibility for old rent. Read [the current implementation and operating guide](35_ALL_IN_SUPERVISED_DEALS.md).
+
+Verified: 56 real PostgreSQL tests, 43 Flutter tests, 6 preview-render tests; analyzer/Ruff clean; Web and Android debug builds passed. Main/demo additive migrations applied after a private DB backup, both APIs healthy. Isolated demo: 10 accounts, 13 listings, one shared group, an open deal and two encrypted conversations; actual restricted-role HTTP smoke passed. iOS requires macOS. No full marketplace phase is declared complete.
+
+Calls, roommate matching and production banking/signature integrations remain pending. Explicit consent is recorded, not a certified signature. Operators supply reviewed terms, qualified staff and the real InstaPay QR through admin UI. The server can inspect messages; this is not E2EE.
+
+---
+
+| Check | 2026-11-15 result |
+|---|---|
+| Backend/PostgreSQL | PASS: 56 tests, artifacts/all-in-backend-tests.log |
+| Flutter | PASS: 43 tests, artifacts/all-in-flutter-tests.log |
+| Ruff / Flutter analyzer | PASS, app/tests/migrations and lib/test |
+| Rendered previews | PASS: 6 tests; actual AR/EN light/dark screenshots inspected |
+| Web | PASS: artifacts/all-in-web-build.log |
+| Android debug | PASS: artifacts/all-in-apk-build.log |
+| Main/runtime | Backup retained; additive migration head 20261115_communications; API healthy |
+| Demo/runtime | PASS: 10 accounts, 13 listings, one group/two conversations; artifacts/all-in-demo-runtime.json |
+| iOS/desktop release builds | Not run on Windows; existing platform runners retained |
+
+Non-fatal toolchain notices: Starlette TestClient/httpx deprecation, existing Web Wasm dry-run/plugin notices and unused Cupertino font-family notice. Standard JS Web and Android builds succeed. No automatic bank integration or certified e-signature is claimed.
+
+## Owner portfolio, lifecycle and demo - 2026-11-14
+
+| Check | Latest result |
+|---|---|
+| PostgreSQL suite | PASS: 25 tests, `artifacts/portfolio-api-final.log` |
+| Ruff | PASS: app/tests/migrations |
+| Flutter suite | PASS: 33 tests, `artifacts/portfolio-flutter-tests-final.log` |
+| Analyzer | PASS: `artifacts/portfolio-analyze-final.log` |
+| Visual previews | PASS: AR/EN owner dashboards/lists, `docs/screenshots/owner-*.png` |
+| Web | PASS: `artifacts/portfolio-web.log`, build/web |
+| Android debug | PASS: `artifacts/portfolio-apk.log`, build/app/outputs/flutter-apk/app-debug.apk |
+| Application migration/runtime | Additive portfolio migration applied; volumes and existing data retained |
+| Demo seed | PASS: 8 users, 13 properties, 3-member shared group; `artifacts/demo-scenario-results.json` |
+| Docker demo runtime | PASS: restricted-role API health/login/3+2 pages/favorite states/group isolation/logout |
+| Chat/calls | NOT IMPLEMENTED; no conversation test or E2EE claim |
+| iOS | Not built on Windows |
+
+Non-failing existing Starlette TestClient deprecation and Web CupertinoIcons font diagnostics remain as previously recorded. No production payment/settlement system is claimed by commission previews.
+
+Current increment: grouped owner counts; remote quick search; exactly 3 listings per cursor page; pause/restore; sold/rented history; safe saved-property status cards; own-photo access and group membership list. Pricing proposal is configurable, preview-only and disabled pending approval. See [owner/demo guide](33_OWNER_PORTFOLIO_AND_DEMO.md) and [fee proposal](34_COMMISSION_PROPOSAL.md).
+
+Verified: 33 Flutter tests, analyzer clean; 25 real PostgreSQL tests, Ruff clean; Web/Android debug builds. Separate myhome_demo fixtures: 8 accounts, 13 listings, one owner/two-tenant group and private random credentials. Actual Docker runtime smoke passed. E2EE communication/calls and real conversations remain unimplemented; membership metadata is not chat.
+
+---
+
 ## Selected logo applied - 2026-11-14
 
 | Check | Result |

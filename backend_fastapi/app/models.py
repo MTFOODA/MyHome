@@ -3,11 +3,13 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     CheckConstraint,
     Date,
     DateTime,
     ForeignKey,
+    Identity,
     Index,
     Integer,
     LargeBinary,
@@ -110,6 +112,19 @@ class Property(Timestamps, Base):
     total_beds: Mapped[int | None] = mapped_column(Integer)
     available_beds: Mapped[int | None] = mapped_column(Integer)
     status: Mapped[str] = mapped_column(String(20), default="draft")
+    availability: Mapped[str] = mapped_column(String(12), default="active", server_default="active")
+    closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    display_price: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    platform_fee: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=0, server_default="0")
+    pricing_policy: Mapped[str] = mapped_column(String(40), default="none", server_default="none")
+    original_price: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    buyer_fee: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=0, server_default="0")
+    seller_fee: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=0, server_default="0")
+    reference_months: Mapped[int | None] = mapped_column(Integer)
+    legal_eligibility: Mapped[str] = mapped_column(String(20), default="pending", server_default="pending")
+    eligibility_reviewer_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), index=True)
+    eligibility_note: Mapped[str | None] = mapped_column(String(2000))
+    eligibility_reference: Mapped[str | None] = mapped_column(String(250))
 
 
 class Asset(Timestamps, Base):
@@ -143,6 +158,9 @@ class Favorite(Timestamps, Base):
     property_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("properties.id", ondelete="CASCADE"), primary_key=True, index=True
     )
+    title_snapshot: Mapped[str] = mapped_column(String(150), default="Property")
+    category_snapshot: Mapped[str] = mapped_column(String(32), default="sale_cash")
+    price_snapshot: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=0)
 
 
 class HousingGroup(Timestamps, Base):
@@ -175,4 +193,136 @@ class AuditEvent(Base):
     actor_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
     action: Mapped[str] = mapped_column(String(40))
     target_id: Mapped[uuid.UUID] = mapped_column(Uuid)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class StaffMember(Timestamps, Base):
+    __tablename__ = "staff_members"
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    specialty: Mapped[str] = mapped_column(String(24))
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    professional_reference: Mapped[str | None] = mapped_column(String(150))
+
+
+class BrokerageTerms(Timestamps, Base):
+    __tablename__ = "brokerage_terms"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    version: Mapped[str] = mapped_column(String(60), unique=True)
+    body_ar: Mapped[str] = mapped_column(Text)
+    body_en: Mapped[str] = mapped_column(Text)
+    due_condition: Mapped[str] = mapped_column(String(2000))
+    legal_reference: Mapped[str] = mapped_column(String(250))
+    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+
+
+class PaymentDestination(Timestamps, Base):
+    __tablename__ = "payment_destinations"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    qr_asset_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("assets.id"), index=True)
+    recipient_name: Mapped[str] = mapped_column(String(150))
+    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+
+
+class Deal(Timestamps, Base):
+    __tablename__ = "deals"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    property_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("properties.id"), index=True)
+    buyer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    seller_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    property_title: Mapped[str] = mapped_column(String(150))
+    base_price: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    category: Mapped[str] = mapped_column(String(32))
+    rental_months: Mapped[int | None] = mapped_column(Integer)
+    rental_period: Mapped[str | None] = mapped_column(String(20))
+    asking_price: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    bed_reserved: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    fee_total: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    buyer_fee: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    seller_fee: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    stage: Mapped[str] = mapped_column(String(20), default="open")
+    terms_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("brokerage_terms.id"), index=True)
+    reviewer_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), index=True)
+    review_status: Mapped[str] = mapped_column(String(20), default="pending")
+    contract_reference: Mapped[str | None] = mapped_column(String(250))
+    review_note: Mapped[str | None] = mapped_column(String(2000))
+    destination_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("payment_destinations.id"), index=True)
+
+
+class Viewing(Timestamps, Base):
+    __tablename__ = "deal_viewings"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    deal_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("deals.id"), index=True)
+    reference: Mapped[str] = mapped_column(String(40), unique=True)
+    scheduled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    staff_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), index=True)
+    owner_confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
+    status: Mapped[str] = mapped_column(String(20), default="requested")
+    completion_note: Mapped[str | None] = mapped_column(String(1000))
+
+
+class DealOffer(Timestamps, Base):
+    __tablename__ = "deal_offers"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    deal_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("deals.id"), index=True)
+    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    amount: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    status: Mapped[str] = mapped_column(String(20), default="open")
+
+
+class DealConsent(Base):
+    __tablename__ = "deal_consents"
+    deal_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("deals.id"), primary_key=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), primary_key=True, index=True)
+    digest: Mapped[str] = mapped_column(String(64))
+    evidence_digest: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class FeeInvoice(Timestamps, Base):
+    __tablename__ = "fee_invoices"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    deal_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("deals.id"), index=True)
+    payer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    amount: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    status: Mapped[str] = mapped_column(String(20), default="unpaid")
+
+
+class PaymentClaim(Timestamps, Base):
+    __tablename__ = "payment_claims"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    invoice_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("fee_invoices.id"), index=True)
+    reference: Mapped[str] = mapped_column(String(100), unique=True)
+    status: Mapped[str] = mapped_column(String(20), default="reported")
+    verifier_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), index=True)
+    verification_note: Mapped[str | None] = mapped_column(String(2000))
+
+
+class SpecialFeeProposal(Timestamps, Base):
+    __tablename__ = "special_fee_proposals"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    deal_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("deals.id"), index=True)
+    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    previous_total: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    total: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    reason: Mapped[str] = mapped_column(String(2000))
+    legal_reference: Mapped[str] = mapped_column(String(250))
+    digest: Mapped[str] = mapped_column(String(64))
+    buyer_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    seller_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    status: Mapped[str] = mapped_column(String(16), default="pending")
+
+
+class Conversation(Timestamps, Base):
+    __tablename__ = "conversations"
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    deal_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("deals.id"), unique=True)
+    group_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("housing_groups.id"), unique=True)
+
+
+class Message(Base):
+    __tablename__ = "messages"
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    conversation_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("conversations.id"), index=True)
+    sender_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
+    body_cipher: Mapped[bytes] = mapped_column(LargeBinary)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

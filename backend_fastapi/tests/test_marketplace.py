@@ -206,7 +206,7 @@ def test_full_listing_verification_public_search_and_favorite(client, signup, db
         == 200
     )
     listing = client.get(
-        "/api/v1/properties", params={"area_id": "maadi", "water": True, "negotiable": False, "max_price": "10000"}
+        "/api/v1/properties", params={"area_id": "maadi", "water": True, "negotiable": False, "max_price": "11000"}
     ).json()
     assert pid in [item["id"] for item in listing["items"]]
     for term in ["apartment", "MAADI", "المعادي"]:

@@ -29,15 +29,15 @@ MyHome/
 ### Current Phase
 Check docs/05_IMPLEMENTATION_PROGRESS.md for the current phase and task status.
 
-### Current requirements and implementation (2026-11-14)
-- Selected brand: Arabic architectural logo (proposal 02). Accepted raster masters and exact edit prompts: `design/branding/selected/`; Flutter assets: `myhome_flutter/assets/branding/`. Regenerate native icon sizes with `tools/generate_brand_icons.ps1` on Windows. Do not revert to the old Flutter/default icons or proposal-selection state.
-- Latest user scope is in `docs/29_PRODUCT_REQUIREMENTS_2026_11_14.md`; active setup is `docs/30_FASTAPI_LOCAL_SETUP.md`.
-- Active API is Python/FastAPI with SQLAlchemy/Alembic in `backend_fastapi/`. The old NestJS `backend/` was removed at the user's request after migration; historical docs are retained.
-- Flutter has public property discovery, protected details/favorites, multiple-intent onboarding, conditional roommate navigation, listing steps, private proof submission and reviewer UI.
-- Shared housing application/group authorization exists; actual roommate matching, encrypted messaging and calls are NOT implemented.
-- Current verified results: 28 Flutter tests, 19 PostgreSQL API tests, live Flutter/FastAPI authentication, synthetic real OCR, Web and Android debug builds. iOS build/runtime remains pending on macOS.
-- Read the 2026-11-14 sections at the top of progress/handoff/test documents before historical reports. No full marketplace phase is complete.
-- Primary release targets: Web, Android and iOS; preserve existing desktop runners.
+### Current requirements and implementation (2026-11-15)
+- Read `docs/35_ALL_IN_SUPERVISED_DEALS.md` before historical pricing/chat claims. All-in fees are approved and active: sale 1% total, half per party, frozen original-price reference; rent uses the documented duration schedule. Old rent uses a 12-month fee reference only, 3/4 month total and mandatory human legal eligibility. Special fees need both consents.
+- Owner counts, remote title autocomplete, exact 3-item signed cursor pages, pause/restore, sold/rented history and favorite tombstones remain implemented.
+- Supervised deal/viewing/offer/terms/document-review flows and a manually reconciled fee ledger exist. Staff profiles are created internally by admins. Real bank QR and reviewed legal terms are supplied through admin UI. Consent records are not a qualified signature or automatic legal validation.
+- The owner chose server-inspected text followed by encryption at rest; this supersedes earlier E2EE message requirements. Trade and housing-group chats exist. Do not claim E2EE or perfect detection of arbitrary covert contact sharing. Calls/matching remain pending.
+- Active API: Python/FastAPI, SQLAlchemy/Alembic in `backend_fastapi/`, PostgreSQL/Docker. Flutter uses Clean Architecture boundaries and Cubit/BLoC. Old NestJS was removed with authorization; preserve historical docs.
+- Demo API 3001, database `myhome_demo`, UI 8081; random credentials ignored in `artifacts/demo-accounts.json`. `tools/start_demo.ps1` is isolated; `tools/smoke_demo.py` checks actual restricted-role HTTP operations. Ten accounts, 13 properties, one group, two conversations.
+- Latest checks: 56 PostgreSQL tests, 43 Flutter tests, 6 preview renders; analyzer/Ruff clean; Web/Android debug builds. Migration head `20261115_communications`; never reset volumes or real databases for tests. Backups/secrets/private media stay ignored.
+- Selected logo 02 remains installed; masters/prompts in `design/branding/selected/`. Preserve native icons and existing desktop runners. Web/Android/iOS are primary targets; iOS requires macOS. No complete marketplace phase is declared done.
 
 ### Historical audited baseline (2026-11-09)
 - Current work is Phase 1/2, not completed property management. Authentication is implemented; property/search/media/chat/group modules remain pending.

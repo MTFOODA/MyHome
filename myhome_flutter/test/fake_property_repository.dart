@@ -15,6 +15,29 @@ const testProperty = PropertySummary(
 );
 
 class FakePropertyRepository implements PropertyRepository {
+  @override
+  Future<List<PortfolioCount>> portfolio() async => const [];
+  @override
+  Future<OwnerPage> ownerPage(
+    String group, {
+    String scope = 'current',
+    String query = '',
+    String availability = 'all',
+    String? cursor,
+  }) async => OwnerPage(items.take(3).toList(), items.length, null);
+  @override
+  Future<List<String>> ownerSuggestions(
+    String group,
+    String query,
+    String scope,
+  ) async => [];
+  @override
+  Future<void> changeAvailability(String id, String availability) async {}
+  @override
+  Future<Map<String, dynamic>> priceQuote(Map<String, dynamic> values) async =>
+      {'requires_agreement': true};
+  @override
+  Future<List<Map<String, dynamic>>> groups() async => [];
   final searches = <Map<String, dynamic>>[];
   @override
   Future<List<Map<String, dynamic>>> verifications() async => [];

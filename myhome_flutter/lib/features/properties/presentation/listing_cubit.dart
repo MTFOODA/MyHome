@@ -23,6 +23,7 @@ class ListingCubit extends Cubit<ListingState> {
   String nationalId = '', birthDate = '';
   bool consent = false;
   String? _propertyId, _identityId, _ownershipId;
+  String? get draftId => _propertyId;
   final Map<UploadImage, String> _uploaded = {};
   UploadImage? _lastIdentity, _lastOwnership;
   String? _lastIdentityInput;

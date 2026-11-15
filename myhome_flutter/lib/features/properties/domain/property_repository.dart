@@ -4,6 +4,10 @@ class PropertySummary {
   final bool negotiable;
   final int bedrooms, bathrooms, capacity;
   final String status;
+  final String availability;
+  final bool unavailable;
+  final bool allIn;
+  final String priceBasis;
   const PropertySummary({
     required this.id,
     required this.title,
@@ -18,6 +22,10 @@ class PropertySummary {
     required this.capacity,
     this.coverId,
     this.status = 'approved',
+    this.availability = 'active',
+    this.unavailable = false,
+    this.allIn = true,
+    this.priceBasis = '',
   });
   factory PropertySummary.fromJson(Map<String, dynamic> value) =>
       PropertySummary(
@@ -34,6 +42,10 @@ class PropertySummary {
         capacity: value['capacity'] as int,
         coverId: value['cover_id'] as String?,
         status: value['status'] as String? ?? 'approved',
+        availability: value['availability'] as String? ?? 'active',
+        unavailable: value['unavailable'] as bool? ?? false,
+        allIn: value['all_in'] as bool? ?? true,
+        priceBasis: value['price_basis'] as String? ?? '',
       );
 }
 
@@ -41,6 +53,34 @@ class PropertyResults {
   final List<PropertySummary> items;
   final int total, page;
   const PropertyResults(this.items, this.total, this.page);
+}
+
+class OwnerPage {
+  final List<PropertySummary> items;
+  final int total;
+  final String? nextCursor;
+  const OwnerPage(this.items, this.total, this.nextCursor);
+}
+
+class PortfolioCount {
+  final String group;
+  final int current, published, paused, history, awaiting;
+  const PortfolioCount(
+    this.group,
+    this.current,
+    this.published,
+    this.paused,
+    this.history,
+    this.awaiting,
+  );
+  factory PortfolioCount.fromJson(Map<String, dynamic> value) => PortfolioCount(
+    value['group'] as String,
+    value['current'] as int,
+    value['published'] as int,
+    value['paused'] as int,
+    value['history'] as int,
+    value['awaiting'] as int,
+  );
 }
 
 class LocationOption {
@@ -79,6 +119,22 @@ abstract class PropertyRepository {
   Future<void> save(String id);
   Future<void> unsave(String id);
   Future<List<PropertySummary>> mine();
+  Future<List<PortfolioCount>> portfolio();
+  Future<OwnerPage> ownerPage(
+    String group, {
+    String scope = 'current',
+    String query = '',
+    String availability = 'all',
+    String? cursor,
+  });
+  Future<List<String>> ownerSuggestions(
+    String group,
+    String query,
+    String scope,
+  );
+  Future<void> changeAvailability(String id, String availability);
+  Future<Map<String, dynamic>> priceQuote(Map<String, dynamic> values);
+  Future<List<Map<String, dynamic>>> groups();
   String photoUrl(String id);
   Future<String> create(Map<String, dynamic> values);
   Future<void> update(String id, Map<String, dynamic> values);

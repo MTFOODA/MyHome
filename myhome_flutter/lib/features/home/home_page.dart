@@ -12,6 +12,11 @@ import '../properties/presentation/discovery_page.dart';
 import '../properties/presentation/property_details_page.dart';
 import '../properties/presentation/property_list_page.dart';
 import '../properties/presentation/listing_page.dart';
+import '../properties/presentation/owner_portfolio_page.dart';
+import '../properties/presentation/my_groups_page.dart';
+import '../sales/presentation/sales_pages.dart';
+import '../sales/presentation/sales_admin_page.dart';
+import '../sales/presentation/sales_strings.dart';
 import '../properties/presentation/admin_review_page.dart';
 import '../search/search_page.dart';
 import '../support/info_page.dart';
@@ -144,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                     select(tab);
                   },
                 ),
-              if (account?.canManageProperties ?? false)
+              if (account != null)
                 ListTile(
                   leading: const Icon(Icons.add_home_work_outlined),
                   title: Text(words(context, 'manageProperties')),
@@ -153,11 +158,82 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute<void>(
-                        builder: (_) => PropertyListPage(
+                        builder: (_) => OwnerPortfolioPage(
                           repository: repo,
-                          mine: true,
                           onDetails: _details,
                         ),
+                      ),
+                    );
+                  },
+                ),
+              if (account != null)
+                ListTile(
+                  leading: const Icon(Icons.groups_outlined),
+                  title: Text(words(context, 'myGroups')),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => MyGroupsPage(repository: repo),
+                      ),
+                    );
+                  },
+                ),
+              if (account != null) ...[
+                ListTile(
+                  leading: const Icon(Icons.handshake_outlined),
+                  title: Text(salesText(context, 'deals')),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const SalesListPage(),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.receipt_long_outlined),
+                  title: Text(salesText(context, 'financeHistory')),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) =>
+                            const SalesListPage(financialHistory: true),
+                      ),
+                    );
+                  },
+                ),
+              ],
+              if (account?.role == 'admin')
+                ListTile(
+                  leading: const Icon(Icons.manage_accounts_outlined),
+                  title: Text(salesText(context, 'salesAdmin')),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const SalesAdminPage(),
+                      ),
+                    );
+                  },
+                ),
+              if (account?.role == 'admin' ||
+                  account?.staffRole == 'document_reviewer')
+                ListTile(
+                  leading: const Icon(Icons.gavel_outlined),
+                  title: Text(salesText(context, 'eligibility')),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const EligibilityReviewsPage(),
                       ),
                     );
                   },

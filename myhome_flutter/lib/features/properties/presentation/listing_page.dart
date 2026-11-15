@@ -6,6 +6,7 @@ import '../../../core/config/marketplace_strings.dart';
 import '../../auth/presentation/auth_cubit.dart';
 import '../domain/property_repository.dart';
 import 'listing_cubit.dart';
+import 'price_quote_panel.dart';
 
 class ListingPage extends StatefulWidget {
   final PropertyRepository repository;
@@ -53,12 +54,15 @@ class _ListingPageState extends State<ListingPage> {
       decoration: InputDecoration(
         labelText: words(
           context,
-          {'approximate_location': 'location'}[key] ?? key,
+          {'approximate_location': 'location', 'price': 'ownerPrice'}[key] ??
+              key,
         ),
       ),
-      onChanged: (value) => _cubit.setValue(
-        key,
-        number ? ListingCubit.latinDigits(value) : value,
+      onChanged: (value) => setState(
+        () => _cubit.setValue(
+          key,
+          number ? ListingCubit.latinDigits(value) : value,
+        ),
       ),
     ),
   );
@@ -222,7 +226,16 @@ class _ListingPageState extends State<ListingPage> {
           'super_lux',
         ]);
       case 'pricing':
-        return field('price', number: true);
+        return Column(
+          children: [
+            field('price', number: true),
+            PriceQuotePanel(
+              repository: widget.repository,
+              values: _cubit.values,
+              propertyId: _cubit.draftId,
+            ),
+          ],
+        );
       case 'rental_period':
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,6 +251,11 @@ class _ListingPageState extends State<ListingPage> {
             if (_cubit.values['rental_period'] == 'custom')
               field('custom_months', number: true),
             field('deposit', number: true),
+            PriceQuotePanel(
+              repository: widget.repository,
+              values: _cubit.values,
+              propertyId: _cubit.draftId,
+            ),
           ],
         );
       case 'installments':
@@ -254,6 +272,11 @@ class _ListingPageState extends State<ListingPage> {
           children: [
             field('total_beds', number: true),
             field('available_beds', number: true),
+            PriceQuotePanel(
+              repository: widget.repository,
+              values: _cubit.values,
+              propertyId: _cubit.draftId,
+            ),
           ],
         );
       case 'photos':
@@ -309,6 +332,11 @@ class _ListingPageState extends State<ListingPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(words(context, 'privateDocs')),
+            PriceQuotePanel(
+              repository: widget.repository,
+              values: _cubit.values,
+              propertyId: _cubit.draftId,
+            ),
             const SizedBox(height: 20),
             TextFormField(
               initialValue: _cubit.nationalId,

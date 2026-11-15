@@ -15,6 +15,10 @@ Screenshots use synthetic test fixtures. The local application database is not s
 ## الموجود حاليًا / Implemented
 
 - صفحة رئيسية عامة، بحث نصي، فلاتر تفصيلية، ترتيب وترقيم صفحات من قاعدة البيانات. لوحة الفلاتر تطبق التغييرات عند الضغط على «تطبيق».
+- صفحة «عقاراتي» بعدادات البيع والإيجار الفردي والجماعي، بحث باقتراحات من قاعدة البيانات، تحميل 3 عقارات في كل دفعة، إخفاء مؤقت وسجل بيع/تأجير. المفضلة تحتفظ بحالة الإعلان غير المتاح.
+- تسعير نهائي شامل: عمولة البيع 1% من السعر الأصلي مناصفة، وتظل ثابتة بعد التفاوض. الإيجار حسب المدة؛ الإيجار القديم يحتاج مراجعة أهلية قانونية، و12 شهرًا مرجع للعمولة فقط. [القواعد والأمثلة](docs/35_ALL_IN_SUPERVISED_DEALS.md).
+- رحلة صفقة بإشراف المنصة: حجز معاينة، مشرف داخلي، عروض وتفاوض، موافقة الطرفين على شروط الوساطة، مراجع مستندات، QR إنستاباي خاص بالمنصة وتأكيد تحويل تراجعه الإدارة بالسجل البنكي.
+- محادثات نصية منفصلة للصفقة ولجروب السكن: فحص بيانات الاتصال على الخادم قبل الإرسال ثم تشفير للتخزين، وفق الاختيار المعتمد. ليست مشفرة من الطرف للطرف.
 - تسجيل حساب ودخول وتجديد جلسة وتسجيل خروج، مع حماية تفاصيل العقارات والمفضلة.
 - اختيار أكثر من غرض للمستخدم وتغيير الوضع النشط؛ تبويب شركاء السكن يظهر للمستأجر المشترك فقط، والصلاحيات تُفرض أيضًا على الخادم.
 - نموذج إعلان بخطوات إلزامية للبيع النقدي والتقسيط والإيجار الفردي والمشترك، المحافظة والمنطقة والصور والمرافق والتشطيب.
@@ -22,9 +26,9 @@ Screenshots use synthetic test fixtures. The local application database is not s
 - طلبات السكن المشترك وقبولها مع منع حجز آخر سرير بالتزامن، وصلاحيات إنشاء مجموعة واختيار مستأجر مقبول كمشرف.
 - ترجمة عربية/إنجليزية، تفضيلات محفوظة، ودعم تقليل الحركة.
 
-**لم يكتمل بعد:** مطابقة شركاء السكن، المحادثات والمكالمات المشفرة من الطرف للطرف، دورة تعديل/استئناف الإعلان كاملة، استعادة كلمة المرور، الإشعارات وخطط الاحتفاظ والنسخ الاحتياطي. المجموعات الحالية بيانات وصلاحيات فقط (`messagingReady=false`).
+**لم يكتمل بعد:** مطابقة شركاء السكن، المكالمات، دورة تعديل/استئناف الإعلان كاملة، استعادة كلمة المرور، الإشعارات وخطط الاحتفاظ والنسخ الاحتياطي للإنتاج. الدفع الحالي بتأكيد إداري يدوي؛ لا يوجد ربط بنكي تلقائي أو توقيع إلكتروني معتمد. الإدارة تضيف شروطًا مُراجعة والـQR الحقيقي قبل التعاملات الفعلية.
 
-**Pending:** roommate matching, E2EE messaging/calls, complete listing edit/resume lifecycle, account recovery, notifications and production operations. This repository is an implementation in progress.
+**Pending:** roommate matching, calling, complete listing edit/resume UI, account recovery, notifications and production operations. Text is server-moderated and encrypted at rest. Payment claims require external bank reconciliation by an admin; recorded consent is not a certified signature. This repository is an implementation in progress.
 
 ## التشغيل المحلي / Local setup
 
@@ -71,6 +75,30 @@ tools/           Local setup helper
 The previous NestJS backend and unused Flutter placeholders were removed. Historical documentation remains for traceability; current FastAPI documents supersede old NestJS commands.
 
 ## Validation
+
+Current verification: **43 Flutter tests + 56 PostgreSQL API tests**, 6 preview-render tests, analyzer/Ruff clean, Web and Android debug builds. [Pricing, supervised deals, chat and evidence](docs/35_ALL_IN_SUPERVISED_DEALS.md). iOS is not built on Windows.
+
+## تجربة ببيانات منفصلة / Isolated demo
+
+After starting PostgreSQL and installing backend development requirements:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/start_demo.ps1
+cd myhome_flutter
+flutter run -d chrome --web-port 8081 --dart-define=API_BASE_URL=http://localhost:3001/api/v1
+```
+
+The separate `myhome_demo` database contains 10 accounts (including admin, field agent and document reviewer), 13 synthetic properties, one housing group, an open deal and two real moderated conversations with encrypted storage. Random credentials and scenario results stay in ignored `artifacts/`; no known demo password is published. The main owner has 5 sale / 3 private-rental / 1 shared-rental current listings, plus history. The demo invents no real payment destination or legally approved terms. Run `python tools/smoke_demo.py` to check the Docker API. See the [current demo/operating guide](docs/35_ALL_IN_SUPERVISED_DEALS.md).
+
+| السعر والعمولة | المحادثة الداخلية | إدارة الفريق |
+|---|---|---|
+| ![تفاصيل الصفقة](docs/screenshots/deal-ar.png) | ![محادثة داكنة](docs/screenshots/chat-dark-ar.png) | ![إدارة الفريق](docs/screenshots/staff-en.png) |
+
+| عقاراتي | بيع · بحث وتحميل تدريجي |
+|---|---|
+| ![عقاراتي](docs/screenshots/owner-overview-ar.png) | ![إعلانات البيع](docs/screenshots/owner-sale-ar.png) |
+
+## Checks
 
 ```powershell
 cd myhome_flutter

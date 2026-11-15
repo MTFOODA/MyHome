@@ -3,6 +3,7 @@ class Account {
   final bool ownerVerified;
   final List<String> intents;
   final String? activeIntent;
+  final String? staffRole;
   final String housingPersona;
   final bool onboardingComplete;
   const Account({
@@ -13,6 +14,7 @@ class Account {
     required this.ownerVerified,
     this.intents = const [],
     this.activeIntent,
+    this.staffRole,
     this.housingPersona = 'regular',
     this.onboardingComplete = true,
   });
@@ -24,6 +26,7 @@ class Account {
     ownerVerified: json['ownerVerified'] as bool,
     intents: List<String>.from(json['intents'] as List? ?? []),
     activeIntent: json['activeIntent'] as String?,
+    staffRole: json['staffRole'] as String?,
     housingPersona: json['housingPersona'] as String? ?? 'regular',
     onboardingComplete: json['onboardingComplete'] as bool? ?? false,
   );

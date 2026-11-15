@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import assets, auth, catalog, groups, properties
+from app import assets, auth, catalog, deals, groups, legal_eligibility, messages, portfolio, pricing, properties
 from app.config import settings
 from app.database import db_session
 
@@ -44,12 +44,12 @@ def create_app():
     @application.middleware("http")
     async def safeguards(request: Request, call_next):
         path = request.url.path
-        if path == "/api/v1/assets" and request.method == "POST":
+        if path in ("/api/v1/assets", "/api/v1/admin/payment-destination") and request.method == "POST":
             chunks = []
             size = 0
             async for chunk in request.stream():
                 size += len(chunk)
-                if size > 9 * 1024 * 1024:
+                if size > (3 if path.endswith("payment-destination") else 9) * 1024 * 1024:
                     return JSONResponse({"detail": "IMAGE_MAX_8MB"}, 413)
                 chunks.append(chunk)
             request._body = b"".join(chunks)
@@ -70,11 +70,37 @@ def create_app():
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
-        if "auth" in path or "private-assets" in path or "admin" in path:
+        if (
+            "auth" in path
+            or "private-assets" in path
+            or "admin" in path
+            or any(
+                part in path
+                for part in (
+                    "/deals",
+                    "/conversations",
+                    "/eligibility-reviews",
+                    "/groups",
+                    "/favorites",
+                    "/properties/mine",
+                )
+            )
+        ):
             response.headers["Cache-Control"] = "no-store"
         return response
 
-    for router in (auth.router, catalog.router, properties.router, assets.router, groups.router):
+    for router in (
+        auth.router,
+        catalog.router,
+        portfolio.router,
+        properties.router,
+        assets.router,
+        groups.router,
+        pricing.router,
+        deals.router,
+        legal_eligibility.router,
+        messages.router,
+    ):
         application.include_router(router, prefix="/api/v1")
 
     @application.get("/api/v1/health")

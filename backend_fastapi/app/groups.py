@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.database import db_session
 from app.models import AuditEvent, HousingApplication, HousingGroup, Property, Tenancy, User, UserIntent
 from app.policy import require_owner, require_shared_seeker
+from app.properties import visible_query
 from app.schemas import GroupInput
 from app.security import authenticated
 
@@ -18,8 +19,14 @@ router = APIRouter(tags=["shared-housing"])
 def apply(property_id: UUID, context=Depends(authenticated), db: Session = Depends(db_session)):
     user = context[0]
     require_shared_seeker(db, user)
-    prop = db.get(Property, property_id)
-    if not prop or prop.category != "shared_rental" or prop.status != "approved" or prop.owner_id == user.id:
+    prop = db.scalar(visible_query().where(Property.id == property_id).with_for_update(of=Property))
+    if (
+        not prop
+        or prop.category != "shared_rental"
+        or prop.status != "approved"
+        or prop.availability != "active"
+        or prop.owner_id == user.id
+    ):
         raise HTTPException(404, "PROPERTY_NOT_FOUND")
     application = HousingApplication(property_id=prop.id, user_id=user.id)
     db.add(application)
@@ -51,7 +58,12 @@ def accept(application_id: UUID, context=Depends(authenticated), db: Session = D
     prop = db.scalar(select(Property).where(Property.id == application.property_id).with_for_update())
     user = context[0]
     require_owner(db, user, "shared_rental")
-    if prop.owner_id != user.id or prop.status != "approved" or not user.owner_verified:
+    if (
+        prop.owner_id != user.id
+        or prop.status != "approved"
+        or prop.availability != "active"
+        or not user.owner_verified
+    ):
         raise HTTPException(403, "VERIFIED_PROPERTY_OWNER_REQUIRED")
     if application.status != "pending":
         raise HTTPException(409, "NOT_PENDING")
@@ -84,8 +96,14 @@ def create_group(body: GroupInput, context=Depends(authenticated), db: Session =
     require_owner(db, user, "shared_rental")
     if user.active_intent != "owner_shared_rental" or not user.owner_verified:
         raise HTTPException(403, "VERIFIED_ACTIVE_SHARED_OWNER_REQUIRED")
-    prop = db.get(Property, body.property_id)
-    if not prop or prop.owner_id != user.id or prop.category != "shared_rental" or prop.status != "approved":
+    prop = db.scalar(select(Property).where(Property.id == body.property_id).with_for_update())
+    if (
+        not prop
+        or prop.owner_id != user.id
+        or prop.category != "shared_rental"
+        or prop.status != "approved"
+        or prop.availability not in ("active", "paused", "rented")
+    ):
         raise HTTPException(404, "PROPERTY_NOT_FOUND")
     tenancy = db.get(Tenancy, (prop.id, body.tenant_admin_id))
     tenant = db.get(User, body.tenant_admin_id)
@@ -101,4 +119,36 @@ def create_group(body: GroupInput, context=Depends(authenticated), db: Session =
         db.rollback()
         raise HTTPException(409, "GROUP_ALREADY_EXISTS") from None
     # This creates membership metadata only, not a plaintext message transport.
-    return {"id": str(group.id), "owner_id": str(user.id), "tenant_admin_id": str(tenant.id), "messagingReady": False}
+    return {"id": str(group.id), "owner_id": str(user.id), "tenant_admin_id": str(tenant.id), "messagingReady": True}
+
+
+@router.get("/groups")
+def my_groups(context=Depends(authenticated), db: Session = Depends(db_session)):
+    from sqlalchemy import exists, or_
+
+    user = context[0]
+    groups = db.scalars(
+        select(HousingGroup).where(
+            or_(
+                HousingGroup.owner_id == user.id,
+                exists().where(
+                    Tenancy.property_id == HousingGroup.property_id,
+                    Tenancy.user_id == user.id,
+                    Tenancy.active.is_(True),
+                ),
+            )
+        )
+    )
+    return {
+        "items": [
+            dict(
+                id=str(g.id),
+                property_id=str(g.property_id),
+                owner_id=str(g.owner_id),
+                tenant_admin_id=str(g.tenant_admin_id),
+                title=db.get(Property, g.property_id).title,
+                messagingReady=True,
+            )
+            for g in groups
+        ]
+    }

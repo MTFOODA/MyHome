@@ -128,6 +128,7 @@ def get_asset(asset_id: UUID, db: Session = Depends(db_session)):
         or asset.kind != "photo"
         or not prop
         or prop.status != "approved"
+        or prop.availability != "active"
         or not owner.active
         or not owner.owner_verified
         or not db.get(UserIntent, (owner.id, "owner_" + prop.category))

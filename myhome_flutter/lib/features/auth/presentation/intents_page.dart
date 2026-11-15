@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
 import 'auth_cubit.dart';
 import 'auth_page.dart';
+import '../../sales/presentation/sales_strings.dart';
 
 class IntentsPage extends StatefulWidget {
   final bool settings;
@@ -54,6 +55,24 @@ class _IntentsPageState extends State<IntentsPage> {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 24),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              salesText(context, 'financialBreakdown'),
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(salesText(context, 'policy')),
+                            const SizedBox(height: 8),
+                            Text(salesText(context, 'fixedHint')),
+                          ],
+                        ),
+                      ),
+                    ),
                     for (final intent in [
                       'owner_sale_cash',
                       'owner_sale_installments',

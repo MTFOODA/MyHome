@@ -7,6 +7,10 @@ import '../../features/auth/domain/auth_repository.dart';
 import '../../features/auth/data/api_auth_repository.dart';
 import '../../features/properties/data/api_property_repository.dart';
 import '../../features/properties/domain/property_repository.dart';
+import '../../features/sales/domain/sales_repository.dart';
+import '../../features/sales/data/api_sales_repository.dart';
+import '../../features/chat/domain/chat_repository.dart';
+import '../../features/chat/data/api_chat_repository.dart';
 
 final locator = GetIt.instance;
 Future<void> setupLocator() async {
@@ -24,6 +28,8 @@ Future<void> setupLocator() async {
   );
   final auth = ApiAuthRepository(dio, const FlutterSecureStorage());
   locator.registerSingleton<AuthRepository>(auth);
+  locator.registerSingleton<SalesRepository>(ApiSalesRepository(auth));
+  locator.registerSingleton<ChatRepository>(ApiChatRepository(auth));
   locator.registerSingleton<PropertyRepository>(
     ApiPropertyRepository(dio, auth),
   );

@@ -1,7 +1,12 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../auth/presentation/auth_cubit.dart';
 import 'housing_group_page.dart';
+import '../../sales/domain/sales_repository.dart';
+import '../../sales/presentation/sales_pages.dart';
+import '../../sales/presentation/financial_card.dart';
+import '../../sales/presentation/sales_strings.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../domain/property_repository.dart';
 
@@ -20,6 +25,7 @@ class PropertyDetailsPage extends StatefulWidget {
 class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
   late Future<Map<String, dynamic>> _details;
   bool _saving = false;
+  final _privatePhotos = <String, Future<List<int>>>{};
   @override
   void initState() {
     super.initState();
@@ -46,6 +52,39 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
           );
         }
         final data = snapshot.data!;
+        if (data['unavailable'] == true) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.info_outline, size: 56),
+                  const SizedBox(height: 16),
+                  Text(
+                    data['title'] as String,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    words(
+                      context,
+                      data['availability'] == 'unavailable'
+                          ? 'listingUnavailable'
+                          : data['availability'] as String,
+                    ),
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    words(context, 'savedUnavailableHint'),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
         final account = context.watch<AuthCubit>().state.account;
         final photos = List<String>.from(data['photo_ids'] as List);
         return SingleChildScrollView(
@@ -67,15 +106,37 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                                   padding: const EdgeInsets.all(4),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(16),
-                                    child: Image.network(
-                                      widget.repository.photoUrl(id),
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, _, _) => const Center(
-                                        child: Icon(
-                                          Icons.image_not_supported_outlined,
-                                        ),
-                                      ),
-                                    ),
+                                    child: account?.id == data['owner_id']
+                                        ? FutureBuilder(
+                                            future: _privatePhotos.putIfAbsent(
+                                              id,
+                                              () => widget.repository
+                                                  .privateImage(id),
+                                            ),
+                                            builder: (context, snapshot) =>
+                                                snapshot.hasData
+                                                ? Image.memory(
+                                                    Uint8List.fromList(
+                                                      snapshot.data!,
+                                                    ),
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : const Center(
+                                                    child: Icon(
+                                                      Icons.image_outlined,
+                                                    ),
+                                                  ),
+                                          )
+                                        : Image.network(
+                                            widget.repository.photoUrl(id),
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, _, _) => const Center(
+                                              child: Icon(
+                                                Icons
+                                                    .image_not_supported_outlined,
+                                              ),
+                                            ),
+                                          ),
                                   ),
                                 ),
                               )
@@ -89,11 +150,75 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      '${data['price']} ${Localizations.localeOf(context).languageCode == 'ar' ? 'ج.م' : 'EGP'}',
+                      data['all_in'] == false
+                          ? salesText(context, 'eligibilityPending')
+                          : '${data['price']} ${Localizations.localeOf(context).languageCode == 'ar' ? 'ج.م' : 'EGP'}',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 16),
                     Text(data['description'] as String),
+                    if (data['financial'] is Map)
+                      FinancialCard(
+                        snapshot: Map<String, dynamic>.from(
+                          data['financial'] as Map,
+                        ),
+                        commitmentEnabled: data['all_in'] != false,
+                      ),
+                    if (data['all_in'] == true &&
+                        data['availability'] == 'active' &&
+                        account != null &&
+                        account.id != data['owner_id'] &&
+                        account.intents.contains(
+                          {
+                            'sale_cash': 'buyer_cash',
+                            'sale_installments': 'buyer_installments',
+                            'private_rental': 'tenant_private',
+                            'shared_rental': 'tenant_shared',
+                          }[data['category']],
+                        ))
+                      FilledButton.icon(
+                        onPressed: _saving
+                            ? null
+                            : () async {
+                                setState(() => _saving = true);
+                                try {
+                                  final id = await context
+                                      .read<SalesRepository>()
+                                      .start(widget.id);
+                                  if (context.mounted) {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute<void>(
+                                        builder: (_) => SalesDetailPage(id: id),
+                                      ),
+                                    );
+                                  }
+                                } on SalesFailure catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          salesText(context, e.code),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } catch (_) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          salesText(context, 'NETWORK_ERROR'),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }
+                                if (mounted) setState(() => _saving = false);
+                              },
+                        icon: const Icon(Icons.handshake_outlined),
+                        label: Text(salesText(context, 'start')),
+                      ),
                     const SizedBox(height: 24),
                     for (final key in [
                       'category',
@@ -140,6 +265,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                           ),
                         ),
                     if (data['category'] == 'shared_rental' &&
+                        data['availability'] == 'active' &&
                         (account?.canFindRoommates ?? false)) ...[
                       const SizedBox(height: 16),
                       OutlinedButton(

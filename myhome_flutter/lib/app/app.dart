@@ -11,17 +11,23 @@ import '../features/auth/presentation/auth_page.dart';
 import '../features/auth/presentation/intents_page.dart';
 import '../features/home/home_page.dart';
 import '../features/properties/domain/property_repository.dart';
+import '../features/sales/domain/sales_repository.dart';
+import '../features/chat/domain/chat_repository.dart';
 import '../localizations/app_localizations.dart';
 
 class MyHome extends StatelessWidget {
   final AuthRepository? repository;
   final PropertyRepository? propertyRepository;
+  final SalesRepository? salesRepository;
+  final ChatRepository? chatRepository;
   final SettingsCubit? settings;
   const MyHome({
     super.key,
     this.repository,
     this.settings,
     this.propertyRepository,
+    this.salesRepository,
+    this.chatRepository,
   });
   @override
   Widget build(BuildContext context) => MultiBlocProvider(
@@ -34,8 +40,20 @@ class MyHome extends StatelessWidget {
         create: (_) => settings ?? SettingsCubit(locator<SharedPreferences>()),
       ),
     ],
-    child: RepositoryProvider<PropertyRepository>.value(
-      value: propertyRepository ?? locator<PropertyRepository>(),
+    child: MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<PropertyRepository>.value(
+          value: propertyRepository ?? locator<PropertyRepository>(),
+        ),
+        if (salesRepository != null || locator.isRegistered<SalesRepository>())
+          RepositoryProvider<SalesRepository>.value(
+            value: salesRepository ?? locator<SalesRepository>(),
+          ),
+        if (chatRepository != null || locator.isRegistered<ChatRepository>())
+          RepositoryProvider<ChatRepository>.value(
+            value: chatRepository ?? locator<ChatRepository>(),
+          ),
+      ],
       child: BlocBuilder<SettingsCubit, AppSettings>(
         builder: (context, state) => MaterialApp(
           debugShowCheckedModeBanner: false,

@@ -1,0 +1,25 @@
+services:
+  demo-api:
+    build: ../backend_fastapi
+    environment:
+      DATABASE_URL: postgresql://myhome:${APP_DB_PASSWORD}@postgres:5432/myhome_demo
+      JWT_SECRET: ${DEMO_JWT_SECRET:?Run python tools/setup_demo.py}
+      DOCUMENT_KEY: ${DEMO_DOCUMENT_KEY:?Run python tools/setup_demo.py}
+      STORAGE_PATH: /data
+      OCR_ENABLED: "false"
+      COMMISSION_ENABLED: "true"
+      CORS_ORIGINS: http://localhost:8081,http://127.0.0.1:8081
+    ports:
+      - "127.0.0.1:3001:3000"
+    volumes:
+      - demo_private_media:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/api/v1/health', timeout=4)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+volumes:
+  demo_private_media:

@@ -8,6 +8,9 @@ import 'package:myhome_flutter/core/config/settings_cubit.dart';
 import 'package:myhome_flutter/features/auth/domain/auth_repository.dart';
 import 'fakes.dart';
 import 'fake_property_repository.dart';
+import 'owner_portfolio_test.dart' show PortfolioRepository;
+import 'package:myhome_flutter/features/properties/domain/property_repository.dart';
+import 'package:myhome_flutter/features/properties/presentation/owner_portfolio_page.dart';
 
 void main() {
   setUpAll(() async {
@@ -26,7 +29,11 @@ void main() {
     testWidgets('updated marketplace preview $language', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
-      Future<void> launch({Account? restored, bool dark = false}) async {
+      Future<void> launch({
+        Account? restored,
+        bool dark = false,
+        PropertyRepository? properties,
+      }) async {
         SharedPreferences.setMockInitialValues({
           'language': language,
           'theme': dark ? 'dark' : 'light',
@@ -37,8 +44,9 @@ void main() {
             child: MyHome(
               key: UniqueKey(),
               repository: FakeAuthRepository()..restored = restored,
-              propertyRepository: FakePropertyRepository()
-                ..items = [testProperty],
+              propertyRepository:
+                  properties ??
+                  (FakePropertyRepository()..items = [testProperty]),
               settings: SettingsCubit(await SharedPreferences.getInstance()),
             ),
           ),
@@ -113,6 +121,34 @@ void main() {
       await tester.tap(find.byKey(const Key('openSignIn')));
       await tester.pumpAndSettle();
       await capture('login-dark');
+      final portfolio = PortfolioRepository();
+      await launch(
+        restored: const Account(
+          id: 'owner',
+          name: 'Demo Owner',
+          email: 'owner@example.com',
+          role: 'owner',
+          ownerVerified: true,
+          intents: [
+            'owner_sale_cash',
+            'owner_private_rental',
+            'owner_shared_rental',
+          ],
+          activeIntent: 'owner_sale_cash',
+        ),
+        properties: portfolio,
+      );
+      Navigator.of(tester.element(find.byType(Scaffold).first)).push(
+        MaterialPageRoute<void>(
+          builder: (_) =>
+              OwnerPortfolioPage(repository: portfolio, onDetails: (_) {}),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await capture('owner-overview');
+      await tester.tap(find.byKey(const ValueKey('portfolio-sale')));
+      await tester.pumpAndSettle();
+      await capture('owner-sale');
     });
   }
 }

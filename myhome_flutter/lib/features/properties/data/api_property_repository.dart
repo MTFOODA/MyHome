@@ -122,6 +122,85 @@ class ApiPropertyRepository implements PropertyRepository {
     () async => _items(await auth.authorizedRequest('/properties/mine')),
   );
   @override
+  Future<List<PortfolioCount>> portfolio() => _call(() async {
+    final data = await auth.authorizedRequest('/properties/mine/overview');
+    return (data['items'] as List)
+        .map(
+          (v) => PortfolioCount.fromJson(Map<String, dynamic>.from(v as Map)),
+        )
+        .toList();
+  });
+  @override
+  Future<OwnerPage> ownerPage(
+    String group, {
+    String scope = 'current',
+    String query = '',
+    String availability = 'all',
+    String? cursor,
+  }) => _call(() async {
+    final queryString = Uri(
+      queryParameters: {
+        'group': group,
+        'scope': scope,
+        'q': query,
+        'availability': availability,
+        'cursor': ?cursor,
+      },
+    ).query;
+    final data = await auth.authorizedRequest(
+      '/properties/mine/page?$queryString',
+    );
+    return OwnerPage(
+      _items(data),
+      data['total'] as int,
+      data['next_cursor'] as String?,
+    );
+  });
+  @override
+  Future<List<String>> ownerSuggestions(
+    String group,
+    String query,
+    String scope,
+  ) => _call(() async {
+    final qs = Uri(
+      queryParameters: {'group': group, 'scope': scope, 'q': query},
+    ).query;
+    final data = await auth.authorizedRequest(
+      '/properties/mine/suggestions?$qs',
+    );
+    return (data['items'] as List)
+        .map((v) => v['title'] as String)
+        .toSet()
+        .toList();
+  });
+  @override
+  Future<void> changeAvailability(String id, String availability) =>
+      _call(() async {
+        await auth.authorizedRequest(
+          '/properties/$id/availability',
+          method: 'PUT',
+          data: {'availability': availability},
+        );
+      });
+  @override
+  Future<Map<String, dynamic>> priceQuote(Map<String, dynamic> values) => _call(
+    () async => Map<String, dynamic>.from(
+      await auth.authorizedRequest(
+            '/pricing/quote',
+            method: 'POST',
+            data: values,
+          )
+          as Map,
+    ),
+  );
+  @override
+  Future<List<Map<String, dynamic>>> groups() => _call(() async {
+    final data = await auth.authorizedRequest('/groups');
+    return (data['items'] as List)
+        .map((v) => Map<String, dynamic>.from(v as Map))
+        .toList();
+  });
+  @override
   Future<void> save(String id) => _call(() async {
     await auth.authorizedRequest('/favorites/$id', method: 'PUT');
   });

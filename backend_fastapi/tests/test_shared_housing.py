@@ -37,7 +37,7 @@ def test_last_bed_cannot_be_overbooked_and_group_requires_a_real_tenant(client, 
     group["tenant_admin_id"] = winner["user"]["id"]
     created_group = client.post("/api/v1/groups", headers=owner["headers"], json=group)
     assert created_group.status_code == 201, created_group.text
-    assert created_group.json()["messagingReady"] is False
+    assert created_group.json()["messagingReady"] is True
     client.put(
         "/api/v1/auth/intents",
         headers=owner["headers"],

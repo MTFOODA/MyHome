@@ -1,3 +1,41 @@
+## Approved all-in pricing, supervised deals and moderated chat - 2026-11-15
+
+This section supersedes the preview-only and E2EE-message statements below, retained as history. The owner approved fixed original-price fees split equally, server-inspected text encrypted at rest, and mandatory legal eligibility for old rent. Read [the current implementation and operating guide](35_ALL_IN_SUPERVISED_DEALS.md).
+
+Verified: 56 real PostgreSQL tests, 43 Flutter tests, 6 preview-render tests; analyzer/Ruff clean; Web and Android debug builds passed. Main/demo additive migrations applied after a private DB backup, both APIs healthy. Isolated demo: 10 accounts, 13 listings, one shared group, an open deal and two encrypted conversations; actual restricted-role HTTP smoke passed. iOS requires macOS. No full marketplace phase is declared complete.
+
+Calls, roommate matching and production banking/signature integrations remain pending. Explicit consent is recorded, not a certified signature. Operators supply reviewed terms, qualified staff and the real InstaPay QR through admin UI. The server can inspect messages; this is not E2EE.
+
+---
+
+- [x] FEE-202: Approved original-price all-in engine, fixed equal shares, negotiation, draft retry quotes and old-rent reference/eligibility/special agreement.
+<!-- DONE: FEE-202 | Files: financial.py, pricing.py, legal_eligibility.py, 20261115_allin.py, 20261115_eligibility.py, financial_card.dart | Tests: test_all_in.py, test_pricing_reference.py, rental/sale deal tests, Flutter financial widgets, AR/EN light/dark previews | Verified: 2026-11-15 -->
+- [x] DEAL-202: Internal staff, supervised viewing, formal offers, explicit bilateral terms, assigned document review, private QR and manually reconciled commission ledger.
+<!-- DONE: DEAL-202 | Files: deals.py, 20261115_deals.py, features/sales/ | Tests: sale/private/shared/old-rent full API flows, staff/role/document/payment isolation, Flutter Cubit/form tests | Verified: 2026-11-15 -->
+- [x] CHAT-202: Approved moderated text model, encrypted storage and member-only trade/group chat; supersedes earlier E2EE prerequisite for messages.
+<!-- DONE: CHAT-202 | Files: messages.py, 20261115_communications.py, features/chat/ | Tests: number/contact rejection, fragmentation, ciphertext binding, history/revocation, Cubit failures, Docker restricted-role insertion | Verified: 2026-11-15 -->
+- [x] DEMO-202: Ten synthetic accounts, internal staff and actual moderated trade/group conversation fixtures.
+<!-- DONE: DEMO-202 | Files: seed_demo.py, tools/smoke_demo.py, tools/start_demo.ps1 | Tests: fixture assertions and Docker HTTP scenarios, no real QR/legal terms invented | Verified: 2026-11-15 -->
+- [ ] CALL-202: In-app calls remain unimplemented.
+
+## Owner portfolio, lifecycle and demo - 2026-11-14
+
+- [x] PROP-202: Owner type counts, scoped quick search, 3-item cursor pages and current/history UI.
+<!-- DONE: PROP-202 | Files: portfolio.py, owner_portfolio_cubit.dart, owner_portfolio_page.dart | Tests: owner isolation/cursor tests, 33 Flutter suite, AR/EN previews, Web/Android builds | Verified: 2026-11-14 -->
+- [x] PROP-203: Pause/restore and audited sold/rented closure; saved-property tombstones and snapshot privacy.
+<!-- DONE: PROP-203 | Files: models.py, properties.py, assets.py, groups.py, 20261115_portfolio.py, property_card.dart | Tests: real PostgreSQL lifecycle/photo/favorites/archive tests; Flutter unavailable-card test | Verified: 2026-11-14 -->
+- [x] FEE-001: Versioned server-side proposal preview and configurable rates/region discounts; disabled until approved.
+<!-- DONE: FEE-001 | Files: pricing.py, config.py, price_quote_panel.dart, compose.yaml | Tests: money/rounding/cap/region/client-tampering/snapshot tests; Flutter preview test | Verified: 2026-11-14 -->
+- [x] DEMO-001: Isolated 8-account/13-listing/shared-group fixtures and runtime scenario verification.
+<!-- DONE: DEMO-001 | Files: seed_demo.py, compose.demo.yaml, start_demo.ps1, setup_demo.py | Tests: seed assertions plus actual Docker login/pages/favorites/group privacy/logout | Verified: 2026-11-14 -->
+- [ ] CHAT-202: Requested conversation scenarios remain unavailable until E2EE messaging exists; zero plaintext/fake conversations seeded.
+
+Current increment: grouped owner counts; remote quick search; exactly 3 listings per cursor page; pause/restore; sold/rented history; safe saved-property status cards; own-photo access and group membership list. Pricing proposal is configurable, preview-only and disabled pending approval. See [owner/demo guide](33_OWNER_PORTFOLIO_AND_DEMO.md) and [fee proposal](34_COMMISSION_PROPOSAL.md).
+
+Verified: 33 Flutter tests, analyzer clean; 25 real PostgreSQL tests, Ruff clean; Web/Android debug builds. Separate myhome_demo fixtures: 8 accounts, 13 listings, one owner/two-tenant group and private random credentials. Actual Docker runtime smoke passed. E2EE communication/calls and real conversations remain unimplemented; membership metadata is not chat.
+
+---
+
 ## Selected logo applied - 2026-11-14
 
 - [x] BRAND-002: Install user-selected logo 02 in Flutter branding and platform icon/launch assets.

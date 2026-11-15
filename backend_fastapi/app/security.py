@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import db_session
-from app.models import AuthSession, User
+from app.models import AuthSession, StaffMember, User
 from app.policy import intents_for
 
 bearer = HTTPBearer(auto_error=False)
@@ -28,6 +28,7 @@ def digest(value: str) -> str:
 
 
 def public_user(db: Session, user: User):
+    staff = db.get(StaffMember, user.id)
     return dict(
         id=str(user.id),
         name=user.name,
@@ -38,6 +39,7 @@ def public_user(db: Session, user: User):
         activeIntent=user.active_intent,
         housingPersona=user.housing_persona,
         onboardingComplete=user.onboarding_complete,
+        staffRole=staff.specialty if staff and staff.active else None,
     )
 
 

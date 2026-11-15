@@ -1,3 +1,13 @@
+## Approved all-in pricing, supervised deals and moderated chat - 2026-11-15
+
+This section supersedes the preview-only and E2EE-message statements below, retained as history. The owner approved fixed original-price fees split equally, server-inspected text encrypted at rest, and mandatory legal eligibility for old rent. Read [the current implementation and operating guide](35_ALL_IN_SUPERVISED_DEALS.md).
+
+Verified: 56 real PostgreSQL tests, 43 Flutter tests, 6 preview-render tests; analyzer/Ruff clean; Web and Android debug builds passed. Main/demo additive migrations applied after a private DB backup, both APIs healthy. Isolated demo: 10 accounts, 13 listings, one shared group, an open deal and two encrypted conversations; actual restricted-role HTTP smoke passed. iOS requires macOS. No full marketplace phase is declared complete.
+
+Calls, roommate matching and production banking/signature integrations remain pending. Explicit consent is recorded, not a certified signature. Operators supply reviewed terms, qualified staff and the real InstaPay QR through admin UI. The server can inspect messages; this is not E2EE.
+
+---
+
 # Current product/stack amendment — 2026-11-14
 <!-- CURRENT_AUDIT_2026_11_14 -->
 The latest explicit request uses Flutter Clean Architecture with Cubit/BLoC, Python/FastAPI, local PostgreSQL and Docker, with Web/Android/iOS as primary release targets. This supersedes earlier NestJS/TypeORM/Prisma implementation plans.
