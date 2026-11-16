@@ -1,3 +1,11 @@
+## Picture choices and furnishing search - 2026-11-16
+
+New: `core/widgets/choice_artwork.dart` and `selection_tile.dart`; bundled `assets/illustrations/choice-atlas-v2.png`; `test/selection_tile_test.dart`; `test/render_picture_choices.dart`; artwork prompt in `design/illustrations/CHOICE_ARTWORK_V2.md`. Updated discovery route accepts nullable `furnished` boolean; six real PostgreSQL filter regressions added. Listing/onboarding/deal consent cards reuse one component and keep existing state management.
+
+Read [guide 41](41_PICTURE_SELECTION_AND_FURNISHING_FILTER.md). Previous entries are preserved as history.
+
+---
+
 ## Responsive layout and meaningful icons - 2026-11-16
 
 New shared presentation components: `core/widgets/app_layout.dart` (`AppLayout`, `AppScaffold`) and `core/widgets/app_icon.dart` (`AppIcon`, `ColorSymbol`, `FeatureSymbol`). The obsolete `property_illustration.dart` is removed. `test/responsive_layout_test.dart` adds 10 behavior/layout checks; `test/render_responsive_layout.dart` renders four platform-size scenarios. Atlases are archived under `design/illustrations/masters/`, outside Flutter assets. No domain/repository/API duplication or schema changes.

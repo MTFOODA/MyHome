@@ -12,6 +12,8 @@ import 'listing_choices.dart';
 import 'listing_generated_details.dart';
 import 'listing_location_step.dart';
 import '../../../core/widgets/app_icon.dart';
+import '../../../core/widgets/selection_tile.dart';
+import '../../../core/widgets/choice_artwork.dart';
 
 class ListingPage extends StatefulWidget {
   final PropertyRepository repository;
@@ -114,13 +116,20 @@ class _ListingPageState extends State<ListingPage> {
     ],
   );
   Widget yesNo(String key) => ListingChoiceGrid(
-    compact: true,
+    compact: key != 'furnished',
     children: [
       for (final value in [true, false])
         ListingChoice(
           key: ValueKey('answer-$key-$value'),
-          label: words(context, value ? 'yes' : 'no'),
-          illustration: value ? 'answerYes' : 'answerNo',
+          label: words(
+            context,
+            key == 'furnished'
+                ? (value ? 'furnishedOption' : 'unfurnishedOption')
+                : (value ? 'yes' : 'no'),
+          ),
+          illustration: key == 'furnished'
+              ? (value ? 'furnished' : 'unfurnished')
+              : (value ? 'answerYes' : 'answerNo'),
           selected: _cubit.values[key] == value,
           onTap: () => _set(key, value),
         ),
@@ -294,9 +303,17 @@ class _ListingPageState extends State<ListingPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (final utility in ['water', 'electricity', 'gas']) ...[
-              Text(
-                words(context, utility),
-                style: Theme.of(context).textTheme.titleMedium,
+              Row(
+                children: [
+                  ChoiceArtwork(utility, size: 52),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      words(context, utility),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               yesNo(utility),
@@ -449,12 +466,13 @@ class _ListingPageState extends State<ListingPage> {
                 _cubit.ownership?.name ?? words(context, 'ownershipImage'),
               ),
             ),
-            CheckboxListTile(
+            const SizedBox(height: 16),
+            SelectionTile(
               key: const Key('listingConsent'),
-              contentPadding: EdgeInsets.zero,
-              title: Text(words(context, 'consent')),
-              value: _cubit.consent,
-              onChanged: (value) => setState(() => _cubit.consent = value!),
+              artwork: 'consent',
+              label: words(context, 'consent'),
+              selected: _cubit.consent,
+              onChanged: (value) => setState(() => _cubit.consent = value),
             ),
           ],
         );

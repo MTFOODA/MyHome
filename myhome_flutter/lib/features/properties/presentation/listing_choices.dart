@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../../../core/widgets/app_icon.dart';
-import '../../../core/widgets/app_layout.dart';
+import '../../../core/widgets/selection_tile.dart';
 
 class ListingChoice extends StatelessWidget {
   final String label, illustration;
@@ -15,72 +15,12 @@ class ListingChoice extends StatelessWidget {
     required this.onTap,
   });
   @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Semantics(
-      button: true,
-      selected: selected,
-      child: AnimatedContainer(
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : const Duration(milliseconds: 180),
-        decoration: BoxDecoration(
-          color: selected
-              ? colors.primaryContainer
-              : colors.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: selected ? colors.primary : colors.outlineVariant,
-            width: selected ? 2 : 1,
-          ),
-        ),
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(18),
-            onTap: onTap,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: AppLayout.wide(context) ? 112 : 84,
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(AppLayout.wide(context) ? 22 : 16),
-                child: Row(
-                  children: [
-                    if (FeatureSymbol.iconFor(illustration) != null) ...[
-                      FeatureSymbol(
-                        illustration,
-                        size: AppLayout.wide(context) ? 40 : 30,
-                      ),
-                      const SizedBox(width: 16),
-                    ],
-                    Expanded(
-                      child: Text(
-                        label,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    if (selected)
-                      const AppIcon(Icons.check_circle_rounded)
-                    else
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: colors.outline),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => SelectionTile(
+    label: label,
+    artwork: illustration,
+    selected: selected,
+    onChanged: onTap == null ? null : (_) => onTap!(),
+  );
 }
 
 class ListingChoiceGrid extends StatelessWidget {

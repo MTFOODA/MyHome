@@ -34,6 +34,7 @@ class PropertyCard extends StatelessWidget {
                 builder: (context, constraints) => SizedBox(
                   height: (constraints.maxWidth * .56).clamp(180, 340),
                   child: PropertyPhoto(
+                    category: property.category,
                     id: property.coverId,
                     repository: repository,
                     private: property.coverPrivate,

@@ -1,3 +1,15 @@
+## Picture choices and furnishing search - 2026-11-16
+
+[x] SEARCH-041: Furnished/unfurnished/All filter appears for Lux/Super Lux, clears on other finishes and submits real booleans to discovery. SQL preserves unknown legacy values; omitted filter includes them.
+
+[x] PROP-042: Transparent choice pictures restored selectively; native tools retained. Shared SelectionTile replaces all authored checkboxes and side radio/check decorations; explicit financial consent remains mandatory.
+
+Verified: 93 Flutter tests, 86 PostgreSQL tests, four render scenarios; analyzer/Ruff clean. Web/Android debug and both APIs updated, actual public Web/artwork hash and HTTP checks passed. See guide 41. No schema migration and no marketplace phase completion.
+
+Read [guide 41](41_PICTURE_SELECTION_AND_FURNISHING_FILTER.md). Previous entries are preserved as history.
+
+---
+
 ## Responsive layout and meaningful icons - 2026-11-16
 
 [x] UI-040: Remove manual listing-copy controls and state; retain automatic generated copy.

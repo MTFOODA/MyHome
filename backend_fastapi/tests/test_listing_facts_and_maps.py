@@ -1,8 +1,8 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 
-from app.models import Property
+from app.models import Property, User
 from tests.test_marketplace import payload, upload
 
 
@@ -104,3 +104,43 @@ def test_short_link_needs_explicit_pin_and_unsafe_links_are_rejected(client, sig
         "https://www.openstreetmap.org:443/",
     ]:
         assert client.post(path, headers=actor["headers"], json={"url": url}).status_code == 422
+
+
+@pytest.mark.parametrize("category", ["sale_cash", "private_rental", "shared_rental"])
+@pytest.mark.parametrize("finishing", ["lux", "super_lux"])
+def test_furnishing_discovery_combines_filters_and_preserves_unknowns(client, db, signup, category, finishing):
+    owner = signup(["owner_" + category])
+    prefix = "Furnishing-" + uuid4().hex
+    ids = {}
+    for value, status, availability in [
+        (True, "approved", "active"),
+        (False, "approved", "active"),
+        (None, "approved", "active"),
+        (True, "draft", "active"),
+        (False, "approved", "paused"),
+    ]:
+        response = client.post(
+            "/api/v1/properties", headers=owner["headers"],
+            json=payload(category) | dict(title=prefix, finishing=finishing, furnished=value),
+        )
+        assert response.status_code == 201, response.text
+        prop = db.get(Property, UUID(response.json()["id"]))
+        prop.status, prop.availability = status, availability
+        if status == "approved" and availability == "active":
+            ids[value] = str(prop.id)
+    db.get(User, UUID(owner["user"]["id"])).owner_verified = True
+    db.commit()
+    params = dict(q=prefix, category=category, finishing=finishing)
+    if category != "sale_cash":
+        params["rental_period"] = "one_year"
+    for value in [True, False]:
+        result = client.get("/api/v1/properties", params=params | {"furnished": str(value).lower()})
+        assert result.status_code == 200
+        assert result.json()["total"] == 1
+        assert [p["id"] for p in result.json()["items"]] == [ids[value]]
+    unfiltered = client.get("/api/v1/properties", params=params).json()
+    assert unfiltered["total"] == 3
+    assert {p["id"] for p in unfiltered["items"]} == set(ids.values())
+    other = "super_lux" if finishing == "lux" else "lux"
+    assert client.get("/api/v1/properties", params=params | {"finishing": other}).json()["total"] == 0
+    assert client.get("/api/v1/properties", params=params | {"furnished": "unknown"}).status_code == 422

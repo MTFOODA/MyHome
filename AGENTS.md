@@ -30,6 +30,7 @@ MyHome/
 Check docs/05_IMPLEMENTATION_PROGRESS.md for the current phase and task status.
 
 ### Current requirements and implementation (2026-11-16)
+- Latest owner correction: read `docs/41_PICTURE_SELECTION_AND_FURNISHING_FILTER.md`. Use transparent distinct choice pictures alongside native tool icons, not blanket picture removal. SelectionTile replaces authored checkboxes/radio decorations while preserving explicit consent. Furnished filter appears for Lux/Super Lux and reaches the real boolean discovery query; NULL remains unknown. No new migration. Details and verified counts are in guide 41. The native-only rule in guide 40 below is superseded.
 - Latest UI amendment: read `docs/40_RESPONSIVE_LAYOUT_AND_ICONS.md`. Manual title/description controls are removed; generated copy remains. Shared `AppLayout`/`AppScaffold` and viewport-aware theme scale all screens. Native `AppIcon`/distinct `FeatureSymbol` replace raster substitutions; atlases remain archived outside the Flutter bundle. Translation control shows target language. Current verification: 87 Flutter tests, 4 responsive render scenarios, analyzer clean. Older illustration instructions below are historical.
 
 ### Previous verified increment (2026-11-15)

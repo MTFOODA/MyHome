@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
 const marketplaceWords = <String, (String, String)>{
+  'furnishedOption': ('Furnished', 'مفروشة'),
+  'unfurnishedOption': ('Unfurnished', 'غير مفروشة'),
+  'noPropertyPhoto': (
+    'Illustration · no property photo added',
+    'صورة توضيحية · لم تُضف صورة للعقار',
+  ),
   'searchArea': (
     'Find a city, district or village (optional search)',
     'ابحث عن مدينة أو حي أو قرية (البحث اختياري)',

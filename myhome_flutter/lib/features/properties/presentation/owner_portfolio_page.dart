@@ -251,6 +251,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
             child: Column(
               children: [
                 SegmentedButton<String>(
+                  showSelectedIcon: false,
                   segments: [
                     ButtonSegment(
                       value: 'current',

@@ -1,4 +1,5 @@
 import '../../../core/widgets/app_icon.dart';
+import 'listing_choices.dart';
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../../../core/input/number_input.dart';
@@ -28,6 +29,9 @@ class _PropertyFiltersSheetState extends State<PropertyFiltersSheet> {
   void initState() {
     super.initState();
     _draft = Map.of(widget.applied);
+    if (!['lux', 'super_lux'].contains(_draft['finishing'])) {
+      _draft.remove('furnished');
+    }
     _catalog = widget.catalog;
     _min = TextEditingController(text: _draft['min_price']?.toString() ?? '');
     _max = TextEditingController(text: _draft['max_price']?.toString() ?? '');
@@ -69,11 +73,15 @@ class _PropertyFiltersSheetState extends State<PropertyFiltersSheet> {
               'gas',
               'elevator',
               'negotiable',
+              'furnished',
             ].contains(key)
             ? value == 'true'
             : value;
       }
       if (key == 'governorate_id') _draft.remove('area_id');
+      if (key == 'finishing' && !['lux', 'super_lux'].contains(value)) {
+        _draft.remove('furnished');
+      }
     });
   }
 
@@ -213,59 +221,28 @@ class _PropertyFiltersSheetState extends State<PropertyFiltersSheet> {
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 16),
-                      for (final category in [
-                        'sale_cash',
-                        'sale_installments',
-                        'private_rental',
-                        'shared_rental',
-                      ])
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: OutlinedButton(
-                            key: ValueKey('filter-type-$category'),
-                            onPressed: () => _set(
-                              'category',
-                              _draft['category'] == category ? null : category,
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size.fromHeight(48),
-                              backgroundColor: _draft['category'] == category
-                                  ? scheme.primaryContainer.withValues(
-                                      alpha: .35,
-                                    )
-                                  : Colors.transparent,
-                              side: BorderSide(
-                                color: _draft['category'] == category
-                                    ? scheme.primary
-                                    : scheme.outlineVariant,
+                      ListingChoiceGrid(
+                        children: [
+                          for (final category in [
+                            'sale_cash',
+                            'sale_installments',
+                            'private_rental',
+                            'shared_rental',
+                          ])
+                            ListingChoice(
+                              key: ValueKey('filter-type-$category'),
+                              label: words(context, category),
+                              illustration: category,
+                              selected: _draft['category'] == category,
+                              onTap: () => _set(
+                                'category',
+                                _draft['category'] == category
+                                    ? null
+                                    : category,
                               ),
-                              foregroundColor: scheme.onSurface,
-                              shape: const StadiumBorder(),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (_draft['category'] == category) ...[
-                                  AppIcon(
-                                    Icons.check,
-                                    size: 18,
-                                    color: scheme.primary,
-                                  ),
-                                  const SizedBox(width: 8),
-                                ],
-                                Flexible(
-                                  child: Text(
-                                    words(context, category),
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -332,6 +309,37 @@ class _PropertyFiltersSheetState extends State<PropertyFiltersSheet> {
                       'super_lux',
                     ].map((key) => (key, words(context, key))).toList(),
                   ),
+                  if (['lux', 'super_lux'].contains(_draft['finishing'])) ...[
+                    Text(
+                      words(context, 'furnished'),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    ListingChoiceGrid(
+                      children: [
+                        for (final value in [null, true, false])
+                          ListingChoice(
+                            key: ValueKey('filter-furnished-${value ?? 'all'}'),
+                            label: words(
+                              context,
+                              value == null
+                                  ? 'all'
+                                  : value
+                                  ? 'furnishedOption'
+                                  : 'unfurnishedOption',
+                            ),
+                            illustration: value == null
+                                ? ''
+                                : value
+                                ? 'furnished'
+                                : 'unfurnished',
+                            selected: _draft['furnished'] == value,
+                            onTap: () => _set('furnished', value?.toString()),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   _select(
                     'rental_period',
                     'rental_period',

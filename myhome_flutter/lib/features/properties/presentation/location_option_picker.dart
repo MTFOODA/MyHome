@@ -66,9 +66,6 @@ class LocationOptionPicker extends StatelessWidget {
                                   key: ValueKey(
                                     'location-option-${filtered[index].id}',
                                   ),
-                                  trailing: filtered[index].id == selected
-                                      ? const AppIcon(Icons.check_rounded)
-                                      : null,
                                   title: Text(name(filtered[index])),
                                   selected: filtered[index].id == selected,
                                   onTap: () => Navigator.pop(

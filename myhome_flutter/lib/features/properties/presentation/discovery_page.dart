@@ -1,5 +1,6 @@
 import '../../../core/widgets/app_layout.dart';
 import '../../../core/widgets/app_icon.dart';
+import '../../../core/widgets/choice_artwork.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
@@ -203,7 +204,9 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
             child: OutlinedButton.icon(
               key: ValueKey('quick-type-${entry.$1}'),
               onPressed: () => _category(entry.$1.isEmpty ? null : entry.$1),
-              icon: AppIcon(entry.$2, size: 21),
+              icon: entry.$1.isEmpty
+                  ? AppIcon(entry.$2, size: 21)
+                  : ChoiceArtwork(entry.$1, size: 38),
               label: Text(
                 words(context, entry.$1.isEmpty ? 'allHomes' : entry.$1),
               ),

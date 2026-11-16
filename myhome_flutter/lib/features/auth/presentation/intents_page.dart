@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
 import 'auth_cubit.dart';
 import 'auth_page.dart';
-import '../../../core/widgets/app_icon.dart';
+import '../../../core/widgets/selection_tile.dart';
 
 class IntentsPage extends StatefulWidget {
   final bool settings;
@@ -52,63 +52,17 @@ class _IntentsPageState extends State<IntentsPage> {
     }
   });
 
-  Widget _familyCard(String family, bool busy, double width) {
-    final selected = _families.contains(family);
-    final colors = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: width,
-      child: AnimatedContainer(
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : const Duration(milliseconds: 180),
-        decoration: BoxDecoration(
-          color: selected ? colors.primaryContainer : colors.surface,
-          border: Border.all(
-            color: selected ? colors.primary : colors.outlineVariant,
-            width: selected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            key: ValueKey('family_$family'),
-            borderRadius: BorderRadius.circular(20),
-            onTap: busy ? null : () => _toggleFamily(family),
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Row(
-                children: [
-                  FeatureSymbol(
-                    family == 'owner' ? 'home' : 'location',
-                    size: 48,
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          words(context, '${family}Family'),
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 6),
-                        Text(words(context, '${family}FamilyHint')),
-                      ],
-                    ),
-                  ),
-                  Checkbox(
-                    value: selected,
-                    onChanged: busy ? null : (_) => _toggleFamily(family),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _familyCard(String family, bool busy, double width) => SizedBox(
+    width: width,
+    child: SelectionTile(
+      key: ValueKey('family_$family'),
+      label: words(context, '${family}Family'),
+      subtitle: words(context, '${family}FamilyHint'),
+      artwork: family == 'owner' ? 'villa' : 'studio',
+      selected: _families.contains(family),
+      onChanged: busy ? null : (_) => _toggleFamily(family),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) => BlocConsumer<AuthCubit, AuthState>(
@@ -171,52 +125,31 @@ class _IntentsPageState extends State<IntentsPage> {
                         for (final intent in _groups[family]!)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 10),
-                            child: AnimatedContainer(
-                              duration: MediaQuery.disableAnimationsOf(context)
-                                  ? Duration.zero
-                                  : const Duration(milliseconds: 180),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.outlineVariant,
-                                ),
-                                color: _selected.contains(intent)
-                                    ? Theme.of(
-                                        context,
-                                      ).colorScheme.primaryContainer
-                                    : Theme.of(context).colorScheme.surface,
+                            child: SelectionTile(
+                              key: ValueKey('intent_$intent'),
+                              label: words(
+                                context,
+                                family == 'owner'
+                                    ? intent.substring(6)
+                                    : intent,
                               ),
-                              child: Material(
-                                type: MaterialType.transparency,
-                                child: CheckboxListTile(
-                                  key: ValueKey('intent_$intent'),
-                                  secondary: FeatureSymbol(intent, size: 40),
-                                  title: Text(
-                                    words(
-                                      context,
-                                      family == 'owner'
-                                          ? intent.substring(6)
-                                          : intent,
-                                    ),
-                                  ),
-                                  value: _selected.contains(intent),
-                                  onChanged: busy
-                                      ? null
-                                      : (checked) => setState(() {
-                                          if (checked!) {
-                                            _selected.add(intent);
-                                            _active ??= intent;
-                                          } else {
-                                            _selected.remove(intent);
-                                            if (_active == intent) {
-                                              _active = _selected.firstOrNull;
-                                            }
-                                          }
-                                        }),
-                                ),
-                              ),
+                              artwork: family == 'owner'
+                                  ? intent.substring(6)
+                                  : intent,
+                              selected: _selected.contains(intent),
+                              onChanged: busy
+                                  ? null
+                                  : (checked) => setState(() {
+                                      if (checked) {
+                                        _selected.add(intent);
+                                        _active ??= intent;
+                                      } else {
+                                        _selected.remove(intent);
+                                        if (_active == intent) {
+                                          _active = _selected.firstOrNull;
+                                        }
+                                      }
+                                    }),
                             ),
                           ),
                         const SizedBox(height: 12),

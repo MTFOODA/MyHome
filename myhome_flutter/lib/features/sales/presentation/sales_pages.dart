@@ -1,3 +1,4 @@
+import '../../../core/widgets/selection_tile.dart';
 import '../../../core/widgets/app_layout.dart';
 import '../../../core/widgets/app_icon.dart';
 import 'dart:typed_data';
@@ -89,11 +90,12 @@ class _SalesFormDialogState extends State<_SalesFormDialog> {
                   ),
                 ),
               if (widget.acknowledgement != null)
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: checked,
-                  onChanged: (v) => setState(() => checked = v ?? false),
-                  title: Text(salesText(context, widget.acknowledgement!)),
+                SelectionTile(
+                  key: const Key('formAcknowledgement'),
+                  artwork: 'consent',
+                  selected: checked,
+                  onChanged: (v) => setState(() => checked = v),
+                  label: salesText(context, widget.acknowledgement!),
                 ),
             ],
           ),
@@ -652,16 +654,18 @@ class _SalesDetailPageState extends State<SalesDetailPage> {
                       if (participant &&
                           !agreed &&
                           data['stage'] == 'accepted') ...[
-                        CheckboxListTile(
-                          contentPadding: EdgeInsets.zero,
-                          value: _consent && _checkedDigest == terms['digest'],
+                        SelectionTile(
+                          key: const Key('dealConsent'),
+                          artwork: 'consent',
+                          selected:
+                              _consent && _checkedDigest == terms['digest'],
                           onChanged: state.busy
                               ? null
                               : (value) => setState(() {
-                                  _consent = value ?? false;
+                                  _consent = value;
                                   _checkedDigest = terms['digest'] as String;
                                 }),
-                          title: Text(salesText(context, 'explicitConsent')),
+                          label: salesText(context, 'explicitConsent'),
                         ),
                         action(
                           'recordConsent',

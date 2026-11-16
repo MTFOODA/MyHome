@@ -85,6 +85,7 @@ class ThemeConfig {
         style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
       ),
       chipTheme: base.chipTheme.copyWith(
+        showCheckmark: false,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         labelStyle: text.labelLarge,
       ),

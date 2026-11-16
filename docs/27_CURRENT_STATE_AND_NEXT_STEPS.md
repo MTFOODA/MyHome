@@ -1,3 +1,11 @@
+## Picture choices and furnishing search - 2026-11-16
+
+The intended visual policy is mixed: transparent meaningful choice pictures, native tool icons, and no side checkbox/radio ornament. Lux/Super Lux reveal an All/Furnished/Unfurnished filter backed by SQL. Omitted furnishing preserves unknown legacy records; False only matches explicitly unfurnished. Existing pricing, maps, private media and manual-copy removal are preserved. See guide 41 for verification and current deployment.
+
+Read [guide 41](41_PICTURE_SELECTION_AND_FURNISHING_FILTER.md). Previous entries are preserved as history.
+
+---
+
 ## Responsive layout and meaningful icons - 2026-11-16
 
 The manual title/description section is removed; choices generate the advertisement automatically. Shared responsive sizing now covers the application, and meaningful native symbols replace repeated raster tiles. The language control includes translation and destination-language text. Guide 40 includes current screenshots and checks (87 Flutter tests, 4 render scenarios, analyzer clean). Existing map, catalogue, media and commission features are preserved; remaining product tasks below stay pending.

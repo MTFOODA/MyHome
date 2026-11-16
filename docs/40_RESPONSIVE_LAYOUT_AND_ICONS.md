@@ -1,3 +1,5 @@
+> Owner correction 2026-11-16: [Guide 41](41_PICTURE_SELECTION_AND_FURNISHING_FILTER.md) supersedes the blanket native-only picture policy and side check/radio selection feedback described here. Responsive widths and manual-copy removal remain current.
+
 # Responsive layout and meaningful icons
 
 Verified increment: 2026-11-16. This supersedes the previous requirement to replace every native icon with a raster picture. The existing teal gradient, light/dark themes, genuine property photos and app branding are retained.

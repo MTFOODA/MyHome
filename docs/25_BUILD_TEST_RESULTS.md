@@ -1,3 +1,11 @@
+## Picture choices and furnishing search - 2026-11-16
+
+Latest checks and delivery evidence are in guide 41. This increment adds furnishing discovery tests across sale/private/shared and both Lux finishes, plus UI filtering and transparent-card/explicit-consent regressions. Earlier counts below are snapshots; current verified suites are 93 Flutter / 86 PostgreSQL with a clean analyzer/Ruff and four new visual render scenarios. Web release/Android debug PASS; bundled APK artwork and public Web/PNG hashes match the local sources. Both APIs healthy; real public auth/catalogue/map/private-photo/private-path and furnishing-query smoke PASS. Current public fixture furnishing is unknown, so explicit true/false results are empty; positive cases are verified in isolated PostgreSQL. No user data rewritten. Browser GUI/physical-device/iOS builds are not claimed.
+
+Read [guide 41](41_PICTURE_SELECTION_AND_FURNISHING_FILTER.md). Previous entries are preserved as history.
+
+---
+
 ## Responsive layout and meaningful icons - 2026-11-16
 
 Build/deployment: Web release and Android debug PASS; public Worker bundle hash matches the local build. Catalogue/map-link/private-photo and private-path HTTP checks PASS; both local APIs healthy. Gateway reused existing origin/version; keep PC/Docker/internet running. No physical-device/browser GUI claim.

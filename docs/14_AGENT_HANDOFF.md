@@ -1,3 +1,11 @@
+## Picture choices and furnishing search - 2026-11-16
+
+Resume from guide 41. `SelectionTile` is the shared press-to-toggle card, with selected/disabled semantics and background/border feedback. `ChoiceArtwork` displays distinct transparent atlas cells only for meaningful pictures; AppIcon/FeatureSymbol remain for tools/semantic glyphs. There are no authored Checkbox/CheckboxListTile widgets; chip/segmented selected checks are hidden. Never reinstate blanket raster substitution or blanket picture removal. Filter `furnished` is a boolean and only shown in the UI for Lux/Super Lux; changing to another finish clears the draft value. The API reuses its visible property query and nullable furnished column. No migration, reset or reseed.
+
+Read [guide 41](41_PICTURE_SELECTION_AND_FURNISHING_FILTER.md). Previous entries are preserved as history.
+
+---
+
 ## Responsive layout and meaningful icons - 2026-11-16
 
 Resume from the responsive UI increment in guide 40. `AppScaffold` and `AppLayout` provide shared frames; `ThemeConfig` receives viewport width. `AppIcon` preserves native icon behavior; `FeatureSymbol` maps distinct structured answers. Manual listing-copy state and controls are removed. Existing automatic generation and final-step financial calculator remain. Historical atlases moved unchanged to `design/illustrations/masters/` and are no longer bundled. Current checks: 87 Flutter tests, 4 new render scenarios, analyzer clean. Database head remains `20261116_listing_details`. Existing 80 PostgreSQL/11 Worker baseline tests are from the preceding increment, not rerun for this UI-only change. Keep PC/Docker/internet online for the stable Worker gateway.

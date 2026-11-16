@@ -1,3 +1,11 @@
+## Picture choices and furnishing search - 2026-11-16
+
+The native-only artwork rule is superseded. Meaningful transparent pictures coexist with native navigation/search/language symbols. All authored checkboxes and side selection ornaments are removed, but selecting and revoking consent still requires explicit presses; digest gating remains. Discovery filters furnished=True/False without treating NULL as False, retains all existing visibility/owner checks, and uses no new schema or side channel.
+
+Read [guide 41](41_PICTURE_SELECTION_AND_FURNISHING_FILTER.md). Previous entries are preserved as history.
+
+---
+
 ## Responsive layout and meaningful icons - 2026-11-16
 
 Removed manual-details flag, switch and title/description inputs; generated content still passes existing API validation. Native icons replace arbitrary raster substitutions globally, preserving disabled colors, RTL directions and interaction states. Responsive scaffold/body frames and control themes are shared across screens; small guest header and intrinsic drawer header avoid overflow. Review and financial quote paths remain intact. 87 Flutter checks, 4 render scenarios and analyzer pass. Existing backend security/financial verification is unchanged; no new production-readiness claim.

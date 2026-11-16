@@ -2,17 +2,20 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../../../core/widgets/app_icon.dart';
+import '../../../core/widgets/choice_artwork.dart';
 import '../domain/property_repository.dart';
 
 class PropertyPhoto extends StatefulWidget {
   final String? id;
   final bool private;
+  final String category;
   final PropertyRepository repository;
   const PropertyPhoto({
     super.key,
     required this.id,
     required this.repository,
     this.private = false,
+    this.category = 'sale_cash',
   });
   @override
   State<PropertyPhoto> createState() => _PropertyPhotoState();
@@ -57,7 +60,25 @@ class _PropertyPhotoState extends State<PropertyPhoto> {
   @override
   Widget build(BuildContext context) {
     if (widget.id == null) {
-      return const Center(child: FeatureSymbol('home', size: 80));
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ChoiceArtwork(
+              widget.category == 'shared_rental'
+                  ? 'shared_rental'
+                  : widget.category == 'private_rental'
+                  ? 'studio'
+                  : 'apartment',
+              size: 130,
+            ),
+            Text(
+              words(context, 'noPropertyPhoto'),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
     }
     if (!widget.private) {
       return Image.network(

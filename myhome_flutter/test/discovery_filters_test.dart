@@ -3,8 +3,83 @@ import 'package:flutter_test/flutter_test.dart';
 import 'fake_property_repository.dart';
 import 'fakes.dart';
 import 'widget_test.dart' show launch;
+import 'onboarding_pricing_test.dart' show tap;
 
 void main() {
+  for (final language in ['ar', 'en']) {
+    for (final finishing in ['lux', 'super_lux']) {
+      testWidgets(
+        'furnishing filter applies booleans and clears irrelevant choices $language $finishing',
+        (tester) async {
+          final properties = FakePropertyRepository();
+          await launch(
+            tester,
+            FakeAuthRepository(),
+            properties: properties,
+            language: language,
+          );
+          await tap(tester, find.byKey(const Key('openFilters')));
+          await tap(
+            tester,
+            find.byKey(const ValueKey('filter-section-finishingAndTerms')),
+          );
+          expect(
+            find.byKey(const ValueKey('filter-furnished-true')),
+            findsNothing,
+          );
+          Future<void> finish(String value) async {
+            final dropdown = find.byWidgetPredicate(
+              (w) =>
+                  w is DropdownButtonFormField<String> &&
+                  w.key.toString().contains('filter-finishing:'),
+            );
+            await tap(tester, dropdown);
+            await tap(
+              tester,
+              find
+                  .text(
+                    language == 'en'
+                        ? {
+                            'lux': 'Lux',
+                            'super_lux': 'Super Lux',
+                            'plastered': 'Plastered',
+                          }[value]!
+                        : {
+                            'lux': 'لوكس',
+                            'super_lux': 'سوبر لوكس',
+                            'plastered': 'على المحارة',
+                          }[value]!,
+                  )
+                  .last,
+            );
+          }
+
+          await finish(finishing);
+          final value = finishing == 'lux';
+          await tap(tester, find.byKey(ValueKey('filter-furnished-$value')));
+          expect(properties.searches.length, 1);
+          expect(find.byType(Checkbox), findsNothing);
+          await tap(tester, find.byKey(const Key('applyFilters')));
+          expect(properties.searches.last['furnished'], value);
+          expect(properties.searches.last['finishing'], finishing);
+          await tap(tester, find.byKey(const Key('openFilters')));
+          await tap(
+            tester,
+            find.byKey(const ValueKey('filter-section-finishingAndTerms')),
+          );
+          await finish('plastered');
+          expect(
+            find.byKey(const ValueKey('filter-furnished-true')),
+            findsNothing,
+          );
+          await tap(tester, find.byKey(const Key('applyFilters')));
+          expect(properties.searches.last.containsKey('furnished'), false);
+          expect(properties.searches.last['finishing'], 'plastered');
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
   testWidgets(
     'filter draft applies only after Apply and dismissal preserves applied filters',
     (tester) async {

@@ -1,3 +1,17 @@
+## Picture choices and furnishing search - 2026-11-16
+
+[x] Furnishing filter missing: added conditional All/Furnished/Unfurnished options and boolean API query.
+
+[x] Blanket image removal: restored distinct transparent pictures selectively and retained familiar tool icons.
+
+[x] Checkbox/radio ornament beside selected cards: removed; shared card background/border now communicates selection with accessibility semantics.
+
+[x] Narrow picture cards: stack artwork/text when the inner width is small. Financial approval remains explicit and revocable before submission.
+
+Read [guide 41](41_PICTURE_SELECTION_AND_FURNISHING_FILTER.md). Previous entries are preserved as history.
+
+---
+
 ## Responsive layout and meaningful icons - 2026-11-16
 
 [x] Manual title/description section removed from listing information.

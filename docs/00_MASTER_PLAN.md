@@ -1,3 +1,11 @@
+## Picture choices and furnishing search - 2026-11-16
+
+Owner feedback corrects the preceding blanket native-only presentation. Use transparent, distinct pictures for property/transaction/furnishing choices, familiar native tool icons, and whole-card color/border selection without checkbox/radio ornaments. Add the furnished filter only for Lux/Super Lux, enforced by the real discovery query.
+
+Read [guide 41](41_PICTURE_SELECTION_AND_FURNISHING_FILTER.md). Previous entries are preserved as history.
+
+---
+
 ## Responsive layout and meaningful icons - 2026-11-16
 
 The latest owner feedback replaces the all-raster icon rule: use distinct semantic native icons for controls and property types. Listing title/description are generated automatically; manual editing is removed. Responsive shared page widths and control sizes are applied throughout Flutter. Backend permissions, all-in pricing and open maps are preserved.

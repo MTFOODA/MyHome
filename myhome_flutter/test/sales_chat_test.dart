@@ -202,7 +202,11 @@ void main() {
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextFormField), '١٩١٠٠٠٠');
-      await tester.tap(find.byType(Checkbox));
+      await tester.tap(find.text('Confirm'));
+      await tester.pumpAndSettle();
+      expect(result, isNull);
+      expect(find.byType(Checkbox), findsNothing);
+      await tester.tap(find.byKey(const Key('formAcknowledgement')));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Confirm'));
       await tester.pumpAndSettle();
