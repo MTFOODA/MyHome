@@ -1,13 +1,13 @@
 import bcrypt
 from fastapi import APIRouter, Depends, HTTPException, Response
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import db_session
-from app.models import User, UserIntent
+from app.models import AuditEvent, AuthSession, User, UserIntent
 from app.policy import OWNER_INTENTS
-from app.schemas import Intents, Login, Refresh, Register
+from app.schemas import Intents, Login, PasswordChange, Refresh, Register
 from app.security import authenticated, dummy_hash, login_session, now, public_user, refresh_session
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
@@ -32,11 +32,56 @@ def register(body: Register, db: Session = Depends(db_session)):
 
 @router.post("/login")
 def login(body: Login, db: Session = Depends(db_session)):
-    user = db.scalar(select(User).where(User.email == str(body.email)))
+    by_username = body.email in ("fooda", "amr")
+    # Serialize login with password changes so an old-password login cannot create
+    # a surviving session after the password-change revocation has completed.
+    user = db.scalar(
+        select(User)
+        .where(User.username == body.email if by_username else User.email == str(body.email))
+        .with_for_update()
+    )
     valid = bcrypt.checkpw(body.password.encode(), user.password_hash.encode() if user else dummy_hash)
-    if not user or not user.active or not valid:
+    if (
+        not user
+        or not user.active
+        or not valid
+        or (user.role == "admin" and (not by_username or user.username not in ("fooda", "amr")))
+        or (by_username and user.role != "admin")
+    ):
         raise HTTPException(401, "INVALID_CREDENTIALS")
     return login_session(db, user)
+
+
+@router.post("/password", status_code=204)
+def change_password(body: PasswordChange, context=Depends(authenticated), db: Session = Depends(db_session)):
+    # Mutations requiring both rows lock the user first. Locking only the current
+    # session first deadlocks when two password changes revoke each other's sessions.
+    user = db.scalar(
+        select(User).where(User.id == context[0].id).with_for_update().execution_options(populate_existing=True)
+    )
+    if not user or not user.active:
+        raise HTTPException(401, "INVALID_SESSION")
+    session = db.scalar(
+        select(AuthSession)
+        .where(AuthSession.id == context[1].id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    if not session or session.revoked_at or session.expires_at <= now():
+        raise HTTPException(401, "INVALID_SESSION")
+    if not bcrypt.checkpw(body.current_password.encode(), user.password_hash.encode()):
+        raise HTTPException(400, "CURRENT_PASSWORD_INCORRECT")
+    if bcrypt.checkpw(body.new_password.encode(), user.password_hash.encode()):
+        raise HTTPException(400, "NEW_PASSWORD_SAME")
+    user.password_hash = bcrypt.hashpw(body.new_password.encode(), bcrypt.gensalt(12)).decode()
+    db.execute(
+        update(AuthSession)
+        .where(AuthSession.user_id == user.id, AuthSession.id != context[1].id, AuthSession.revoked_at.is_(None))
+        .values(revoked_at=now())
+    )
+    db.add(AuditEvent(actor_id=user.id, action="account.password_changed", target_id=user.id))
+    db.commit()
+    return Response(status_code=204)
 
 
 @router.post("/refresh")
@@ -58,6 +103,8 @@ def logout(context=Depends(authenticated), db: Session = Depends(db_session)):
 
 @router.put("/intents")
 def update_intents(body: Intents, context=Depends(authenticated), db: Session = Depends(db_session)):
+    if context[0].role == "admin":
+        raise HTTPException(403, "ADMIN_MODE_ONLY")
     user = db.scalar(
         select(User).where(User.id == context[0].id).with_for_update().execution_options(populate_existing=True)
     )

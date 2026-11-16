@@ -12,7 +12,7 @@
 		X-Content-Type-Options nosniff
 		Referrer-Policy strict-origin-when-cross-origin
 	}
-	@private path /.env* /.git* /artifacts/* /infrastructure/* /backend_fastapi/* /tools/*
+	@private path /.env* /.git* /admin /admin/* /artifacts/* /infrastructure/* /backend_fastapi/* /tools/*
 	handle @private {
 		respond 404
 	}

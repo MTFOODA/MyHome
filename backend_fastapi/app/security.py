@@ -33,6 +33,7 @@ def public_user(db: Session, user: User):
         id=str(user.id),
         name=user.name,
         email=user.email,
+        username=user.username,
         role=user.role,
         ownerVerified=user.owner_verified,
         intents=intents_for(db, user),
@@ -78,7 +79,8 @@ def refresh_session(db: Session, token: str):
             raise ValueError()
     except ValueError:
         raise HTTPException(401, "INVALID_SESSION") from None
-    # Lock order is session then user in all session mutations. CAS prevents replay.
+    # Refresh locks only the session; user is an MVCC read, never a FOR UPDATE.
+    # Mutations that lock both user and sessions take the user first. CAS prevents replay.
     row = db.scalar(select(AuthSession).where(AuthSession.id == session_id).with_for_update())
     if (
         not row

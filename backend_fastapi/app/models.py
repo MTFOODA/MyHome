@@ -37,6 +37,7 @@ class User(Timestamps, Base):
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(100))
     email: Mapped[str] = mapped_column(String(254), unique=True)
+    username: Mapped[str | None] = mapped_column(String(32), unique=True)
     password_hash: Mapped[str] = mapped_column(String)
     role: Mapped[str] = mapped_column(String(30), default="user")  # Legacy primary role retained for compatibility.
     owner_verified: Mapped[bool] = mapped_column(Boolean, default=False)

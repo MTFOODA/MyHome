@@ -1,3 +1,25 @@
+## Architectural headers and alternating guide poses — 2026-11-17
+
+Read [guide 47](47_ARCHITECTURAL_HEADERS_AND_GUIDE_POSES.md). Three bundled WebP architectural scenes decorate the first part of normal pages through AppScaffold, with light/dark tint, fade and no pointer interception. Home/login/listing/account variants retain existing content and property artwork. Four transparent standalone poses alternate beside each guide/About section; only the first introduction combines both presenters. Reduced-motion navigation uses immediate page jumps.
+
+Source checks: 142 Flutter tests PASS, clean analyzer/Ruff, four responsive render scenarios (32 previews). Existing 142 PostgreSQL / 11 Worker checks remain covered; no new backend/schema changes. Head stays `20261116_fixed_admins`; no reset/reseed. Actual final Web/APK/public delivery evidence is in guide 47.
+
+---
+
+## Fixed operators, dashboard, password change and guides — 2026-11-17
+
+Read [guide 46](46_OPERATOR_DASHBOARD_GUIDES_AND_MOBILE.md). Only fooda/amr are admin usernames; previous admins are inactive with history retained. Admin navigation uses a dashboard and numeric review badges; no consumer sections or listing authority. Internal creation now allows lawyer/broker only, superseding guide 45's third-admin creation. Password changes validate the old password and revoke other sessions. Illustrated first-run/replayable guides and native HTTPS defaults are implemented.
+
+Verified source: 130 Flutter / 142 PostgreSQL tests, 11 Worker tests, clean analyzer/Ruff, four render scenarios (20 previews). Actual main/demo backups and fixed-account provisioning passed preservation checks; migration head `20261116_fixed_admins`. Delivery/public evidence is recorded in guide 46. No reset/reseed or whole marketplace-phase completion is claimed.
+
+---
+
+## Internal administrators and mobile server - 2026-11-16
+
+Internal-account endpoint still requires active authenticated administrator authority from the database. Admin creation adds no owner verification and no staff profile; lawyer/broker scoped profiles remain unchanged. Duplicate email/type/name/password/reference validation and audit coverage added. Bootstrap checks actual password hashes before reuse and leaves all previous user rows unchanged. Credentials are Git-ignored and protected by local ACL plus root Web path denial. Mobile mode skips Flutter/ADB but reuses existing startup/tunnel/data-preservation code. See [guide 45](45_ADMIN_ACCOUNTS_AND_MOBILE_SERVER.md); source checks 121 Flutter / 137 PostgreSQL / 11 Worker and clean analyzer/Ruff.
+
+---
+
 ## Identity validation and Home corrections - 2026-11-16
 
 Scan preflight requires owner intent and explicit review consent, normalizes Arabic/Persian OCR digits, accepts one calendar-valid number, uses no-store and writes no Asset. Size/decoding/runtime and rate limits apply. Final upload independently checks entered DOB and OCR number before encrypted persistence; human review remains mandatory for authenticity and unreadable cases. Floor bounds apply to new input while legacy reads remain compatible. Existing financial and role suites remain included in 126 backend/115 Flutter tests. See [guide 44](44_IDENTITY_VALIDATION_AND_HOME_REFINEMENTS.md).

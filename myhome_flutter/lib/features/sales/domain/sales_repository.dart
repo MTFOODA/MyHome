@@ -6,6 +6,7 @@ class SalesFailure implements Exception {
 }
 
 abstract class SalesRepository {
+  Future<Map<String, dynamic>> dashboard();
   Future<List<Map<String, dynamic>>> listDeals();
   Future<Map<String, dynamic>> detail(String id);
   Future<String> start(String propertyId);

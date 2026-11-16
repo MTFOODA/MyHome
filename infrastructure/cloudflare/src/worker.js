@@ -1,6 +1,6 @@
 const MAX_BODY = 10 * 1024 * 1024;
 const API = /^\/api\/v1(?:\/|$)/;
-const PRIVATE = /^\/(?:\.(?:env|git|dev\.vars|wrangler)[^/]*(?:\/|$)|(?:artifacts|infrastructure|backend_fastapi|tools|src|test|node_modules)(?:\/|$)|(?:package(?:-lock)?\.json|wrangler\.jsonc)$)/i;
+const PRIVATE = /^\/(?:\.(?:env|git|dev\.vars|wrangler)[^/]*(?:\/|$)|(?:admin|artifacts|infrastructure|backend_fastapi|tools|src|test|node_modules)(?:\/|$)|(?:package(?:-lock)?\.json|wrangler\.jsonc)$)/i;
 
 function problem(status, detail) {
   return Response.json({ detail }, { status, headers: {

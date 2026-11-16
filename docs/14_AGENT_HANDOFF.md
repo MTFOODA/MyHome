@@ -1,3 +1,25 @@
+## Architectural headers and alternating guide poses — 2026-11-17
+
+Read [guide 47](47_ARCHITECTURAL_HEADERS_AND_GUIDE_POSES.md). Three bundled WebP architectural scenes decorate the first part of normal pages through AppScaffold, with light/dark tint, fade and no pointer interception. Home/login/listing/account variants retain existing content and property artwork. Four transparent standalone poses alternate beside each guide/About section; only the first introduction combines both presenters. Reduced-motion navigation uses immediate page jumps.
+
+Source checks: 142 Flutter tests PASS, clean analyzer/Ruff, four responsive render scenarios (32 previews). Existing 142 PostgreSQL / 11 Worker checks remain covered; no new backend/schema changes. Head stays `20261116_fixed_admins`; no reset/reseed. Actual final Web/APK/public delivery evidence is in guide 47.
+
+---
+
+## Fixed operators, dashboard, password change and guides — 2026-11-17
+
+Read [guide 46](46_OPERATOR_DASHBOARD_GUIDES_AND_MOBILE.md). Only fooda/amr are admin usernames; previous admins are inactive with history retained. Admin navigation uses a dashboard and numeric review badges; no consumer sections or listing authority. Internal creation now allows lawyer/broker only, superseding guide 45's third-admin creation. Password changes validate the old password and revoke other sessions. Illustrated first-run/replayable guides and native HTTPS defaults are implemented.
+
+Verified source: 130 Flutter / 142 PostgreSQL tests, 11 Worker tests, clean analyzer/Ruff, four render scenarios (20 previews). Actual main/demo backups and fixed-account provisioning passed preservation checks; migration head `20261116_fixed_admins`. Delivery/public evidence is recorded in guide 46. No reset/reseed or whole marketplace-phase completion is claimed.
+
+---
+
+## Internal administrators and mobile server - 2026-11-16
+
+Resume from [guide 45](45_ADMIN_ACCOUNTS_AND_MOBILE_SERVER.md). `/admin/staff` accepts `specialty=admin` for a new User with admin role and no StaffMember; existing document_reviewer/field_agent remain lawyer/broker profiles scoped to assignments. Admin-only guard/audit and public-registration rejection remain. Admin rows have no staff-disable switch. Private operator setup reuses only a known working admin password; otherwise creates a separate operator, never resets/promotes an existing account. Credentials in ignored/ACL-restricted `admin/ADMIN_LOGIN.txt` and JSON; never print or stage them. Main gained one operator, existing demo admin reused, repeat setup idempotent and old fingerprints preserved. `Start_MyHome_Mobile.cmd` invokes shared `-Mobile -NoBrowser`, skipping Flutter build/USB/ADB and preserving Web/APK/data. API tunnel/Worker still need PC/Docker/internet online. 121 Flutter / 137 PostgreSQL / 11 Worker, analyzer/Ruff clean, four render scenarios. Read guide45 for delivery evidence; migration head unchanged.
+
+---
+
 ## Identity validation and Home corrections - 2026-11-16
 
 Resume from [guide 44](44_IDENTITY_VALIDATION_AND_HOME_REFINEMENTS.md). Language switching exists only in Profile, also accessible by guests. Home Sign in is guest-only; signed-in users get an account shortcut. Remove only the Home results-map UI, preserving location picker/detail maps. Category captions are beside pictures only in the compact quick-category row. Floor 0 means ground; new input is 0–100 without a dropdown and other quantities are unsigned numeric fields with presets. Existing database values are untouched. Identity-review consent alone uses a native Checkbox; other selection/financial consent cards remain. `nationalIdBirthDate` rejects invalid normalized dates and requires exact selected DOB. `/identity/scan` is owner-only, consent-gated, no-store and nonpersistent, uses real Tesseract, and is enabled in the demo. Final encrypted identity upload repeats comparison; unreadable/unavailable OCR still needs human review. Never claim document authenticity from OCR. Ultra finishing has its own transparent image and all finishing pictures appear in review. Source checks: 115 Flutter / 126 PostgreSQL, analyzer/Ruff clean, eight render scenarios. Head remains `20261116_finish_options`; read guide44 for actual deployment evidence/platform limits.

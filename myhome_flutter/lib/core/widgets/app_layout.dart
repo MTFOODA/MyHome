@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'architectural_backdrop.dart';
+export 'architectural_backdrop.dart' show ArchitecturalScene;
 
 /// Shared widths adapt to the viewport while keeping long text readable.
 class AppLayout {
@@ -27,6 +29,9 @@ class AppLayout {
 class AppScaffold extends StatelessWidget {
   final PreferredSizeWidget? appBar;
   final Widget? body, drawer, bottomNavigationBar, floatingActionButton;
+  final ValueChanged<bool>? onDrawerChanged;
+  final ArchitecturalScene scene;
+  final double? headerHeight;
   const AppScaffold({
     super.key,
     this.appBar,
@@ -34,23 +39,44 @@ class AppScaffold extends StatelessWidget {
     this.drawer,
     this.bottomNavigationBar,
     this.floatingActionButton,
+    this.onDrawerChanged,
+    this.scene = ArchitecturalScene.courtyard,
+    this.headerHeight,
   });
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: appBar,
     drawer: drawer,
+    onDrawerChanged: onDrawerChanged,
     bottomNavigationBar: bottomNavigationBar,
     floatingActionButton: floatingActionButton,
     body: body == null
         ? null
-        : Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: AppLayout.contentWidth(context),
+        : Stack(
+            fit: StackFit.expand,
+            children: [
+              PositionedDirectional(
+                top: 0,
+                start: 0,
+                end: 0,
+                height:
+                    headerHeight ??
+                    (MediaQuery.sizeOf(context).height * .44).clamp(
+                      240.0,
+                      380.0,
+                    ),
+                child: ArchitecturalBackdrop(scene: scene),
               ),
-              child: body,
-            ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: AppLayout.contentWidth(context),
+                  ),
+                  child: body,
+                ),
+              ),
+            ],
           ),
   );
 }

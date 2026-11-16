@@ -2,6 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:myhome_flutter/core/config/api_config.dart';
 
 void main() {
+  test('native default reaches the shared HTTPS API without an emulator', () {
+    expect(
+      ApiConfig.baseUrl,
+      'https://myhome.mohamed-fooda-mtf.workers.dev/api/v1',
+    );
+  });
   test('public link resolves API against the tester HTTPS origin', () {
     expect(
       ApiConfig.resolveWebBase(

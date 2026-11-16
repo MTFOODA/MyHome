@@ -23,6 +23,7 @@ Future<void> launch(
   SharedPreferences.setMockInitialValues({'language': language});
   await tester.pumpWidget(
     MyHome(
+      showIntroduction: false,
       repository: repo,
       propertyRepository: properties ?? FakePropertyRepository(),
       chatRepository: chat,
@@ -106,7 +107,10 @@ void main() {
       await tester.tap(find.byKey(const Key('submitAuth')));
       await tester.pumpAndSettle();
       expect(repo.loginCalls, 0);
-      expect(find.text('Enter a valid email address.'), findsOneWidget);
+      expect(
+        find.text('Use your email, or fooda / amr for an administrator.'),
+        findsOneWidget,
+      );
       await tester.enterText(
         find.byKey(const Key('email')),
         'mariam@example.com',

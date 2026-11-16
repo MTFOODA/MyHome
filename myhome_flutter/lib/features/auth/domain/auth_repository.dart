@@ -1,5 +1,6 @@
 class Account {
   final String id, name, email, role;
+  final String? username;
   final bool ownerVerified;
   final List<String> intents;
   final String? activeIntent;
@@ -12,6 +13,7 @@ class Account {
     required this.email,
     required this.role,
     required this.ownerVerified,
+    this.username,
     this.intents = const [],
     this.activeIntent,
     this.staffRole,
@@ -23,6 +25,7 @@ class Account {
     name: json['name'] as String,
     email: json['email'] as String,
     role: json['role'] as String,
+    username: json['username'] as String?,
     ownerVerified: json['ownerVerified'] as bool,
     intents: List<String>.from(json['intents'] as List? ?? []),
     activeIntent: json['activeIntent'] as String?,
@@ -31,9 +34,11 @@ class Account {
     onboardingComplete: json['onboardingComplete'] as bool? ?? false,
   );
   bool get canFindRoommates =>
-      activeIntent == 'tenant_shared' && intents.contains('tenant_shared');
+      role != 'admin' &&
+      activeIntent == 'tenant_shared' &&
+      intents.contains('tenant_shared');
   bool get canManageProperties =>
-      intents.any((value) => value.startsWith('owner_'));
+      role != 'admin' && intents.any((value) => value.startsWith('owner_'));
 }
 
 enum AuthFailure {
@@ -51,7 +56,13 @@ class AuthException implements Exception {
   const AuthException(this.failure);
 }
 
+class PasswordChangeFailure implements Exception {
+  final String code;
+  const PasswordChangeFailure(this.code);
+}
+
 abstract class AuthRepository {
+  Future<void> changePassword(String currentPassword, String newPassword);
   Future<Account?> restore();
   Future<Account> login(String email, String password);
   Future<Account> register(

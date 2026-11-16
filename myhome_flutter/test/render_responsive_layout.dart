@@ -46,6 +46,7 @@ void main() {
             RepaintBoundary(
               key: const Key('listingPreview'),
               child: MyHome(
+                showIntroduction: false,
                 key: UniqueKey(),
                 repository: FakeAuthRepository()..restored = listingOwner,
                 propertyRepository: FakePropertyRepository(),

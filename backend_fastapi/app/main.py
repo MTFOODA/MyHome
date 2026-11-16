@@ -10,7 +10,19 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app import assets, auth, catalog, deals, groups, legal_eligibility, messages, portfolio, pricing, properties
+from app import (
+    admin_dashboard,
+    assets,
+    auth,
+    catalog,
+    deals,
+    groups,
+    legal_eligibility,
+    messages,
+    portfolio,
+    pricing,
+    properties,
+)
 from app.config import settings
 from app.database import db_session
 
@@ -61,6 +73,7 @@ def create_app():
             "/api/v1/auth/login",
             "/api/v1/auth/register",
             "/api/v1/auth/refresh",
+            "/api/v1/auth/password",
             "/api/v1/assets",
             "/api/v1/identity/scan",
         ):
@@ -101,6 +114,7 @@ def create_app():
         return response
 
     for router in (
+        admin_dashboard.router,
         auth.router,
         catalog.router,
         portfolio.router,

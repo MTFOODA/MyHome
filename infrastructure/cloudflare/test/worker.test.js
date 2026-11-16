@@ -30,7 +30,7 @@ test("API routing precedes SPA fallbacks and rejects unknown API versions", asyn
   assert.equal(response.status, 404);
 });
 test("private repository paths never serve an SPA shell or files", async () => {
-  for (const path of ["/.env", "/.env.demo", "/.envlocal", "/.gitignore", "/.dev.vars.local", "/.git/config", "/artifacts/demo-accounts.json", "/tools/setup_local.py", "/%2Eenv", "/package.json"]) {
+  for (const path of ["/admin", "/admin/ADMIN_LOGIN.txt", "/admin/credentials.json", "/ADMIN/credentials.json", "/.env", "/.env.demo", "/.envlocal", "/.gitignore", "/.dev.vars.local", "/.git/config", "/artifacts/demo-accounts.json", "/tools/setup_local.py", "/%2Eenv", "/package.json"]) {
     assert.equal((await handleRequest(new Request(site + path), env)).status, 404, path);
   }
 });

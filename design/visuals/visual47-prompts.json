@@ -1,0 +1,44 @@
+[
+  {
+    "name": "architecture-corner-v1",
+    "prompt": "Use case: photorealistic-natural. Asset: wide 3:2 architectural background for a professional Egyptian real estate Flutter app. Recreate the attached reference's visual idea: low-angle photograph of the crisp corner of a modern mid-rise apartment building in cream limestone and dark brown window recesses, corner rises from the lower center, generous clean cyan/teal sky filling the top 55%, faint natural clouds, subtle warm highlights, no people. Real photographic building materials, straight precise architectural lines, refined muted colors that harmonize with deep teal UI. This is only a background photograph, no UI, no text, no logos, no framing, no typography. Keep the building in the lower half so app controls can overlay the sky. Match the final architectural photo in the user message, not the two screenshots.",
+    "transparent_background": false,
+    "reference": "User architectural reference / companion scene"
+  },
+  {
+    "name": "architecture-balconies-v1",
+    "prompt": "Use case: photorealistic-natural. Asset: wide 3:2 header background photograph for an Egyptian real estate app. Distinct companion to a cream/dark-brown building corner against teal sky. Low angle looking up at a modern residential facade with stepped cream stone balconies and a few restrained green plants, warm morning light, muted turquoise/cyan sky occupies top 55%, building rises gently from lower left to center. Professional architectural photography, realistic apartment scale, airy and calm, immaculate but plausible Cairo contemporary residential architecture, authentic subtle textures. No people, no text, no logos, no UI, no graphic overlays. Composition must stay legible when center cropped for a mobile header; leave upper region clear.",
+    "transparent_background": false,
+    "reference": "User architectural reference / companion scene"
+  },
+  {
+    "name": "architecture-courtyard-v1",
+    "prompt": "Use case: photorealistic-natural. Asset: wide 3:2 website/mobile header background photograph. Companion architectural photo in cream limestone, dark window recesses and muted teal-blue sky palette. A contemporary residential courtyard seen from a low angle between two understated modern mid-rise apartment buildings; soft afternoon daylight, small distant greenery only at bottom, strong clean perspective, welcoming and realistic. Upper 55% open cyan sky, buildings define lower edges with a central architectural focal point. Not luxury resort, no pool, no vehicles, no people, no text, no logos, no UI. Refined natural photographic textures, generous negative sky space for overlaid app titles.",
+    "transparent_background": false,
+    "reference": "User architectural reference / companion scene"
+  },
+  {
+    "name": "guide-olive-present-v1",
+    "prompt": "Use case: identity-preserve illustration-story. Reference image: existing two MyHome illustrated guide characters, use ONLY as character/style reference. Create a standalone new pose of ONE character, no second person. ONLY the left man in the olive green rolled-sleeve shirt and gold watch. New pose: looking toward the viewer with a warm composed smile, one open palm raised to his side as if presenting the adjacent explanation; other hand holding his dark phone near his waist. Preserve his distinctive swept dark hair, full black beard, olive shirt, dark trousers, skin tone and hand-drawn cartoon style. Show head to mid-thigh, complete hands with sensible anatomy. Centered isolated cutout with generous padding. GENUINELY transparent alpha background, no white rectangle, no colored glow, no drop shadow, no environment, no circle, no UI, no text, no logo. Keep face and outfit consistent with reference. Production-ready app guide presenter.",
+    "transparent_background": true,
+    "reference": "Existing guide-duo-v1.png"
+  },
+  {
+    "name": "guide-olive-phone-v1",
+    "prompt": "Use case: identity-preserve illustration-story. Reference image: existing two MyHome illustrated guide characters, use ONLY as character/style reference. Create a standalone new pose of ONE character, no second person. ONLY the left man in the olive green rolled-sleeve shirt and gold watch. New pose: turned three-quarter toward the viewer, lightly pointing at the screen of the phone held in his other hand as if demonstrating selecting a home. Warm engaged expression. Preserve distinctive swept dark hair, full black beard, olive shirt, dark trousers, skin tone and hand-drawn cartoon style. Show head to mid-thigh, complete hands with sensible anatomy. Centered isolated cutout with generous padding. GENUINELY transparent alpha background, no white rectangle, no colored glow, no drop shadow, no environment, no circle, no UI, no text, no logo. Keep face and outfit consistent with reference. Production-ready app guide presenter.",
+    "transparent_background": true,
+    "reference": "Existing guide-duo-v1.png"
+  },
+  {
+    "name": "guide-blazer-explain-v1",
+    "prompt": "Use case: identity-preserve illustration-story. Reference image: existing two MyHome illustrated guide characters, use ONLY as character/style reference. Create a standalone new pose of ONE character, no second person. ONLY the right smiling man in the taupe/beige blazer, cream shirt and gold watch. New pose: turned slightly three-quarter, one open hand gently extended toward adjacent content as a friendly explanation, other arm relaxed. Preserve short dark hair, trimmed dark beard, rounded face, bright friendly smile, taupe blazer and hand-drawn cartoon style. Show head to mid-thigh, complete hands with sensible anatomy. Centered isolated cutout with generous padding. GENUINELY transparent alpha background, no white rectangle, no colored glow, no drop shadow, no environment, no circle, no UI, no text, no logo. Keep face and outfit consistent with reference. Production-ready app guide presenter.",
+    "transparent_background": true,
+    "reference": "Existing guide-duo-v1.png"
+  },
+  {
+    "name": "guide-blazer-document-v1",
+    "prompt": "Use case: identity-preserve illustration-story. Reference image: existing two MyHome illustrated guide characters, use ONLY as character/style reference. Create a standalone new pose of ONE character, no second person. ONLY the right smiling man in the taupe/beige blazer, cream shirt and gold watch. New pose: holding a plain unbranded document folder close to his torso with one hand, gesturing gently with the other as if explaining document review. Preserve short dark hair, trimmed beard, rounded face, friendly smile, taupe blazer and hand-drawn cartoon style. Show head to mid-thigh, complete hands with sensible anatomy. Centered isolated cutout with generous padding. GENUINELY transparent alpha background, no white rectangle, no colored glow, no drop shadow, no environment, no circle, no UI, no text, no logo. Keep face and outfit consistent with reference. Production-ready app guide presenter.",
+    "transparent_background": true,
+    "reference": "Existing guide-duo-v1.png"
+  }
+]

@@ -1,3 +1,25 @@
+## Architectural headers and alternating guide poses — 2026-11-17
+
+Read [guide 47](47_ARCHITECTURAL_HEADERS_AND_GUIDE_POSES.md). Three bundled WebP architectural scenes decorate the first part of normal pages through AppScaffold, with light/dark tint, fade and no pointer interception. Home/login/listing/account variants retain existing content and property artwork. Four transparent standalone poses alternate beside each guide/About section; only the first introduction combines both presenters. Reduced-motion navigation uses immediate page jumps.
+
+Source checks: 142 Flutter tests PASS, clean analyzer/Ruff, four responsive render scenarios (32 previews). Existing 142 PostgreSQL / 11 Worker checks remain covered; no new backend/schema changes. Head stays `20261116_fixed_admins`; no reset/reseed. Actual final Web/APK/public delivery evidence is in guide 47.
+
+---
+
+## Fixed operators, dashboard, password change and guides — 2026-11-17
+
+Read [guide 46](46_OPERATOR_DASHBOARD_GUIDES_AND_MOBILE.md). Only fooda/amr are admin usernames; previous admins are inactive with history retained. Admin navigation uses a dashboard and numeric review badges; no consumer sections or listing authority. Internal creation now allows lawyer/broker only, superseding guide 45's third-admin creation. Password changes validate the old password and revoke other sessions. Illustrated first-run/replayable guides and native HTTPS defaults are implemented.
+
+Verified source: 130 Flutter / 142 PostgreSQL tests, 11 Worker tests, clean analyzer/Ruff, four render scenarios (20 previews). Actual main/demo backups and fixed-account provisioning passed preservation checks; migration head `20261116_fixed_admins`. Delivery/public evidence is recorded in guide 46. No reset/reseed or whole marketplace-phase completion is claimed.
+
+---
+
+## Internal administrators and mobile server - 2026-11-16
+
+New `tools/prepare_admin.py`, `Start_MyHome_Mobile.cmd`, `tests/test_admin_accounts.py`, Flutter `admin_accounts_test.dart`/`render_admin_accounts.dart`. Existing admin_cli bootstrap, internal-staff endpoint, admin form/repository/labels, Worker/Caddy private paths and run_myhome.ps1 extended. Local ignored admin/ files are not repository artifacts. See [guide 45](45_ADMIN_ACCOUNTS_AND_MOBILE_SERVER.md).
+
+---
+
 ## Identity validation and Home corrections - 2026-11-16
 
 New `core/input/egyptian_identity.dart`, `test/identity_refinement_test.dart`, `test/render_identity_refinement.dart`, `backend_fastapi/tests/test_identity_scan.py` and `assets/illustrations/ultra-finish-v1.png` with prompt/provenance. Existing navigation/discovery, listing quantity/address/verification, repositories and backend assets/router safeguards extended. No new table, migration or duplicated OCR dependency. See [guide 44](44_IDENTITY_VALIDATION_AND_HOME_REFINEMENTS.md).

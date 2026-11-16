@@ -56,6 +56,7 @@ void main() {
           RepaintBoundary(
             key: const Key('preview-pricing'),
             child: MyHome(
+              showIntroduction: false,
               key: UniqueKey(),
               repository: FakeAuthRepository()
                 ..restored = const Account(

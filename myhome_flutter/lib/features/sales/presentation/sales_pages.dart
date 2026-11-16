@@ -73,6 +73,7 @@ class _SalesFormDialogState extends State<_SalesFormDialog> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: TextFormField(
+                    key: ValueKey('sales-${spec.key}'),
                     controller: controllers[spec.key],
                     obscureText: spec.secret,
                     maxLines: spec.lines,
@@ -85,7 +86,7 @@ class _SalesFormDialogState extends State<_SalesFormDialog> {
                       counterText: '',
                     ),
                     validator: (v) => (v?.trim().length ?? 0) < spec.minimum
-                        ? salesText(context, 'NETWORK_ERROR')
+                        ? '${salesText(context, spec.label)}: ${salesText(context, 'minimumCharacters')} ${spec.minimum}'
                         : null,
                   ),
                 ),
@@ -108,6 +109,7 @@ class _SalesFormDialogState extends State<_SalesFormDialog> {
         child: Text(salesText(context, 'cancel')),
       ),
       FilledButton(
+        key: const Key('salesSubmit'),
         onPressed: () {
           if (form.currentState!.validate() &&
               (widget.acknowledgement == null || checked)) {

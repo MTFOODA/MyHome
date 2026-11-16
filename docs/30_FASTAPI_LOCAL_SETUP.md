@@ -28,9 +28,9 @@ The migration job uses the administrator DB connection, while the API uses the r
 
     cd myhome_flutter
     flutter pub get
-    flutter run -d chrome --web-port 8080
+    flutter run -d chrome --web-port 8080 --dart-define=API_BASE_URL=http://localhost:3000/api/v1
 
-Android emulator API uses 10.0.2.2:3000. Host development uses localhost:3000. For a different target, use --dart-define=API_BASE_URL=https://your-api.example/api/v1. Physical phones need a reachable HTTPS host or explicit local networking configuration; Docker currently binds to loopback intentionally.
+Native apps default to the stable HTTPS Worker API for physical-phone testing; Web defaults to same-origin /api/v1. Explicit local emulator override: --dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1. Host Flutter Web development uses the localhost override shown above. Docker binds to loopback intentionally. Start_MyHome_Mobile.cmd connects the local demo API through HTTPS without a connected phone; see guide 46.
 
 ## Python without Docker
     cd backend_fastapi
@@ -42,9 +42,9 @@ The ignored .env created in this session uses the application DB role. .env.migr
 For migrations prefer the Docker migration job. Host PostgreSQL URLs use 127.0.0.1 because localhost/IPv6 connection attempts were slow on this Windows installation. Database connections time out after five seconds.
 
 ## Operator review
-Register a separate reviewer account through the app. A local operator can promote an existing account:
-    docker compose --env-file infrastructure/.env -f infrastructure/compose.yaml exec api python -m app.admin_cli --email reviewer@example.com
-No reviewer account or known administrator password is seeded.
+Only fooda/amr are administrators (guide 46). After both main and demo PostgreSQL databases exist, run from the repository root:
+    backend_fastapi/.venv/Scripts/python.exe tools/prepare_admin.py
+It backs up both databases, applies migrations, provisions the two reserved usernames and retires previous admin authority while retaining history. Open the private ignored admin/ADMIN_LOGIN.txt; never commit credentials. Old email-promotion CLI instructions are retired. Admins create lawyer/reviewer and broker profiles internally; public signup cannot grant administration. Existing chosen passwords are preserved by repeated setup.
 The reviewer signs in and opens Ownership review from the drawer. Review photos/declared number/date, provide a reason, then approve or request correction. Self-review is denied. Approval applies only to the reviewed listing.
 The initial local administrator grant is itself audited. Production administrator onboarding and permissions need an operational policy.
 

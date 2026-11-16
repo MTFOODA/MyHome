@@ -8,6 +8,8 @@ import '../auth/presentation/auth_cubit.dart';
 import '../auth/presentation/auth_page.dart';
 import '../auth/presentation/intents_page.dart';
 import '../../core/config/marketplace_strings.dart';
+import '../../core/config/operator_strings.dart';
+import 'change_password_page.dart';
 
 class ProfilePage extends StatelessWidget {
   final VoidCallback onSignIn;
@@ -43,19 +45,21 @@ class ProfilePage extends StatelessWidget {
                   const SizedBox(height: 24),
                   FilledButton(onPressed: onSignIn, child: Text(l.signIn)),
                 ] else ...[
-                  OutlinedButton.icon(
-                    onPressed: busy
-                        ? null
-                        : () => Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder: (_) => const IntentsPage(settings: true),
+                  if (account.role != 'admin')
+                    OutlinedButton.icon(
+                      onPressed: busy
+                          ? null
+                          : () => Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (_) =>
+                                    const IntentsPage(settings: true),
+                              ),
                             ),
-                          ),
-                    icon: const AppIcon(Icons.manage_accounts_outlined),
-                    label: Text(words(context, 'roles')),
-                  ),
-                  if (account.activeIntent != null)
+                      icon: const AppIcon(Icons.manage_accounts_outlined),
+                      label: Text(words(context, 'roles')),
+                    ),
+                  if (account.role != 'admin' && account.activeIntent != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Text(
@@ -92,12 +96,22 @@ class ProfilePage extends StatelessWidget {
                         ),
                         const Divider(height: 1),
                         ListTile(
-                          title: Text(l.email),
+                          title: Text(
+                            account.role == 'admin'
+                                ? operatorText(context, 'username')
+                                : l.email,
+                          ),
                           subtitle: Text(
-                            account.email,
+                            account.role == 'admin'
+                                ? (account.username ?? account.name)
+                                : account.email,
                             textDirection: TextDirection.ltr,
                           ),
-                          leading: const AppIcon(Icons.mail_outline),
+                          leading: AppIcon(
+                            account.role == 'admin'
+                                ? Icons.person_outline
+                                : Icons.mail_outline,
+                          ),
                         ),
                       ],
                     ),
@@ -157,6 +171,18 @@ class ProfilePage extends StatelessWidget {
                         : () => context.read<AuthCubit>().refreshProfile(),
                     icon: const AppIcon(Icons.refresh),
                     label: Text(l.refreshProfile),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    key: const Key('changePassword'),
+                    icon: const Icon(Icons.password_outlined),
+                    label: Text(operatorText(context, 'changePassword')),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ChangePasswordPage(),
+                      ),
+                    ),
                   ),
                 ],
                 const SizedBox(height: 32),

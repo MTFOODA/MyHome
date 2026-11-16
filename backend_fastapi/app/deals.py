@@ -12,7 +12,7 @@ from uuid import UUID, uuid4
 import bcrypt
 from cryptography.fernet import Fernet
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Response, UploadFile
-from pydantic import AwareDatetime, Field, StrictBool, model_validator
+from pydantic import AwareDatetime, EmailStr, Field, StrictBool, field_validator, model_validator
 from sqlalchemy import exists, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -273,10 +273,16 @@ def dto(db, deal, user):
 
 
 class StaffInput(Login):
+    email: EmailStr
     name: str = Field(min_length=2, max_length=100)
     password: str = Field(min_length=12, max_length=72)
     specialty: Literal["field_agent", "document_reviewer"]
     professional_reference: str | None = Field(None, max_length=150)
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def trim_name(cls, value):
+        return value.strip() if isinstance(value, str) else value
 
     @model_validator(mode="after")
     def qualification(self):
@@ -314,9 +320,19 @@ def create_staff(body: StaffInput, admin=Depends(administrator), db: Session = D
 def list_staff(admin=Depends(administrator), db: Session = Depends(db_session)):
     return {
         "items": [
-            dict(id=str(u.id), name=u.name, specialty=s.specialty, active=s.active)
+            dict(
+                id=str(u.id),
+                name=u.name,
+                specialty="admin" if u.role == "admin" else s.specialty,
+                active=u.active and (s.active if s and u.role != "admin" else True),
+            )
             for s, u in db.execute(
-                select(StaffMember, User).join(User, User.id == StaffMember.user_id).order_by(User.name).limit(100)
+                select(StaffMember, User)
+                .select_from(User)
+                .outerjoin(StaffMember, User.id == StaffMember.user_id)
+                .where(or_(User.role == "admin", StaffMember.user_id.is_not(None)))
+                .order_by(User.name, User.id)
+                .limit(100)
             )
         ]
     }

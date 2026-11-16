@@ -1,4 +1,7 @@
 import '../../core/widgets/app_layout.dart';
+import '../../core/config/operator_strings.dart';
+import '../sales/domain/sales_repository.dart';
+import '../sales/presentation/admin_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../app/app.dart';
@@ -31,6 +34,27 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String _tab = 'home';
+  AdminDashboardCubit? _dashboard;
+  String? _dashboardActor;
+  @override
+  void dispose() {
+    _dashboard?.close();
+    super.dispose();
+  }
+
+  Future<void> _queue(String key) async {
+    final Widget page = key == 'property_reviews'
+        ? AdminReviewPage(repository: context.read<PropertyRepository>())
+        : key == 'eligibility_reviews'
+        ? const EligibilityReviewsPage()
+        : const SalesListPage();
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(builder: (_) => page),
+    );
+    _dashboard?.load();
+  }
+
   Future<void> _details(String id) async {
     if (!await requireSignIn(context) || !mounted) return;
     Navigator.push(
@@ -64,25 +88,48 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final account = context.watch<AuthCubit>().state.account;
+    final actor = account?.role == 'admin' ? account!.id : null;
+    if (_dashboardActor != actor) {
+      _dashboard?.close();
+      _dashboard = null;
+      _dashboardActor = actor;
+      if (actor != null) {
+        try {
+          _dashboard = AdminDashboardCubit(context.read<SalesRepository>())
+            ..start();
+        } catch (_) {}
+      }
+    }
+    return StreamBuilder<AdminDashboardState>(
+      stream: _dashboard?.stream,
+      initialData: _dashboard?.state,
+      builder: (context, snapshot) =>
+          _shell(context, snapshot.data?.counts ?? const {}),
+    );
+  }
+
+  Widget _shell(BuildContext context, Map<String, int> counts) {
     final l = context.l10n;
     final auth = context.watch<AuthCubit>().state;
     final account = auth.account;
     final repo = context.read<PropertyRepository>();
+    final admin = account?.role == 'admin';
     final tabs = [
       'home',
       if (account?.canFindRoommates ?? false) 'roommates',
-      'favorites',
+      if (!admin) 'favorites',
       'account',
     ];
     final current = tabs.contains(_tab) ? _tab : 'home';
     final labels = {
-      'home': l.home,
+      'home': admin ? operatorText(context, 'dashboard') : l.home,
       'roommates': words(context, 'roommates'),
       'favorites': l.favorites,
       'account': l.account,
     };
     final icons = {
-      'home': Icons.home_outlined,
+      'home': admin ? Icons.dashboard_outlined : Icons.home_outlined,
       'roommates': Icons.people_outline,
       'favorites': Icons.favorite_border,
       'account': Icons.person_outline,
@@ -93,6 +140,12 @@ class _HomePageState extends State<HomePage> {
     }
 
     return AppScaffold(
+      scene: current == 'home'
+          ? ArchitecturalScene.corner
+          : ArchitecturalScene.courtyard,
+      onDrawerChanged: (open) {
+        if (open) _dashboard?.load();
+      },
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -156,6 +209,9 @@ class _HomePageState extends State<HomePage> {
                 ListTile(
                   leading: ColorSymbol(icons[tab]!),
                   title: Text(labels[tab]!),
+                  trailing: admin && tab == 'home'
+                      ? ReviewBadge(counts['pending_total'] ?? 0)
+                      : null,
                   selected: current == tab,
                   onTap: () {
                     Navigator.pop(context);
@@ -177,8 +233,9 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 ),
-              if (account != null)
+              if (account != null && !admin)
                 ListTile(
+                  key: const Key('drawerManageProperties'),
                   leading: const FeatureSymbol('home'),
                   title: Text(words(context, 'manageProperties')),
                   onTap: () {
@@ -194,8 +251,9 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 ),
-              if (account != null)
+              if (account != null && !admin)
                 ListTile(
+                  key: const Key('drawerGroups'),
                   leading: const ColorSymbol(Icons.groups_outlined),
                   title: Text(words(context, 'myGroups')),
                   onTap: () {
@@ -212,6 +270,9 @@ class _HomePageState extends State<HomePage> {
                 ListTile(
                   leading: const ColorSymbol(Icons.handshake_outlined),
                   title: Text(salesText(context, 'deals')),
+                  trailing: admin
+                      ? ReviewBadge(counts['deal_actions'] ?? 0)
+                      : null,
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -225,6 +286,9 @@ class _HomePageState extends State<HomePage> {
                 ListTile(
                   leading: const ColorSymbol(Icons.receipt_long_outlined),
                   title: Text(salesText(context, 'financeHistory')),
+                  trailing: admin
+                      ? ReviewBadge(counts['payment_reviews'] ?? 0)
+                      : null,
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -256,6 +320,9 @@ class _HomePageState extends State<HomePage> {
                 ListTile(
                   leading: const ColorSymbol(Icons.gavel_outlined),
                   title: Text(salesText(context, 'eligibility')),
+                  trailing: admin
+                      ? ReviewBadge(counts['eligibility_reviews'] ?? 0)
+                      : null,
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -266,8 +333,9 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 ),
-              if (account != null)
+              if (account != null && !admin)
                 ListTile(
+                  key: const Key('drawerPropertyMessages'),
                   leading: const Icon(Icons.chat_bubble_outline),
                   title: Text(words(context, 'propertyMessages')),
                   onTap: () {
@@ -295,6 +363,7 @@ class _HomePageState extends State<HomePage> {
                 ListTile(
                   leading: const ColorSymbol(Icons.fact_check_outlined),
                   title: Text(words(context, 'adminQueue')),
+                  trailing: ReviewBadge(counts['property_reviews'] ?? 0),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
@@ -344,11 +413,23 @@ class _HomePageState extends State<HomePage> {
               child: KeyedSubtree(
                 key: ValueKey(current),
                 child: switch (current) {
-                  'home' => DiscoveryPage(
-                    repository: repo,
-                    onDetails: _details,
-                    onSave: _save,
-                  ),
+                  'home' =>
+                    admin
+                        ? (_dashboard == null
+                              ? Center(
+                                  child: Text(
+                                    operatorText(context, 'dashboardFailed'),
+                                  ),
+                                )
+                              : AdminDashboard(
+                                  cubit: _dashboard!,
+                                  onQueue: _queue,
+                                ))
+                        : DiscoveryPage(
+                            repository: repo,
+                            onDetails: _details,
+                            onSave: _save,
+                          ),
                   'roommates' => SearchPage(repository: repo),
                   'favorites' => PropertyListPage(
                     repository: repo,

@@ -1,3 +1,25 @@
+## Architectural headers and alternating guide poses — 2026-11-17
+
+Read [guide 47](47_ARCHITECTURAL_HEADERS_AND_GUIDE_POSES.md). Three bundled WebP architectural scenes decorate the first part of normal pages through AppScaffold, with light/dark tint, fade and no pointer interception. Home/login/listing/account variants retain existing content and property artwork. Four transparent standalone poses alternate beside each guide/About section; only the first introduction combines both presenters. Reduced-motion navigation uses immediate page jumps.
+
+Source checks: 142 Flutter tests PASS, clean analyzer/Ruff, four responsive render scenarios (32 previews). Existing 142 PostgreSQL / 11 Worker checks remain covered; no new backend/schema changes. Head stays `20261116_fixed_admins`; no reset/reseed. Actual final Web/APK/public delivery evidence is in guide 47.
+
+---
+
+## Fixed operators, dashboard, password change and guides — 2026-11-17
+
+Read [guide 46](46_OPERATOR_DASHBOARD_GUIDES_AND_MOBILE.md). Only fooda/amr are admin usernames; previous admins are inactive with history retained. Admin navigation uses a dashboard and numeric review badges; no consumer sections or listing authority. Internal creation now allows lawyer/broker only, superseding guide 45's third-admin creation. Password changes validate the old password and revoke other sessions. Illustrated first-run/replayable guides and native HTTPS defaults are implemented.
+
+Verified source: 130 Flutter / 142 PostgreSQL tests, 11 Worker tests, clean analyzer/Ruff, four render scenarios (20 previews). Actual main/demo backups and fixed-account provisioning passed preservation checks; migration head `20261116_fixed_admins`. Delivery/public evidence is recorded in guide 46. No reset/reseed or whole marketplace-phase completion is claimed.
+
+---
+
+## Internal administrators and mobile server - 2026-11-16
+
+**121 Flutter tests PASS**, **137 real PostgreSQL tests PASS**, **11 Worker tests PASS**, analyzer/Ruff clean, PowerShell parse PASS. Four admin render scenarios generate 12 synthetic previews; themed role/form tests pass in AR/EN. Actual local administrator setup ran twice: main gained one operator, demo reused its admin, all previous user fingerprints and other record counts preserved. No password printed/reset and no migration. Delivery/real mobile CMD evidence is in [guide 45](45_ADMIN_ACCOUNTS_AND_MOBILE_SERVER.md). No physical-device/browser GUI or iOS/desktop build claim.
+
+---
+
 ## Identity validation and Home corrections - 2026-11-16
 
 **115 Flutter tests PASS**, **126 real PostgreSQL tests PASS**, analyzer/Ruff clean. **Eight render scenarios PASS** produce 60 synthetic screenshots including compact Home categories/profile, numeric address fields, precise verification feedback, small consent Checkbox, scanner output and visible Ultra finishing review. Regressions cover impossible/leap/future dates, individual missing documents/consent, non-owner/guest denials, scan non-persistence and final upload OCR/date mismatch. One upstream Starlette/httpx deprecation warning remains. Actual build/deployment/engine evidence and limits are in [guide 44](44_IDENTITY_VALIDATION_AND_HOME_REFINEMENTS.md). No physical-device or browser GUI testing is claimed.

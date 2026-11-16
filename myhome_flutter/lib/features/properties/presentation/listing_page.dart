@@ -712,6 +712,7 @@ class _ListingPageState extends State<ListingPage> {
           return PopScope(
             canPop: !state.busy,
             child: AppScaffold(
+              scene: ArchitecturalScene.balconies,
               appBar: AppBar(title: Text(words(context, 'addProperty'))),
               body: SingleChildScrollView(
                 child: Center(

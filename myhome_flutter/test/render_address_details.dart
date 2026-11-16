@@ -87,6 +87,7 @@ void main() {
           RepaintBoundary(
             key: const Key('capture'),
             child: MyHome(
+              showIntroduction: false,
               repository: FakeAuthRepository()..restored = listingOwner,
               propertyRepository: repo,
               settings: SettingsCubit(await SharedPreferences.getInstance()),

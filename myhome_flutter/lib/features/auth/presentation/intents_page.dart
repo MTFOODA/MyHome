@@ -76,6 +76,7 @@ class _IntentsPageState extends State<IntentsPage> {
     builder: (context, state) {
       final busy = state.status == AuthStatus.busy;
       return AppScaffold(
+        scene: ArchitecturalScene.corner,
         appBar: AppBar(
           title: Text(words(context, 'roles')),
           automaticallyImplyLeading: widget.settings,

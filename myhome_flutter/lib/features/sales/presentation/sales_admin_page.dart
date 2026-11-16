@@ -61,8 +61,19 @@ class _SalesAdminPageState extends State<SalesAdminPage> {
         children: [
           for (final role in ['field_agent', 'document_reviewer'])
             SimpleDialogOption(
+              key: ValueKey('create-account-$role'),
               onPressed: () => Navigator.pop(context, role),
-              child: Text(salesText(context, role)),
+              child: Row(
+                children: [
+                  Icon(
+                    role == 'field_agent'
+                        ? Icons.real_estate_agent_outlined
+                        : Icons.gavel_outlined,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(salesText(context, role))),
+                ],
+              ),
             ),
         ],
       ),
@@ -145,6 +156,7 @@ class _SalesAdminPageState extends State<SalesAdminPage> {
               children: [
                 if (_busy) const LinearProgressIndicator(),
                 FilledButton.icon(
+                  key: const Key('createInternalAccount'),
                   onPressed: _busy ? null : _newStaff,
                   icon: const AppIcon(Icons.person_add_outlined),
                   label: Text(salesText(context, 'newStaff')),
@@ -186,17 +198,27 @@ class _SalesAdminPageState extends State<SalesAdminPage> {
                                   worker['specialty'] as String,
                                 ),
                               ),
-                              trailing: Switch(
-                                value: worker['active'] as bool,
-                                onChanged: _busy
-                                    ? null
-                                    : (value) => _act(
-                                        () => _repo.staffState(
-                                          worker['id'] as String,
-                                          value,
-                                        ),
+                              trailing: worker['specialty'] == 'admin'
+                                  ? Tooltip(
+                                      message: salesText(
+                                        context,
+                                        'adminAccount',
                                       ),
-                              ),
+                                      child: const Icon(
+                                        Icons.admin_panel_settings_outlined,
+                                      ),
+                                    )
+                                  : Switch(
+                                      value: worker['active'] as bool,
+                                      onChanged: _busy
+                                          ? null
+                                          : (value) => _act(
+                                              () => _repo.staffState(
+                                                worker['id'] as String,
+                                                value,
+                                              ),
+                                            ),
+                                    ),
                             ),
                           ),
                       ],

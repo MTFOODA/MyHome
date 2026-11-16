@@ -107,6 +107,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
   ) => BlocBuilder<OwnerListingsCubit, OwnerListingsState>(
     bloc: _cubit,
     builder: (context, state) => AppScaffold(
+      scene: ArchitecturalScene.corner,
       appBar: AppBar(
         title: Text(
           '${words(context, widget.group == 'all' ? 'portfolio' : widget.group)}${state.loading ? '' : ' (${state.total})'}',

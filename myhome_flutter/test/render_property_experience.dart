@@ -48,6 +48,7 @@ void main() {
           RepaintBoundary(
             key: const Key('capture'),
             child: MyHome(
+              showIntroduction: false,
               repository: FakeAuthRepository()..restored = account,
               propertyRepository: repo,
               chatRepository: ExperienceChat(),

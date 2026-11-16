@@ -10,6 +10,7 @@ import '../features/auth/presentation/auth_cubit.dart';
 import '../features/auth/presentation/auth_page.dart';
 import '../features/auth/presentation/intents_page.dart';
 import '../features/home/home_page.dart';
+import '../features/support/introduction_page.dart';
 import '../features/properties/domain/property_repository.dart';
 import '../features/properties/domain/location_repository.dart';
 import '../core/widgets/app_backdrop.dart';
@@ -18,6 +19,7 @@ import '../features/chat/domain/chat_repository.dart';
 import '../localizations/app_localizations.dart';
 
 class MyHome extends StatelessWidget {
+  final bool showIntroduction;
   final AuthRepository? repository;
   final PropertyRepository? propertyRepository;
   final SalesRepository? salesRepository;
@@ -26,6 +28,7 @@ class MyHome extends StatelessWidget {
   final LocationRepository? locationRepository;
   const MyHome({
     super.key,
+    this.showIntroduction = true,
     this.repository,
     this.settings,
     this.locationRepository,
@@ -78,7 +81,9 @@ class MyHome extends StatelessWidget {
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: LocaleConfig.supported,
             locale: state.locale,
-            home: const _PublicHomeGate(),
+            home: showIntroduction
+                ? const IntroductionGate(child: _PublicHomeGate())
+                : const _PublicHomeGate(),
           ),
         ),
       ),

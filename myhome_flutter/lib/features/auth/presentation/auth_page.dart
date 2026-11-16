@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../core/widgets/brand_logo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/locale_config.dart';
-import '../../../core/config/theme_config.dart';
+import '../../../core/config/operator_strings.dart';
 import '../domain/auth_repository.dart';
 import 'auth_cubit.dart';
 
@@ -75,22 +75,10 @@ class _AuthPageState extends State<AuthPage> {
       builder: (context, state) {
         final busy = state.status == AuthStatus.busy;
         return AppScaffold(
+          scene: ArchitecturalScene.balconies,
+          headerHeight: 380,
           body: Stack(
             children: [
-              PositionedDirectional(
-                top: 0,
-                start: 0,
-                end: 0,
-                height: 330,
-                child: DecoratedBox(
-                  decoration: const BoxDecoration(
-                    color: ThemeConfig.teal,
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.circular(32),
-                    ),
-                  ),
-                ),
-              ),
               SafeArea(
                 child: AutofillGroup(
                   child: SingleChildScrollView(
@@ -116,9 +104,11 @@ class _AuthPageState extends State<AuthPage> {
                                   onPressed: busy
                                       ? null
                                       : () => Navigator.pop(context),
-                                  icon: const AppIcon(
+                                  icon: AppIcon(
                                     Icons.arrow_back,
-                                    color: Colors.white,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                   ),
                                 ),
                               ),
@@ -128,8 +118,10 @@ class _AuthPageState extends State<AuthPage> {
                             Text(
                               l.tagline,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Color(0xFFD4E5E6),
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                                 fontSize: 14,
                               ),
                             ),
@@ -196,26 +188,44 @@ class _AuthPageState extends State<AuthPage> {
                                         key: const Key('email'),
                                         controller: _email,
                                         enabled: !busy,
-                                        autofillHints: const [
-                                          AutofillHints.email,
+                                        autofillHints: [
+                                          _register
+                                              ? AutofillHints.email
+                                              : AutofillHints.username,
                                         ],
-                                        keyboardType:
-                                            TextInputType.emailAddress,
+                                        keyboardType: _register
+                                            ? TextInputType.emailAddress
+                                            : TextInputType.text,
                                         textDirection: TextDirection.ltr,
                                         textInputAction: TextInputAction.next,
                                         decoration: InputDecoration(
-                                          labelText: l.email,
+                                          labelText: _register
+                                              ? l.email
+                                              : operatorText(
+                                                  context,
+                                                  'loginIdentifier',
+                                                ),
                                           prefixIcon: const AppIcon(
                                             Icons.mail_outline,
                                           ),
                                         ),
                                         validator: (value) =>
-                                            value == null ||
-                                                value.trim().length > 254 ||
-                                                !RegExp(
-                                                  r'^[^\s@]+@[^\s@]+\.[^\s@]+$',
-                                                ).hasMatch(value.trim())
-                                            ? l.invalidEmail
+                                            !_register &&
+                                                ['fooda', 'amr'].contains(
+                                                  value?.trim().toLowerCase(),
+                                                )
+                                            ? null
+                                            : value == null ||
+                                                  value.trim().length > 254 ||
+                                                  !RegExp(
+                                                    r'^[^\s@]+@[^\s@]+\.[^\s@]+$',
+                                                  ).hasMatch(value.trim())
+                                            ? (_register
+                                                  ? l.invalidEmail
+                                                  : operatorText(
+                                                      context,
+                                                      'invalidIdentifier',
+                                                    ))
                                             : null,
                                       ),
                                       const SizedBox(height: 16),

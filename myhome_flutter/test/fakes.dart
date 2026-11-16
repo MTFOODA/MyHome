@@ -9,6 +9,11 @@ const account = Account(
 );
 
 class FakeAuthRepository implements AuthRepository {
+  @override
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {}
   Account registeredAccount = account;
   Account? restored;
   AuthFailure? failure;

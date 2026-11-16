@@ -11,9 +11,9 @@ class ApiConfig {
       if (kIsWeb) return resolveWebBase(override, Uri.base);
       return override;
     }
-    final host = !kIsWeb && defaultTargetPlatform == TargetPlatform.android
-        ? '10.0.2.2'
-        : 'localhost';
-    return 'http://$host:3000/api/v1';
+    // Physical phones use the reachable HTTPS server; local development uses an override.
+    return kIsWeb
+        ? resolveWebBase('/api/v1', Uri.base)
+        : 'https://myhome.mohamed-fooda-mtf.workers.dev/api/v1';
   }
 }

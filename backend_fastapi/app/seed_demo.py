@@ -11,10 +11,12 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.admin_cli import reconcile_operators
 from app.config import settings
 from app.database import engine
 from app.main import create_app
 from app.models import AuditEvent, Favorite, HousingApplication, HousingGroup, Message, Property, User
+from app.operator_files import secure_folder, write_private
 
 
 def run(credentials_path: Path, report_path: Path):
@@ -28,7 +30,6 @@ def run(credentials_path: Path, report_path: Path):
         "roommate": ["tenant_shared"],
         "viewer": ["buyer_cash", "tenant_private"],
         "outsider": ["tenant_private"],
-        "reviewer": ["buyer_cash"],
     }
     credentials_path.parent.mkdir(parents=True, exist_ok=True)
     credentials = json.loads(credentials_path.read_text()) if credentials_path.exists() else {}
@@ -37,6 +38,31 @@ def run(credentials_path: Path, report_path: Path):
     credentials_path.write_text(json.dumps(credentials, indent=2), encoding="utf-8")
     accounts = {}
     with TestClient(create_app()) as client, Session(engine(), expire_on_commit=False) as db:
+        # Fresh demo setup uses the same two reserved operators, never a third admin.
+        folder = Path(__file__).resolve().parents[2] / "admin"
+        secure_folder(folder)
+        operator_path = folder / "operators.json"
+        operator_records = json.loads(operator_path.read_text(encoding="utf-8")) if operator_path.exists() else {}
+        operators = operator_records.setdefault("demo", {})
+        existing_admins = list(db.scalars(select(User).where(User.role == "admin")))
+        if any(user.username not in ("fooda", "amr") for user in existing_admins):
+            raise RuntimeError(
+                "Run tools/prepare_admin.py first; retiring legacy administrators requires its database backups."
+            )
+        for name in ("fooda", "amr"):
+            operators.setdefault(name, {"username": name, "password": secrets.token_urlsafe(30)})
+        write_private(operator_path, json.dumps(operator_records, indent=2) + "\n")
+        reconcile_operators(db, {name: operators[name]["password"] for name in ("fooda", "amr")})
+        data = client.post("/api/v1/auth/login", json={"email": "fooda", "password": operators["fooda"]["password"]})
+        if data.status_code != 200:
+            raise RuntimeError(
+                "Operator password was changed; explicit reseeding needs the current operator login. Existing data is preserved."
+            )
+        operator_session = data.json()
+        accounts["reviewer"] = {
+            "id": operator_session["user"]["id"],
+            "headers": {"Authorization": "Bearer " + operator_session["accessToken"]},
+        }
 
         def request(method, path, actor=None, **kwargs):
             response = client.request(
@@ -71,8 +97,6 @@ def run(credentials_path: Path, report_path: Path):
             )
             user = db.get(User, UUID(data["user"]["id"]))
             user.owner_verified = key.startswith("owner_")
-            if key == "reviewer":
-                user.role = "admin"
             db.commit()
 
         for key in ("field_agent", "document_reviewer"):

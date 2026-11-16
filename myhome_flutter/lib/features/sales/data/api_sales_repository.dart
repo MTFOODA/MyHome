@@ -4,6 +4,8 @@ import '../../properties/domain/property_repository.dart' show UploadImage;
 import '../domain/sales_repository.dart';
 
 class ApiSalesRepository implements SalesRepository {
+  @override
+  Future<Map<String, dynamic>> dashboard() => _map('/admin/dashboard');
   final ApiAuthRepository auth;
   const ApiSalesRepository(this.auth);
   Future<T> _call<T>(Future<T> Function() action) async {
@@ -14,6 +16,10 @@ class ApiSalesRepository implements SalesRepository {
       throw SalesFailure(
         value is Map && value['detail'] is String
             ? value['detail'] as String
+            : e.requestOptions.path.endsWith('/admin/staff') &&
+                  value is Map &&
+                  value['detail'] is List
+            ? 'INVALID_ACCOUNT_INPUT'
             : 'NETWORK_ERROR',
       );
     }

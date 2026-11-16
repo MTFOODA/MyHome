@@ -1,3 +1,38 @@
+## Architectural headers and alternating guide poses — 2026-11-17
+
+Read [guide 47](47_ARCHITECTURAL_HEADERS_AND_GUIDE_POSES.md). Three bundled WebP architectural scenes decorate the first part of normal pages through AppScaffold, with light/dark tint, fade and no pointer interception. Home/login/listing/account variants retain existing content and property artwork. Four transparent standalone poses alternate beside each guide/About section; only the first introduction combines both presenters. Reduced-motion navigation uses immediate page jumps.
+
+Source checks: 142 Flutter tests PASS, clean analyzer/Ruff, four responsive render scenarios (32 previews). Existing 142 PostgreSQL / 11 Worker checks remain covered; no new backend/schema changes. Head stays `20261116_fixed_admins`; no reset/reseed. Actual final Web/APK/public delivery evidence is in guide 47.
+
+[x] UI-047: Architectural page headers and alternating individual guide poses. Web/Android builds and public asset parity verified.
+
+[x] ADMIN-046 / AUTH-046 / OPS-046: Two fixed operators, admin dashboard/review badges, old-password change and native HTTPS/mobile launcher. Main/demo provisioning, preserved-data checks and real HTTP permissions/password smoke passed.
+
+<!-- DONE: UI-047 | Files: architectural_backdrop.dart, app_layout.dart, guide_content.dart, introduction_page.dart, info_page.dart, assets/backgrounds, design/visuals | Tests: 142 Flutter, 32 render previews, public Web/APK asset parity | Verified: 2026-11-17 -->
+<!-- DONE: ADMIN-046, AUTH-046, OPS-046 | Files: admin_dashboard.py, admin_cli.py, auth.py, security.py, prepare_admin.py, home_page.dart, change_password_page.dart, api_config.dart | Tests: 142 PostgreSQL, 130 baseline Flutter plus current 142, real main/demo fixed-login/permission/password smoke, mobile CMD | Verified: 2026-11-17 -->
+
+---
+
+## Fixed operators, dashboard, password change and guides — 2026-11-17
+
+Read [guide 46](46_OPERATOR_DASHBOARD_GUIDES_AND_MOBILE.md). Only fooda/amr are admin usernames; previous admins are inactive with history retained. Admin navigation uses a dashboard and numeric review badges; no consumer sections or listing authority. Internal creation now allows lawyer/broker only, superseding guide 45's third-admin creation. Password changes validate the old password and revoke other sessions. Illustrated first-run/replayable guides and native HTTPS defaults are implemented.
+
+Verified source: 130 Flutter / 142 PostgreSQL tests, 11 Worker tests, clean analyzer/Ruff, four render scenarios (20 previews). Actual main/demo backups and fixed-account provisioning passed preservation checks; migration head `20261116_fixed_admins`. Delivery/public evidence is recorded in guide 46. No reset/reseed or whole marketplace-phase completion is claimed.
+
+---
+
+## Internal administrators and mobile server - 2026-11-16
+
+[x] ADMIN-045: Administrator creates admin/lawyer/broker accounts with existing profiles, server authorization, validation and audits. Local main operator created/demo admin reused; credentials in private ignored admin directory. No existing user credentials/roles changed.
+
+[x] OPS-045 source: Shared mobile-server mode and CMD skip Flutter/ADB/build/device discovery, retain existing Web/APK/data and start PostgreSQL/API/public sharing.
+
+<!-- DONE: ADMIN-045 | Files: admin_cli.py, deals.py, prepare_admin.py, sales_admin_page.dart, .gitignore, Worker/Caddy | Tests: 137 PostgreSQL, 121 Flutter, 11 Worker; bootstrap idempotence and user fingerprints | Verified: 2026-11-16 -->
+
+Source verification: analyzer/Ruff clean, four admin render scenarios (12 synthetic previews), PowerShell parse passes. Delivery and real launcher evidence are in [guide 45](45_ADMIN_ACCOUNTS_AND_MOBILE_SERVER.md). No migration/reset/reseed and no full marketplace phase is marked complete.
+
+---
+
 ## Identity validation and Home corrections - 2026-11-16
 
 [x] UI-044 / PROP-049: Profile-only globe language control, guest login, no Home results map, compact horizontal categories, unsigned numeric floor/count inputs and restored finishing pictures.

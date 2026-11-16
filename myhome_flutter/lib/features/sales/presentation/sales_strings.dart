@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 const salesLabels = <String, (String, String)>{
+  'minimumCharacters': ('minimum characters:', 'الحد الأدنى للأحرف:'),
   'eligibilityPending': (
     'Reference amounts only · no financial commitment before legal eligibility approval.',
     'مبالغ مرجعية فقط · لا التزام مالي قبل اعتماد الأهلية القانونية.',
@@ -189,8 +190,22 @@ const salesLabels = <String, (String, String)>{
   ),
   'staff': ('Internal team', 'الفريق الداخلي'),
   'newStaff': ('Create an internal account', 'إنشاء حساب داخلي'),
-  'field_agent': ('Viewing supervisor', 'مشرف المعاينة'),
-  'document_reviewer': ('Document specialist', 'مختص المستندات'),
+  'admin': ('Administrator', 'مدير النظام'),
+  'adminAccount': ('Administrator account', 'حساب مدير النظام'),
+  'field_agent': ('Broker / viewing supervisor', 'سمسار / مشرف معاينات'),
+  'document_reviewer': ('Lawyer / document reviewer', 'محامٍ / مراجع مستندات'),
+  'EMAIL_IN_USE': (
+    'This email already belongs to an account.',
+    'هذا البريد مستخدم بالفعل في حساب آخر.',
+  ),
+  'ADMIN_REQUIRED': (
+    'Only an administrator can manage internal accounts.',
+    'إدارة الحسابات الداخلية متاحة للأدمن فقط.',
+  ),
+  'INVALID_ACCOUNT_INPUT': (
+    'Check the name, email and password (12–72 bytes). A lawyer also needs a professional reference.',
+    'راجع الاسم والبريد وكلمة المرور (12–72 بايت). حساب المحامي يحتاج مرجعًا مهنيًا أيضًا.',
+  ),
   'name': ('Name', 'الاسم'),
   'email': ('Email', 'البريد الإلكتروني'),
   'password': (

@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, StrictBool, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, StrictBool, TypeAdapter, field_validator, model_validator
 
 Intent = Literal[
     "owner_sale_cash",
@@ -25,13 +25,16 @@ class StrictModel(BaseModel):
 
 
 class Login(StrictModel):
-    email: EmailStr
+    email: str = Field(min_length=1, max_length=254)
     password: str = Field(min_length=1, max_length=72)
 
     @field_validator("email", mode="before")
     @classmethod
     def normalize(cls, value):
-        return value.strip().lower() if isinstance(value, str) else value
+        if not isinstance(value, str):
+            return value
+        normalized = value.strip().lower()
+        return normalized if normalized in ("fooda", "amr") else str(TypeAdapter(EmailStr).validate_python(normalized))
 
     @field_validator("password")
     @classmethod
@@ -42,6 +45,7 @@ class Login(StrictModel):
 
 
 class Register(Login):
+    email: EmailStr
     name: str = Field(min_length=2, max_length=100)
     password: str = Field(min_length=8, max_length=72)
     role: Literal["user", "student", "expatriate", "owner", "maintenance_provider"] = "user"
@@ -50,6 +54,18 @@ class Register(Login):
     @classmethod
     def trim_name(cls, value):
         return value.strip() if isinstance(value, str) else value
+
+
+class PasswordChange(StrictModel):
+    current_password: str = Field(min_length=1, max_length=72)
+    new_password: str = Field(min_length=8, max_length=72)
+
+    @field_validator("current_password", "new_password")
+    @classmethod
+    def password_bytes(cls, value):
+        if len(value.encode()) > 72:
+            raise ValueError("PASSWORD_TOO_LONG")
+        return value
 
 
 class Refresh(StrictModel):
@@ -128,6 +144,7 @@ class ListingInput(StrictModel):
             raise ValueError("FURNISHING_NOT_APPLICABLE")
         if self.location_url:
             from app.map_links import validate_map_url
+
             self.location_url = validate_map_url(self.location_url)
         if (self.latitude is None) != (self.longitude is None):
             raise ValueError("COORDINATES_REQUIRE_BOTH")

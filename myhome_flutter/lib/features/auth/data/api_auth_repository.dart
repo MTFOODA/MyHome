@@ -3,6 +3,36 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../domain/auth_repository.dart';
 
 class ApiAuthRepository implements AuthRepository {
+  @override
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    try {
+      await authorizedRequest(
+        '/auth/password',
+        method: 'POST',
+        data: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        },
+      );
+    } on AuthException catch (_) {
+      throw const PasswordChangeFailure('SESSION_EXPIRED');
+    } on DioException catch (error) {
+      final detail = error.response?.data;
+      throw PasswordChangeFailure(
+        error.response?.statusCode == 401
+            ? 'SESSION_EXPIRED'
+            : detail is Map && detail['detail'] is String
+            ? detail['detail'] as String
+            : error.response?.statusCode == 422
+            ? 'PASSWORD_INVALID'
+            : 'NETWORK_ERROR',
+      );
+    }
+  }
+
   final Dio dio;
   final FlutterSecureStorage storage;
   String? _accessToken;

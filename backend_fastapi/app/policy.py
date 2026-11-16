@@ -12,6 +12,8 @@ def intents_for(db: Session, user: User) -> list[str]:
 
 
 def require_owner(db: Session, user: User, category: str | None = None):
+    if user.role == "admin":
+        raise HTTPException(403, "ADMIN_MODE_ONLY")
     intents = set(intents_for(db, user))
     expected = "owner_" + category if category else None
     if not user.active or not (intents & OWNER_INTENTS) or (expected and expected not in intents):

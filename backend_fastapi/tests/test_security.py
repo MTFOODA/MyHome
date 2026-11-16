@@ -40,5 +40,12 @@ def test_rate_limiter_is_active_and_validation_does_not_echo_passwords():
                 assert response.status_code == 422
                 assert "sensitive-test-value" not in response.text
             assert client.post("/api/v1/auth/login", json={}).status_code == 429
+            for _ in range(2):
+                response = client.post(
+                    "/api/v1/auth/password",
+                    json={"current_password": "sensitive-test-value", "new_password": "temporary-test-value"},
+                )
+                assert response.status_code == 401 and "sensitive-test-value" not in response.text
+            assert client.post("/api/v1/auth/password", json={}).status_code == 429
     finally:
         config.rate_limit = original

@@ -6,13 +6,17 @@
 
 A real-estate and shared-housing marketplace for Egypt. Browse approved properties as a guest; sign in to view details, save homes or submit a listing.
 
-| الرئيسية بالعربي | الفلاتر بالعربي | Dark mode |
+| الرئيسية بالعربي | تسجيل الدخول | دليل الاستخدام |
 |---|---|---|
-| ![الرئيسية](docs/screenshots/home-ar.png) | ![الفلاتر](docs/screenshots/filters-ar.png) | ![Dark home](docs/screenshots/home-dark-en.png) |
+| ![الرئيسية](docs/screenshots/architecture-home-390-dark-ar.png) | ![تسجيل الدخول](docs/screenshots/architecture-login-390-dark-ar.png) | ![الدليل](docs/screenshots/architecture-guide-1440-dark-ar.png) |
 
 Screenshots use synthetic test fixtures. The local application database is not seeded with these listings.
 
 ## الموجود حاليًا / Implemented
+
+- 3 خلفيات معمارية محلية لمقدمات الصفحات، مناسبة للفواتح والداكن وعلى الموبايل والويب. الشخصيتان معًا في أول شاشة فقط، وبعدها 4 أوضاع منفصلة تتبادل الشرح بجوار كل جزء في الدليل وعن بيتي. [التصميم والتحقق](docs/47_ARCHITECTURAL_HEADERS_AND_GUIDE_POSES.md).
+
+- الإدارة بحسابَي **fooda** و**amr** باسم المستخدم، مع لوحة أعداد العقارات والملاك والمشترين والمستأجرين وشارات حمراء لطلبات المراجعة. إنشاء محامي أو سمسار داخلي فقط، وتغيير كلمة المرور بالقديمة والجديدة لجميع المستخدمين. بيانات الإدارة في `admin/ADMIN_LOGIN.txt` الخاص وغير المرفوع على GitHub. شاشات بداية ودليل استخدام وعن بيتي بالشخصيتين التوضيحيتين. [التفاصيل والتحقق](docs/46_OPERATOR_DASHBOARD_GUIDES_AND_MOBILE.md).
 
 - تغيير اللغة من البروفايل فقط بزر الكرة الأرضية، وتسجيل الدخول في الهيدر للزائر. تصنيفات أصغر تحت البحث، ومدخلات أرقام بدل اختيار الدور والعجلة. تحقق دقيق من تاريخ الميلاد داخل الرقم القومي، ومسح صورة البطاقة لاستخراج الرقم والتاريخ مع رسائل محددة لكل نقص، وموافقة Checkbox صغيرة بجوار النص. [التفاصيل والاختبارات](docs/44_IDENTITY_VALIDATION_AND_HOME_REFINEMENTS.md).
 
@@ -42,6 +46,8 @@ Screenshots use synthetic test fixtures. The local application database is not s
 
 ## التشغيل المحلي / Local setup
 
+**للموبايل بدون كابل أو محاكي:** افتح [Start_MyHome_Mobile.cmd](Start_MyHome_Mobile.cmd). يشغّل الداتابيز والـAPI والمشاركة ويحتفظ بالويب والـAPK الحاليين، دون بناء Flutter أو البحث عن تليفون متصل. افتح التطبيق المثبّت بعد ظهور رابط `MOBILE API`. [دليل الإدارة والتشغيل](docs/45_ADMIN_ACCOUNTS_AND_MOBILE_SERVER.md).
+
 **للتجربة من الموبايل أو إرسال رابط ويب:** افتح [Start_MyHome.cmd](Start_MyHome.cmd). يشغّل قاعدة التجربة والـBackend والويب ويعرض رابط HTTPS. للإيقاف افتح [Stop_MyHome.cmd](Stop_MyHome.cmd). لبناء APK متصل بالرابط الحالي استخدم `Start_MyHome.cmd -Android`. [شرح التشغيل والمتطلبات](docs/36_ONE_CLICK_DEMO.md).
 
 **رابط Cloudflare الثابت:** [افتح بيتي](https://myhome.mohamed-fooda-mtf.workers.dev). الـWorker بوابة للويب والـAPI المحليين؛ يجب بقاء الكمبيوتر وDocker والإنترنت شغّالين. ملف التشغيل يعيد توصيله تلقائيًا بعد الربط الأول. لإعداد الربط أو إعادة نشره افتح [Deploy_Cloudflare.cmd](Deploy_Cloudflare.cmd)؛ يتطلب Node.js 22.12+ وجلسة Cloudflare مخوّلة. [التشغيل والحدود والرجوع](docs/38_CLOUDFLARE_WORKER.md).
@@ -67,12 +73,12 @@ flutter run -d chrome --web-port 8080
 - API: `http://127.0.0.1:3000/api/v1`
 - API documentation: `http://127.0.0.1:3000/api/docs`
 - PostgreSQL: `127.0.0.1:55432`, database `myhome`
-- Android emulator: the app selects `http://10.0.2.2:3000/api/v1` automatically.
+- Native apps, including physical phones: stable HTTPS Worker API by default. Emulator-only local API: pass `--dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1`.
 - Other servers: `--dart-define=API_BASE_URL=https://your-server/api/v1`.
 
 Docker binds to the development machine's loopback address. Physical devices need a reachable API and appropriate network/TLS configuration. Browser secure storage requires localhost or HTTPS.
 
-Migrations run before the API starts; the API uses a restricted database role. Locations are preloaded. No administrator account or sample property is seeded. Operator setup, host Python development and isolated database tests: [local setup guide](docs/30_FASTAPI_LOCAL_SETUP.md).
+Migrations run before the API starts; the API uses a restricted database role. Locations are preloaded. Main data is never seeded with sample properties. Provision the two fixed operators using tools/prepare_admin.py after PostgreSQL is online; see guide 46. Operator setup, host Python development and isolated database tests: [local setup guide](docs/30_FASTAPI_LOCAL_SETUP.md).
 
 ## Structure
 
@@ -90,7 +96,7 @@ The previous NestJS backend and unused Flutter placeholders were removed. Histor
 
 ## Validation
 
-Current verification: **78 Flutter tests + 80 PostgreSQL API tests + 11 Worker tests**, 8 listing/onboarding/calculator render tests, analyzer/Ruff clean, Web release and Android debug builds. [Visual listing, protected photos, catalogue and open maps](docs/39_VISUAL_LISTING_AND_OPEN_MAPS.md). [Worker operation](docs/38_CLOUDFLARE_WORKER.md). Existing financial/chat/role checks remain covered. Windows/iOS native builds and physical-device/browser GUI testing are not claimed.
+Current verification: **142 Flutter tests + 142 PostgreSQL API tests + 11 Worker tests**, 32 architecture/guide render previews, analyzer/Ruff clean. [Current visual and delivery details](docs/47_ARCHITECTURAL_HEADERS_AND_GUIDE_POSES.md). [Worker operation](docs/38_CLOUDFLARE_WORKER.md). Existing financial/chat/role checks remain covered. Windows/iOS native builds and physical-device/browser GUI testing are not claimed.
 
 ## تجربة ببيانات منفصلة / Isolated demo
 

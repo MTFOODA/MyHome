@@ -42,7 +42,7 @@ Stopping retains database data. Do not remove volumes or run migration:revert ag
     flutter pub get
     flutter run -d chrome --web-port 8080
 
-The default API URL is http://localhost:3000/api/v1 on Web/Windows/macOS/Linux/iOS simulator and http://10.0.2.2:3000/api/v1 on Android emulator.
+Current defaults (guide 46): Web uses same-origin /api/v1; native apps use the stable HTTPS Worker API. For an emulator-only local main API explicitly pass --dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1. Physical phones cannot reach the PC through their own localhost or the emulator alias.
 For another target:
     flutter run --dart-define=API_BASE_URL=https://your-api.example/api/v1
 

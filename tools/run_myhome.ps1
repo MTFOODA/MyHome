@@ -3,6 +3,7 @@ param(
     [switch]$Stop,
     [switch]$Rebuild,
     [switch]$Android,
+    [switch]$Mobile,
     [switch]$Cloudflare,
     [switch]$NoBrowser
 )
@@ -71,7 +72,7 @@ try {
     }
 
     $taskPython = (Get-Command python -ErrorAction Stop).Source
-    $taskFlutter = (Get-Command flutter -ErrorAction Stop).Source
+    if (-not $Mobile -or $Android) { $taskFlutter = (Get-Command flutter -ErrorAction Stop).Source }
     Invoke-Checked -Command $taskPython -Arguments @('tools/setup_local.py')
     Invoke-Checked -Command $taskPython -Arguments @('tools/setup_demo.py')
     $taskVenvPython = Join-Path $taskRoot 'backend_fastapi/.venv/Scripts/python.exe'
@@ -86,6 +87,7 @@ try {
     Invoke-Checked -Command 'powershell.exe' -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
         (Join-Path $PSScriptRoot 'start_demo.ps1'), '-SeedIfEmpty')
 
+    if (-not $Mobile) {
     Push-Location (Join-Path $taskRoot 'myhome_flutter')
     try {
         Invoke-Checked -Command $taskFlutter -Arguments @('pub', 'get')
@@ -114,9 +116,16 @@ try {
             Set-Content -LiteralPath $taskCache -Value $taskFingerprint -Encoding ASCII
         } else { Write-Host 'Web build is up to date.' }
     } finally { Pop-Location }
+    } else {
+        [void][IO.Directory]::CreateDirectory((Join-Path $taskArtifacts 'share-web'))
+        Write-Host 'Mobile server mode: no Flutter build, USB connection, emulator or ADB is required.'
+        Write-Host 'Existing Web files and APK are retained. Starting database and API sharing only.'
+    }
 
     Write-Host 'Starting the single-origin Web/API gateway...'
-    Invoke-Compose -Arguments @('up', '-d', '--wait', '--wait-timeout', '60', 'demo-web')
+    # Caddy has its admin API disabled; recreate this stateless gateway so
+    # updated bind-mounted routing/privacy rules are loaded on every start.
+    Invoke-Compose -Arguments @('up', '-d', '--force-recreate', '--wait', '--wait-timeout', '60', 'demo-web')
     $taskLocalUrl = 'http://localhost:8082'
     $taskOpenUrl = $taskLocalUrl
     if ($Local) {
@@ -188,6 +197,10 @@ try {
         $taskUsingWorker = $true
     }
     Set-Content -LiteralPath (Join-Path $taskArtifacts 'project-url.txt') -Value $taskOpenUrl -Encoding ASCII
+    if ($Mobile) {
+        Write-Host "MOBILE API: $taskOpenUrl/api/v1" -ForegroundColor Green
+        Write-Host 'Open the installed MyHome app, or use the existing HTTPS Web link on your phone.'
+    }
     if (-not $Local) {
         Write-Host "MOBILE / SHARE: $taskOpenUrl" -ForegroundColor Green
         Write-Host 'Send that HTTPS link to your tester. Keep this PC and Docker running for the local API.'
