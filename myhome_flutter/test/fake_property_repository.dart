@@ -16,6 +16,8 @@ const testProperty = PropertySummary(
 
 class FakePropertyRepository implements PropertyRepository {
   @override
+  Future<Map<String, dynamic>> scanIdentity(UploadImage image) async => {'national_id': '30001011234567', 'birth_date': '2000-01-01'};
+  @override
   Future<List<PropertySummary>> similar(String id) async => [];
   @override
   Future<Map<String, dynamic>> interested(String id, {String? before}) async =>

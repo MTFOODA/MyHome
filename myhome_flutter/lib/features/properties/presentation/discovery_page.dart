@@ -8,8 +8,6 @@ import '../domain/property_repository.dart';
 import 'discovery_bloc.dart';
 import 'property_card.dart';
 import 'property_filters_sheet.dart';
-import '../domain/location_repository.dart';
-import 'property_map.dart';
 
 class DiscoveryPage extends StatefulWidget {
   final PropertyRepository repository;
@@ -29,7 +27,6 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
   final _query = TextEditingController();
   Map<String, dynamic> _filters = {};
   LocationCatalog? _catalog;
-  bool _mapView = false;
   int get _filterCount => _filters.entries
       .where((entry) => entry.key != 'sort' || entry.value != 'newest')
       .length;
@@ -206,8 +203,8 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
               onPressed: () => _category(entry.$1.isEmpty ? null : entry.$1),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 22,
-                  vertical: 18,
+                  horizontal: 14,
+                  vertical: 10,
                 ),
                 foregroundColor: selected ? scheme.onPrimary : scheme.onSurface,
                 backgroundColor: selected ? scheme.primary : scheme.surface,
@@ -218,14 +215,14 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              child: Column(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ChoiceArtwork(
                     entry.$1.isEmpty ? 'allHomes' : entry.$1,
-                    size: 52,
+                    size: 34,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(width: 8),
                   Text(
                     words(context, entry.$1.isEmpty ? 'allHomes' : entry.$1),
                   ),
@@ -336,79 +333,42 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                           ),
                         );
                       }
-                      final pins = [
-                        for (final property in results.items)
-                          if (property.latitude != null &&
-                              property.longitude != null)
-                            MapPropertyPin(
-                              property.id,
-                              property.title,
-                              PropertyLocation(
-                                property.latitude!,
-                                property.longitude!,
-                              ),
-                            ),
-                      ];
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text('${results.total} ${ar ? 'عقار' : 'homes'}'),
                           const SizedBox(height: 16),
-                          OutlinedButton.icon(
-                            key: const Key('togglePropertyMap'),
-                            onPressed: () =>
-                                setState(() => _mapView = !_mapView),
-                            icon: const FeatureSymbol('location', size: 32),
-                            label: Text(
-                              words(context, _mapView ? 'listView' : 'mapView'),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          if (_mapView)
-                            SizedBox(
-                              height: 430,
-                              child: pins.isEmpty
-                                  ? Center(
-                                      child: Text(words(context, 'noMapPins')),
-                                    )
-                                  : PropertyMap(
-                                      properties: pins,
-                                      onProperty: widget.onDetails,
-                                    ),
-                            )
-                          else
-                            LayoutBuilder(
-                              builder: (context, constraints) {
-                                final columns = constraints.maxWidth >= 950
-                                    ? 3
-                                    : constraints.maxWidth >= 620
-                                    ? 2
-                                    : 1;
-                                final width =
-                                    (constraints.maxWidth -
-                                        (columns - 1) * 16) /
-                                    columns;
-                                return Wrap(
-                                  spacing: 16,
-                                  runSpacing: 16,
-                                  children: results.items
-                                      .map(
-                                        (property) => SizedBox(
-                                          width: width,
-                                          child: PropertyCard(
-                                            property: property,
-                                            repository: widget.repository,
-                                            onDetails: () =>
-                                                widget.onDetails(property.id),
-                                            onSave: () =>
-                                                widget.onSave(property.id),
-                                          ),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              final columns = constraints.maxWidth >= 950
+                                  ? 3
+                                  : constraints.maxWidth >= 620
+                                  ? 2
+                                  : 1;
+                              final width =
+                                  (constraints.maxWidth - (columns - 1) * 16) /
+                                  columns;
+                              return Wrap(
+                                spacing: 16,
+                                runSpacing: 16,
+                                children: results.items
+                                    .map(
+                                      (property) => SizedBox(
+                                        width: width,
+                                        child: PropertyCard(
+                                          property: property,
+                                          repository: widget.repository,
+                                          onDetails: () =>
+                                              widget.onDetails(property.id),
+                                          onSave: () =>
+                                              widget.onSave(property.id),
                                         ),
-                                      )
-                                      .toList(),
-                                );
-                              },
-                            ),
+                                      ),
+                                    )
+                                    .toList(),
+                              );
+                            },
+                          ),
                           const SizedBox(height: 24),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,

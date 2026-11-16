@@ -64,8 +64,10 @@ Future<void> completeAddress(WidgetTester tester) async {
   }
   tester.testTextInput.hide();
   await tester.pumpAndSettle();
-  await tap(tester, find.byKey(const Key('address-floor_number')));
-  await tap(tester, find.text('4').last);
+  await tester.ensureVisible(find.byKey(const Key('address-floor_number')));
+  await tester.enterText(find.byKey(const Key('address-floor_number')), '4');
+  tester.testTextInput.hide();
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -215,6 +217,9 @@ void main() {
           await pick('pickIdentity');
           await pick('pickOwnership');
           await tap(tester, find.byKey(const Key('listingConsent')));
+          expect(find.byType(Checkbox), findsOneWidget);
+          await tap(tester, find.byKey(const Key('scanIdentity')));
+          expect(find.textContaining('30001011234567'), findsWidgets);
           await nextStep(tester);
           expect(find.byType(PriceQuotePanel), findsNothing);
           expect(find.text(label('propertyReview')), findsOneWidget);
@@ -279,38 +284,36 @@ void main() {
       }
     },
   );
-  testWidgets(
-    'number wheel selects an exact value without a keyboard, including zero',
-    (tester) async {
-      await openListing(tester);
-      await tap(
-        tester,
-        find.byKey(const ValueKey('choice-category-sale_cash')),
-      );
-      await nextStep(tester);
-      await tap(tester, find.byKey(const ValueKey('property-kind-studio')));
-      await nextStep(tester);
-      // The reusable selector handles exact values outside quick presets.
-      int? number;
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: StatefulBuilder(
-              builder: (context, set) => ListingQuantity(
-                field: 'bedrooms',
-                value: number,
-                minimum: 0,
-                onChanged: (n) => set(() => number = n),
-              ),
+  testWidgets('number input accepts an exact value and zero without a wheel', (
+    tester,
+  ) async {
+    await openListing(tester);
+    await tap(tester, find.byKey(const ValueKey('choice-category-sale_cash')));
+    await nextStep(tester);
+    await tap(tester, find.byKey(const ValueKey('property-kind-studio')));
+    await nextStep(tester);
+    // The reusable selector handles exact values outside quick presets.
+    int? number;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, set) => ListingQuantity(
+              field: 'bedrooms',
+              value: number,
+              minimum: 0,
+              onChanged: (n) => set(() => number = n),
             ),
           ),
         ),
-      );
-      await tap(tester, find.byKey(const ValueKey('choose-bedrooms')));
-      await tap(tester, find.byType(FilledButton));
-      expect(number, 0);
-      expect(find.byType(TextField), findsNothing);
-      expect(tester.takeException(), isNull);
-    },
-  );
+      ),
+    );
+    await tester.enterText(find.byKey(const ValueKey('choose-bedrooms')), '0');
+    await tester.pumpAndSettle();
+    expect(number, 0);
+    expect(find.byType(ListWheelScrollView), findsNothing);
+    await tester.enterText(find.byKey(const ValueKey('choose-bedrooms')), '٢٣');
+    expect(number, 23);
+    expect(tester.takeException(), isNull);
+  });
 }

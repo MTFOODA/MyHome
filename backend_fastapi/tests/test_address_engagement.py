@@ -23,6 +23,8 @@ def test_new_listing_requires_complete_address(client, signup, field):
         {"street_address": "  "},
         {"building_number": " "},
         {"floor_number": 101},
+        {"floor_number": -1},
+        {"floor_number": -5},
         {"unit_number": ""},
         {"property_kind": "castle"},
     ],

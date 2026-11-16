@@ -1,5 +1,7 @@
 # Property experience, optional features and messages — 2026-11-16
 
+Follow-up corrections to Home navigation, numeric inputs, identity consent/scanning and finishing artwork are in [guide 44](44_IDENTITY_VALIDATION_AND_HOME_REFINEMENTS.md). Earlier verification evidence below describes this increment; shared screenshot filenames may now show the subsequent verified presentation.
+
 This increment follows the owner's attached desktop/mobile reference screenshots. The Figma URL was empty, so no Figma file was inspected and pixel-perfect correspondence to an unseen file is not claimed. Existing marketplace, pricing, permission, media and consent flows remain in place.
 
 ## Property presentation

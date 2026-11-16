@@ -44,7 +44,10 @@ def create_app():
     @application.middleware("http")
     async def safeguards(request: Request, call_next):
         path = request.url.path
-        if path in ("/api/v1/assets", "/api/v1/admin/payment-destination") and request.method == "POST":
+        if (
+            path in ("/api/v1/assets", "/api/v1/identity/scan", "/api/v1/admin/payment-destination")
+            and request.method == "POST"
+        ):
             chunks = []
             size = 0
             async for chunk in request.stream():
@@ -54,7 +57,13 @@ def create_app():
                 chunks.append(chunk)
             request._body = b"".join(chunks)
         # Single-instance limiter with bounded memory; never trust caller-supplied IP headers.
-        if path in ("/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/refresh", "/api/v1/assets"):
+        if path in (
+            "/api/v1/auth/login",
+            "/api/v1/auth/register",
+            "/api/v1/auth/refresh",
+            "/api/v1/assets",
+            "/api/v1/identity/scan",
+        ):
             key = (request.client.host if request.client else "unknown", path)
             timestamp = time.monotonic()
             with lock:
@@ -65,13 +74,15 @@ def create_app():
                 counters.move_to_end(key)
                 while len(counters) > 10000:
                     counters.popitem(last=False)
-            if count >= config.rate_limit:
+            limit = min(config.rate_limit, 10) if path == "/api/v1/identity/scan" else config.rate_limit
+            if count >= limit:
                 return JSONResponse({"detail": "RATE_LIMITED"}, 429, headers={"Retry-After": "60"})
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         if (
             "auth" in path
+            or "/identity/" in path
             or "private-assets" in path
             or "admin" in path
             or any(

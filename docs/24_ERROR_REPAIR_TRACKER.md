@@ -1,3 +1,19 @@
+## Identity validation and Home corrections - 2026-11-16
+
+[x] Translation removed from headers, profile globe retained; guest login restored in its place.
+
+[x] Home map-results control removed; quick categories reduced and picture/label aligned horizontally.
+
+[x] Negative floor options removed, unsigned floor/count input added, ground-floor meaning explicit.
+
+[x] ID/DOB validation feedback split by missing item; consent is one compact Checkbox. Real scan preflight added and demo OCR enabled.
+
+[x] Missing Ultra finishing artwork wired into review; all finishing choices use pictures again.
+
+Source checks: 115 Flutter / 126 PostgreSQL, analyzer/Ruff clean, eight render scenarios. Build/runtime evidence in [guide 44](44_IDENTITY_VALIDATION_AND_HOME_REFINEMENTS.md).
+
+---
+
 ## Responsive property and messaging experience - 2026-11-16
 
 [x] Visitor/save text moved into owner cards as eye/bookmark glyphs with adjacent counts; saver navigation preserved.

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../../core/widgets/brand_logo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/locale_config.dart';
-import '../../../core/config/settings_cubit.dart';
 import '../../../core/config/theme_config.dart';
 import '../domain/auth_repository.dart';
 import 'auth_cubit.dart';
@@ -123,26 +122,6 @@ class _AuthPageState extends State<AuthPage> {
                                   ),
                                 ),
                               ),
-                            Align(
-                              alignment: AlignmentDirectional.centerEnd,
-                              child: TextButton.icon(
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                ),
-                                onPressed: () => context
-                                    .read<SettingsCubit>()
-                                    .toggleLanguage(),
-                                icon: const AppIcon(Icons.translate, size: 18),
-                                label: Text(
-                                  Localizations.localeOf(
-                                            context,
-                                          ).languageCode ==
-                                          'ar'
-                                      ? 'English'
-                                      : 'العربية',
-                                ),
-                              ),
-                            ),
                             const SizedBox(height: 8),
                             const BrandWordmark(),
                             const SizedBox(height: 6),

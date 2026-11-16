@@ -166,9 +166,10 @@ class ProfilePage extends StatelessWidget {
                   child: Column(
                     children: [
                       ListTile(
-                        leading: const AppIcon(Icons.translate),
+                        leading: const AppIcon(Icons.language_rounded),
                         title: Text(l.language),
                         trailing: TextButton(
+                          key: const Key('changeLanguage'),
                           onPressed: () =>
                               context.read<SettingsCubit>().toggleLanguage(),
                           child: Text(

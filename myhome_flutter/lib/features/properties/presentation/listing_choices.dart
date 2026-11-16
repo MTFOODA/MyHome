@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../../../core/input/number_input.dart' as number_input;
 import '../../../core/config/marketplace_strings.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/choice_artwork.dart';
@@ -57,13 +59,13 @@ class ListingChoiceGrid extends StatelessWidget {
   );
 }
 
-/// Counts can be selected precisely without opening a keyboard.
-class ListingQuantity extends StatelessWidget {
+/// Unsigned numeric input with optional common-value shortcuts.
+class ListingQuantity extends StatefulWidget {
   final String field;
   final int? value;
   final int minimum, maximum;
   final List<int> presets;
-  final ValueChanged<int> onChanged;
+  final ValueChanged<int?> onChanged;
   const ListingQuantity({
     super.key,
     required this.field,
@@ -74,56 +76,35 @@ class ListingQuantity extends StatelessWidget {
     this.presets = const [1, 2, 3, 4],
   });
 
-  Future<void> _choose(BuildContext context) async {
-    var selected = (value ?? minimum).clamp(minimum, maximum);
-    final controller = FixedExtentScrollController(
-      initialItem: selected - minimum,
-    );
-    final result = await showModalBottomSheet<int>(
-      context: context,
-      showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
-        child: SizedBox(
-          height: 330,
-          child: Column(
-            children: [
-              Text(
-                words(context, field),
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              Expanded(
-                child: ListWheelScrollView.useDelegate(
-                  controller: controller,
-                  itemExtent: 48,
-                  physics: const FixedExtentScrollPhysics(),
-                  onSelectedItemChanged: (index) => selected = index + minimum,
-                  childDelegate: ListWheelChildBuilderDelegate(
-                    childCount: maximum - minimum + 1,
-                    builder: (_, index) => Center(
-                      child: Text(
-                        '${index + minimum}',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: FilledButton.icon(
-                  onPressed: () => Navigator.pop(sheetContext, selected),
-                  icon: const AppIcon(Icons.check_circle_outline),
-                  label: Text(words(context, 'chooseValue')),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    controller.dispose();
-    if (result != null) onChanged(result);
+  @override
+  State<ListingQuantity> createState() => _ListingQuantityState();
+}
+
+class _ListingQuantityState extends State<ListingQuantity> {
+  late final TextEditingController _input = TextEditingController(
+    text: widget.value?.toString() ?? '',
+  );
+  @override
+  void didUpdateWidget(covariant ListingQuantity oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final entered = int.tryParse(number_input.latinDigits(_input.text));
+    if (widget.value != oldWidget.value && widget.value != entered) {
+      _input.text = widget.value?.toString() ?? '';
+    }
   }
+
+  @override
+  void dispose() {
+    _input.dispose();
+    super.dispose();
+  }
+
+  String get field => widget.field;
+  int? get value => widget.value;
+  int get minimum => widget.minimum;
+  int get maximum => widget.maximum;
+  List<int> get presets => widget.presets;
+  ValueChanged<int?> get onChanged => widget.onChanged;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -156,13 +137,27 @@ class ListingQuantity extends StatelessWidget {
                 icon: const ColorSymbol(Icons.remove),
               ),
               Expanded(
-                child: TextButton(
+                child: TextFormField(
                   key: ValueKey('choose-$field'),
-                  onPressed: () => _choose(context),
-                  child: Text(
-                    value?.toString() ?? words(context, 'chooseValue'),
-                    style: Theme.of(context).textTheme.titleMedium,
+                  controller: _input,
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9٠-٩۰-۹]')),
+                    LengthLimitingTextInputFormatter(4),
+                  ],
+                  decoration: InputDecoration(
+                    hintText: words(context, 'enterNumber'),
+                    helperText: '$minimum – $maximum',
+                    errorText:
+                        value != null && (value! < minimum || value! > maximum)
+                        ? words(context, 'invalidField:$field')
+                        : null,
                   ),
+                  onChanged: (text) {
+                    final number = int.tryParse(number_input.latinDigits(text));
+                    onChanged(number);
+                  },
                 ),
               ),
               IconButton(

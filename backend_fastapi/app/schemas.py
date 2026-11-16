@@ -81,7 +81,7 @@ class ListingInput(StrictModel):
     approximate_location: str = Field(min_length=5, max_length=500)
     street_address: str = Field(min_length=3, max_length=160)
     building_number: str = Field(min_length=1, max_length=20)
-    floor_number: int = Field(ge=-5, le=100)
+    floor_number: int = Field(ge=0, le=100)
     unit_number: str = Field(min_length=1, max_length=20)
     property_kind: Literal["apartment", "studio", "duplex", "villa", "room"]
     latitude: Decimal | None = Field(default=None, ge=22, le=32)

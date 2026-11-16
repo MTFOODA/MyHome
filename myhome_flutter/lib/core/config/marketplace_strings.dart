@@ -1,6 +1,130 @@
 import 'package:flutter/material.dart';
 
 const marketplaceWords = <String, (String, String)>{
+  'floorInputHint': (
+    '0 = ground floor · 1–100 = upper floors',
+    '0 = الدور الأرضي · 1–100 = الأدوار العلوية',
+  ),
+  'floorInvalid': (
+    'Enter a floor from 0 to 100.',
+    'أدخل رقم الدور من 0 إلى 100.',
+  ),
+  'enterNumber': ('Enter a number', 'أدخل رقمًا'),
+  'needGovernorate': ('Select the governorate.', 'اختر المحافظة.'),
+  'needArea': ('Select the residential area.', 'اختر المنطقة السكنية.'),
+  'needStreet': (
+    'Enter the street name, at least 3 characters.',
+    'أدخل اسم الشارع ووصف العنوان، 3 أحرف على الأقل.',
+  ),
+  'needBuilding': ('Enter the building number.', 'أدخل رقم المبنى.'),
+  'needFloor': (
+    'Enter the floor number; 0 means ground floor.',
+    'أدخل رقم الدور؛ 0 يعني الدور الأرضي.',
+  ),
+  'needUnit': ('Enter the apartment number.', 'أدخل رقم الشقة.'),
+  'checkCoordinates': (
+    'Choose a location within Egypt or remove the map pin.',
+    'اختر موقعًا داخل مصر أو احذف دبوس الخريطة.',
+  ),
+  'needAreaMeasurement': (
+    'Choose net or gross area.',
+    'حدد هل المساحة صافية أم إجمالية.',
+  ),
+  'areaInvalid': (
+    'Enter an area greater than 0 and up to 100,000 m².',
+    'أدخل مساحة أكبر من 0 وحتى 100,000 متر مربع.',
+  ),
+  'bedroomsInvalid': (
+    'Enter bedrooms from 0 to 100.',
+    'أدخل عدد غرف النوم من 0 إلى 100.',
+  ),
+  'bathroomsInvalid': (
+    'Enter bathrooms from 1 to 100.',
+    'أدخل عدد الحمامات من 1 إلى 100.',
+  ),
+  'capacityInvalid': (
+    'Enter shared-housing capacity from 1 to 100.',
+    'أدخل عدد أفراد السكن الجماعي من 1 إلى 100.',
+  ),
+  'needNationalId': (
+    'Enter the 14-digit national ID.',
+    'أدخل الرقم القومي المكوّن من 14 رقمًا.',
+  ),
+  'invalidNationalId': (
+    'Enter a valid 14-digit Egyptian ID with a valid birth date.',
+    'أدخل رقمًا قوميًّا مصريًّا صحيحًا من 14 رقمًا ويتضمن تاريخ ميلاد صحيحًا.',
+  ),
+  'needBirthDate': (
+    'Choose the date of birth printed on the ID.',
+    'اختر تاريخ الميلاد المدوّن في البطاقة.',
+  ),
+  'needIdentityImage': (
+    'Choose a clear photo of the front of the ID.',
+    'أرفق صورة واضحة لوجه البطاقة الذي يحتوي على الرقم القومي.',
+  ),
+  'needOwnershipImage': (
+    'Attach the ownership document.',
+    'أرفق مستند إثبات ملكية العقار.',
+  ),
+  'needReviewConsent': (
+    'Tick the consent checkbox to process the identity and ownership documents.',
+    'ضع علامة الموافقة لمعالجة مستندات الهوية والملكية.',
+  ),
+  'dateFromId': (
+    'Birth date encoded in the ID',
+    'تاريخ الميلاد المستخرج من الرقم القومي',
+  ),
+  'scanIdentity': (
+    'Scan ID photo and extract number',
+    'مسح صورة البطاقة واستخراج الرقم',
+  ),
+  'scanningIdentity': ('Scanning ID photo…', 'جارٍ قراءة صورة البطاقة…'),
+  'scanFound': (
+    'Extracted number and birth date',
+    'الرقم وتاريخ الميلاد المستخرجان من الصورة',
+  ),
+  'OCR_UNREADABLE': (
+    'The ID number could not be read. Upload a sharp, well-lit photo of the whole front of the card.',
+    'تعذرت قراءة الرقم. أرفق صورة واضحة ومضاءة لوجه البطاقة كاملًا ثم أعد المسح.',
+  ),
+  'OCR_UNAVAILABLE': (
+    'The scanner is temporarily unavailable. Retry; a manual document review is still required.',
+    'خدمة المسح غير متاحة مؤقتًا. أعد المحاولة؛ تظل مراجعة المستندات البشرية مطلوبة.',
+  ),
+  'OCR_MULTIPLE_NUMBERS': (
+    'More than one ID number was detected. Upload a photo containing only one card.',
+    'رُصد أكثر من رقم قومي. أرفق صورة تحتوي على بطاقة واحدة فقط.',
+  ),
+  'totalBedsInvalid': (
+    'Enter at least one bed.',
+    'أدخل عدد الأسرّة، سريرًا واحدًا على الأقل.',
+  ),
+  'bedsExceedCapacity': (
+    'Total beds cannot exceed shared-housing capacity.',
+    'عدد الأسرّة لا يمكن أن يتجاوز عدد أفراد السكن الجماعي.',
+  ),
+  'availableBedsInvalid': (
+    'Available beds must be from 0 to the total number of beds.',
+    'عدد الأسرّة المتاحة يجب أن يكون من 0 إلى إجمالي الأسرّة.',
+  ),
+  'needFinishing': ('Choose the finishing level.', 'اختر مستوى التشطيب.'),
+  'needFurnishing': (
+    'Specify whether the property is furnished.',
+    'حدد هل العقار مفروش أم غير مفروش.',
+  ),
+  'priceInvalid': (
+    'Enter a price greater than zero, with at most two decimal places.',
+    'أدخل سعرًا أكبر من صفر وبمنزلتين عشريتين كحد أقصى.',
+  ),
+  'needRentalPeriod': ('Choose the rental duration.', 'اختر مدة الإيجار.'),
+  'depositInvalid': (
+    'Enter a non-negative deposit; use 0 for no deposit.',
+    'أدخل قيمة تأمين لا تقل عن صفر؛ اكتب 0 عند عدم وجود تأمين.',
+  ),
+  'customMonthsInvalid': (
+    'Enter a custom rental duration from 1 to 1,200 months.',
+    'أدخل مدة الإيجار المخصصة من 1 إلى 1,200 شهر.',
+  ),
   'ultra_super_lux': ('Ultra super lux', 'ألترا سوبر لوكس'),
   'featuresUtilities': ('Features & utilities', 'المميزات والمرافق'),
   'waterLabel': ('Water', 'المياه'),
@@ -630,6 +754,20 @@ const marketplaceWords = <String, (String, String)>{
 };
 
 String words(BuildContext context, String key) {
+  const aliases = {
+    'NATIONAL_ID_BIRTH_DATE_MISMATCH': 'idMismatch',
+    'OCR_NUMBER_MISMATCH': 'ocrMismatch',
+    'INVALID_NATIONAL_ID': 'invalidNationalId',
+    'REVIEW_CONSENT_REQUIRED': 'needReviewConsent',
+  };
+  if (aliases.containsKey(key)) return words(context, aliases[key]!);
+  final ar = Localizations.localeOf(context).languageCode == 'ar';
+  if (key.startsWith('needAnswer:')) {
+    return '${ar ? 'حدد إجابتك عن' : 'Choose an answer for'}: ${words(context, key.substring(11))}';
+  }
+  if (key.startsWith('invalidField:')) {
+    return '${ar ? 'أدخل قيمة صحيحة لحقل' : 'Enter a valid value for'}: ${words(context, key.substring(13))}';
+  }
   final pair = marketplaceWords[key];
   return pair == null
       ? key

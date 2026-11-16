@@ -1,3 +1,11 @@
+## Identity validation and Home corrections - 2026-11-16
+
+**115 Flutter tests PASS**, **126 real PostgreSQL tests PASS**, analyzer/Ruff clean. **Eight render scenarios PASS** produce 60 synthetic screenshots including compact Home categories/profile, numeric address fields, precise verification feedback, small consent Checkbox, scanner output and visible Ultra finishing review. Regressions cover impossible/leap/future dates, individual missing documents/consent, non-owner/guest denials, scan non-persistence and final upload OCR/date mismatch. One upstream Starlette/httpx deprecation warning remains. Actual build/deployment/engine evidence and limits are in [guide 44](44_IDENTITY_VALIDATION_AND_HOME_REFINEMENTS.md). No physical-device or browser GUI testing is claimed.
+
+Web release/Android debug PASS; final public JavaScript/Ultra PNG hashes match local. Actual local/public Tesseract extracted a labelled synthetic number and correct DOB; public guest/non-owner/no-consent denials and no-store PASS. Scan did not persist assets; both application record snapshots and migration heads are unchanged. Fifteen targeted Flutter wizard/identity tests and analyzer passed again after locking the form during OCR.
+
+---
+
 ## Responsive property and messaging experience - 2026-11-16
 
 **111 Flutter tests PASS; 113 real PostgreSQL tests PASS; analyzer/Ruff clean; eight render scenarios PASS (40 screenshots).** Coverage includes optional/unknown feature persistence, strict validation, Ultra Super Lux furnishing search, recommendation visibility and participant metadata authorization. Flutter covers owner in-card counters/navigation, protected gallery/full-screen, mobile/desktop chat and draft retention after moderation rejection. Web release/Android debug PASS; latest public JavaScript hash matches local. Both APIs healthy at `20261116_finish_options`, with backed-up records retained. Actual public recommendations, metadata/previews, outsider denials and private-path protections PASS. One upstream Starlette/httpx deprecation warning remains. Build/runtime evidence is recorded in [guide 43](43_PROPERTY_EXPERIENCE_AND_OPTIONAL_FEATURES.md). Widget rendering is not browser GUI/physical-device verification; native iOS/desktop builds are not claimed.

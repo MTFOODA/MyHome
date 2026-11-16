@@ -4,6 +4,23 @@ import '../domain/property_repository.dart';
 
 class ApiPropertyRepository implements PropertyRepository {
   @override
+  Future<Map<String, dynamic>> scanIdentity(UploadImage image) => _call(
+    () async => Map<String, dynamic>.from(
+      await auth.authorizedRequest(
+            '/identity/scan',
+            method: 'POST',
+            data: FormData.fromMap({
+              'file': MultipartFile.fromBytes(
+                image.bytes,
+                filename: image.name,
+              ),
+              'consent': true,
+            }),
+          )
+          as Map,
+    ),
+  );
+  @override
   Future<List<PropertySummary>> similar(String id) => _call(
     () async => _items(await auth.authorizedRequest('/properties/$id/similar')),
   );
@@ -63,6 +80,15 @@ class ApiPropertyRepository implements PropertyRepository {
       return await action();
     } on DioException catch (error) {
       final data = error.response?.data;
+      if (data is Map &&
+          data['detail'] is List &&
+          (data['detail'] as List).isNotEmpty) {
+        final issue = (data['detail'] as List).first;
+        final location = issue is Map ? issue['loc'] : null;
+        if (location is List && location.length > 1 && location[1] is String) {
+          throw PropertyException('invalidField:${location[1]}');
+        }
+      }
       throw PropertyException(
         data is Map && data['detail'] is String
             ? data['detail'] as String

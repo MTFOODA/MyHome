@@ -66,14 +66,17 @@ void main() {
     }
   }
   testWidgets(
-    'language control has a translation glyph and a visible destination language',
+    'language control appears only in profile and changes the destination language',
     (tester) async {
       await launch(tester, FakeAuthRepository());
+      expect(find.byKey(const Key('changeLanguage')), findsNothing);
+      expect(find.byKey(const Key('openSignIn')), findsOneWidget);
+      await tap(tester, find.byKey(const ValueKey('navigation-account')));
       final control = find.byKey(const Key('changeLanguage'));
       expect(
         find.descendant(
-          of: control,
-          matching: find.byIcon(Icons.translate_rounded),
+          of: find.byType(ListTile),
+          matching: find.byIcon(Icons.language_rounded),
         ),
         findsOneWidget,
       );

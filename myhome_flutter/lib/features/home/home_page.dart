@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../app/app.dart';
 import '../../core/config/locale_config.dart';
 import '../../core/config/marketplace_strings.dart';
-import '../../core/config/settings_cubit.dart';
 import '../../core/widgets/brand_logo.dart';
 import '../../core/widgets/app_icon.dart';
 import '../auth/presentation/auth_cubit.dart';
@@ -110,21 +109,6 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         actions: [
-          TextButton.icon(
-            key: const Key('changeLanguage'),
-            onPressed: () => context.read<SettingsCubit>().toggleLanguage(),
-            style: TextButton.styleFrom(
-              minimumSize: const Size(0, 48),
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-            ),
-            icon: const AppIcon(Icons.translate_rounded, size: 22),
-            label: Text(
-              Localizations.localeOf(context).languageCode == 'ar'
-                  ? (AppLayout.width(context) < 380 ? 'EN' : 'English')
-                  : (AppLayout.width(context) < 380 ? 'ع' : 'العربية'),
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-            ),
-          ),
           if (account == null && AppLayout.width(context) < 400)
             IconButton(
               key: const Key('openSignIn'),
@@ -133,10 +117,18 @@ class _HomePageState extends State<HomePage> {
               icon: const AppIcon(Icons.login_rounded),
             )
           else if (account == null)
-            TextButton(
+            TextButton.icon(
               key: const Key('openSignIn'),
               onPressed: () => requireSignIn(context),
-              child: Text(l.signIn),
+              icon: const AppIcon(Icons.login_rounded),
+              label: Text(l.signIn),
+            ),
+          if (account != null)
+            IconButton(
+              key: const Key('openProfile'),
+              tooltip: l.account,
+              onPressed: () => select('account'),
+              icon: const AppIcon(Icons.account_circle_outlined),
             ),
           const SizedBox(width: 12),
         ],

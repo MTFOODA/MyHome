@@ -1,3 +1,18 @@
+## Identity validation and Home corrections - 2026-11-16
+
+[x] UI-044 / PROP-049: Profile-only globe language control, guest login, no Home results map, compact horizontal categories, unsigned numeric floor/count inputs and restored finishing pictures.
+
+[x] AUTH-044 / PROP-050: Exact calendar national-ID/DOB matching, consent-gated nonpersistent owner OCR preflight, demo OCR enabled, independent final-upload comparison, small identity Checkbox and precise missing-field feedback.
+
+<!-- DONE: UI-044, PROP-049 | Files: home_page.dart, profile_page.dart, discovery_page.dart, listing_choices.dart, listing_location_step.dart, choice_artwork.dart | Tests: 115 Flutter, 126 PostgreSQL, eight render scenarios | Verified: 2026-11-16 -->
+<!-- DONE: AUTH-044, PROP-050 | Files: egyptian_identity.dart, listing_cubit.dart, listing_page.dart, assets.py, main.py, compose.demo.yaml | Tests: ID/calendar, scan authorization/consent/non-persistence and final mismatch regressions, full wizard | Verified: 2026-11-16 -->
+
+Source checks: 115 Flutter / 126 PostgreSQL, analyzer/Ruff clean, eight render scenarios. Delivery evidence and real-engine OCR limits are in [guide 44](44_IDENTITY_VALIDATION_AND_HOME_REFINEMENTS.md). No migration/reset/reseed; no entire marketplace phase is marked complete.
+
+Web release/Android debug and actual public hash/auth/consent checks passed. Real Tesseract extraction passed locally and through HTTPS, with no Asset persisted; both database record snapshots were preserved. Fifteen targeted wizard/identity tests passed after the final scan lock.
+
+---
+
 ## Responsive property and messaging experience - 2026-11-16
 
 [x] PROP-046: Desktop/mobile photo gallery, final-price actions, merged Features & utilities and actual visible recommendations.

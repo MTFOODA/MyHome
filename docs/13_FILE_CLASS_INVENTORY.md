@@ -1,3 +1,9 @@
+## Identity validation and Home corrections - 2026-11-16
+
+New `core/input/egyptian_identity.dart`, `test/identity_refinement_test.dart`, `test/render_identity_refinement.dart`, `backend_fastapi/tests/test_identity_scan.py` and `assets/illustrations/ultra-finish-v1.png` with prompt/provenance. Existing navigation/discovery, listing quantity/address/verification, repositories and backend assets/router safeguards extended. No new table, migration or duplicated OCR dependency. See [guide 44](44_IDENTITY_VALIDATION_AND_HOME_REFINEMENTS.md).
+
+---
+
 ## Responsive property and messaging experience - 2026-11-16
 
 New Flutter widgets: `property_gallery.dart`, `property_features_grid.dart`, `similar_properties.dart`, `listing_optional_features.dart`, `conversation_list.dart`; formatter `core/config/price_text.dart`. Existing repositories/Cubits/details/chat/cards extended. New backend migrations `20261116_optional_features.py` and `20261116_finish_options.py`, regression `tests/test_optional_features.py`. Flutter regressions `property_experience_test.dart` and `render_property_experience.dart`, with existing owner/filter/address tests extended. API metadata, inbox preview and similar-property queries reuse existing authorization and summaries. See [guide 43](43_PROPERTY_EXPERIENCE_AND_OPTIONAL_FEATURES.md).

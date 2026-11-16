@@ -1,3 +1,9 @@
+## Identity validation and Home corrections - 2026-11-16
+
+The latest owner corrections move language to Profile, replace the header control with guest login/account, remove the Home results-map entry, compact category buttons and replace numeric dropdown/wheel entry. Exact ID/DOB validation, real owner-consented OCR preflight, small identity Checkbox, actionable errors and finishing artwork are described in [guide 44](44_IDENTITY_VALIDATION_AND_HOME_REFINEMENTS.md). Earlier history is preserved.
+
+---
+
 ## Responsive property and messaging experience - 2026-11-16
 
 The latest owner reference screenshots add a desktop/mobile gallery, price/contact card, merged Features & utilities, related listings and property-context messages. Optional compound/security/internet/garage/orientation/kitchen answers and Ultra Super Lux extend the existing listing flow. In-card owner eye/bookmark counts replace external text. See [guide 43](43_PROPERTY_EXPERIENCE_AND_OPTIONAL_FEATURES.md). Earlier entries remain historical; the Figma URL supplied was empty.

@@ -129,6 +129,7 @@ class PropertyException implements Exception {
 }
 
 abstract class PropertyRepository {
+  Future<Map<String, dynamic>> scanIdentity(UploadImage image);
   Future<LocationCatalog> locations();
   Future<PropertyResults> discover(Map<String, dynamic> filters, int page);
   Future<Map<String, dynamic>> details(String id);

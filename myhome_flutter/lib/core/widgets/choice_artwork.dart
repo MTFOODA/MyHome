@@ -31,6 +31,7 @@ class ChoiceArtwork extends StatelessWidget {
     'red_brick' => 19,
     'lux' => 20,
     'super_lux' => 21,
+    'ultra_super_lux' => 21,
     'one_year' => 22,
     'three_years' => 23,
     'five_years' => 24,
@@ -53,6 +54,15 @@ class ChoiceArtwork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (name == 'ultra_super_lux') {
+      return ExcludeSemantics(
+        child: Image.asset(
+          'assets/illustrations/ultra-finish-v1.png',
+          width: size,
+          height: size,
+        ),
+      );
+    }
     final code = cellFor(name);
     if (code == null) return const SizedBox.shrink();
     final cell = code < 16 ? code : code - 16;

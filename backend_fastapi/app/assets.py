@@ -31,11 +31,64 @@ def identity_dob(number: str) -> date:
 
 
 def compare_ocr(text: str, entered: str) -> str:
-    normalized = text.translate(str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789"))
-    candidates = re.findall(r"(?<!\d)[23]\d{13}(?!\d)", normalized)
+    candidates = ocr_numbers(text)
     if entered in candidates:
         return "matched"
     return "mismatch" if candidates else "unreadable"
+
+
+def ocr_numbers(text: str) -> list[str]:
+    normalized = text.translate(str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789"))
+    return list(
+        dict.fromkeys(
+            re.sub(r"[ \t]", "", candidate)
+            for candidate in re.findall(r"(?<![0-9])[23](?:[ \t]*[0-9]){13}(?![ \t]*[0-9])", normalized)
+        )
+    )
+
+
+def identity_text(image: Image.Image) -> str:
+    prepared = ImageOps.autocontrast(ImageOps.grayscale(image))
+    prepared.thumbnail((2400, 2400))
+    if prepared.width < 1600:
+        scale = min(2, 1600 / prepared.width)
+        prepared = prepared.resize((int(prepared.width * scale), int(prepared.height * scale)))
+    return pytesseract.image_to_string(prepared, lang="eng+ara", config="--psm 6", timeout=15)
+
+
+@router.post("/identity/scan")
+def scan_identity(
+    file: UploadFile = File(...),
+    consent: bool = Form(False),
+    context=Depends(authenticated),
+    db: Session = Depends(db_session),
+):
+    require_owner(db, context[0])
+    if not consent:
+        raise HTTPException(400, "REVIEW_CONSENT_REQUIRED")
+    raw = file.file.read(8 * 1024 * 1024 + 1)
+    file.file.close()
+    if not raw or len(raw) > 8 * 1024 * 1024:
+        raise HTTPException(413, "IMAGE_MAX_8MB")
+    image = decode_image(raw)
+    if not settings().ocr_enabled:
+        raise HTTPException(503, "OCR_UNAVAILABLE")
+    try:
+        candidates = []
+        for number in ocr_numbers(identity_text(image)):
+            try:
+                candidates.append((number, identity_dob(number)))
+            except ValueError:
+                continue
+    except (RuntimeError, pytesseract.TesseractNotFoundError, pytesseract.TesseractError):
+        raise HTTPException(503, "OCR_UNAVAILABLE") from None
+    if not candidates:
+        raise HTTPException(422, "OCR_UNREADABLE")
+    if len(candidates) != 1:
+        raise HTTPException(422, "OCR_MULTIPLE_NUMBERS")
+    # This preflight does not persist the image, extracted text or number.
+    number, birth_date = candidates[0]
+    return {"national_id": number, "birth_date": birth_date.isoformat(), "requires_manual_review": True}
 
 
 def decode_image(raw: bytes) -> Image.Image:
@@ -74,15 +127,16 @@ def upload(
     ocr_status = None
     if kind == "identity":
         try:
-            if not national_id or not birth_date or identity_dob(national_id) != birth_date:
-                raise ValueError()
+            expected_date = identity_dob(national_id or "")
         except ValueError:
-            raise HTTPException(400, "NATIONAL_ID_BIRTH_DATE_MISMATCH") from None
+            raise HTTPException(400, "INVALID_NATIONAL_ID") from None
+        if expected_date != birth_date:
+            raise HTTPException(400, "NATIONAL_ID_BIRTH_DATE_MISMATCH")
         encrypted_id = cipher.encrypt(national_id.encode())
         ocr_status = "unavailable"
         if settings().ocr_enabled:
             try:
-                text = pytesseract.image_to_string(image, lang="eng+ara", config="--psm 6", timeout=15)
+                text = identity_text(image)
                 ocr_status = compare_ocr(text, national_id)
             except (RuntimeError, pytesseract.TesseractNotFoundError, pytesseract.TesseractError):
                 ocr_status = "unavailable"

@@ -6,7 +6,7 @@ services:
       JWT_SECRET: ${DEMO_JWT_SECRET:?Run python tools/setup_demo.py}
       DOCUMENT_KEY: ${DEMO_DOCUMENT_KEY:?Run python tools/setup_demo.py}
       STORAGE_PATH: /data
-      OCR_ENABLED: "false"
+      OCR_ENABLED: "true"
       MAP_TILE_URL: ${MAP_TILE_URL:-}
       MAP_ATTRIBUTION: ${MAP_ATTRIBUTION:-© OpenStreetMap contributors}
       MAP_ATTRIBUTION_URL: ${MAP_ATTRIBUTION_URL:-https://www.openstreetmap.org/copyright}

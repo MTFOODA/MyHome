@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../domain/property_repository.dart';
 import '../../../core/input/number_input.dart' as number_input;
+import '../../../core/input/egyptian_identity.dart';
 
 class ListingState {
   final bool busy, submitted;
@@ -73,7 +74,7 @@ class ListingCubit extends Cubit<ListingState> {
             nonempty('street_address', 3) &&
             nonempty('building_number', 1) &&
             nonempty('unit_number', 1) &&
-            (integer('floor_number') ?? -99) >= -5 &&
+            (integer('floor_number') ?? -99) >= 0 &&
             (integer('floor_number') ?? 101) <= 100 &&
             nonempty('approximate_location', 5) &&
             ((lat.isEmpty && lon.isEmpty) ||
@@ -156,19 +157,12 @@ class ListingCubit extends Cubit<ListingState> {
             photos.length <= 12 &&
             photos.every((file) => file.bytes.length <= 8 * 1024 * 1024);
       case 'verification':
-        if (identity == null ||
-            ownership == null ||
-            !consent ||
-            !RegExp(r'^[23]\d{13}$').hasMatch(nationalId)) {
-          return false;
-        }
-        final parsed = DateTime.tryParse(birthDate);
-        if (parsed == null || parsed.isAfter(DateTime.now())) return false;
-        final expected =
-            '${nationalId[0] == '2' ? '19' : '20'}${nationalId.substring(1, 3)}-${nationalId.substring(3, 5)}-${nationalId.substring(5, 7)}';
-        return birthDate == expected &&
-            '${parsed.year.toString().padLeft(4, '0')}-${parsed.month.toString().padLeft(2, '0')}-${parsed.day.toString().padLeft(2, '0')}' ==
-                birthDate;
+        final expected = nationalIdBirthDate(nationalId);
+        return expected != null &&
+            birthDate == identityDateText(expected) &&
+            identity != null &&
+            ownership != null &&
+            consent;
       default:
         return true;
     }
@@ -177,28 +171,88 @@ class ListingCubit extends Cubit<ListingState> {
   /// Localized by the presentation layer; keep validation feedback actionable.
   String? validationIssue(String step) {
     if (valid(step)) return null;
-    return switch (step) {
-      'category' => 'chooseCategory',
-      'information' =>
-        propertyKind == null
+    int? integer(String key) => int.tryParse('${values[key]}');
+    bool missing(String key) => (values[key]?.toString().trim() ?? '').isEmpty;
+    switch (step) {
+      case 'category':
+        return 'chooseCategory';
+      case 'information':
+        return propertyKind == null
             ? 'choosePropertyKind'
             : (values['title']?.toString().trim().length ?? 0) < 5
             ? 'titleTooShort'
-            : 'descriptionTooShort',
-      'location' =>
-        values['area_id'] == null ? 'chooseLocation' : 'checkLocation',
-      'dimensions' => 'chooseDimensions',
-      'photos' => 'choosePhotos',
-      'verification' => 'checkVerification',
-      'beds' => 'checkBeds',
-      'utilities' => 'checkUtilities',
-      'finishing' => 'checkFinishing',
-      'pricing' =>
-        values['category'] == 'sale_installments' && !valid('installments')
-            ? 'installmentError'
-            : 'checkPricing',
-      _ => 'chooseAnswer',
-    };
+            : 'descriptionTooShort';
+      case 'location':
+        if (values['governorate_id'] == null) return 'needGovernorate';
+        if (values['area_id'] == null) return 'needArea';
+        if ((values['street_address']?.toString().trim().length ?? 0) < 3) {
+          return 'needStreet';
+        }
+        if (missing('building_number')) return 'needBuilding';
+        if (integer('floor_number') == null) return 'needFloor';
+        if (integer('floor_number')! < 0 || integer('floor_number')! > 100) {
+          return 'floorInvalid';
+        }
+        if (missing('unit_number')) return 'needUnit';
+        return 'checkCoordinates';
+      case 'dimensions':
+        if (!['net', 'gross'].contains(values['area_measurement'])) {
+          return 'needAreaMeasurement';
+        }
+        if (!RegExp(r'^\d+(\.\d{1,2})?$').hasMatch('${values['area_m2']}') ||
+            (num.tryParse('${values['area_m2']}') ?? 0) <= 0 ||
+            (num.tryParse('${values['area_m2']}') ?? 0) > 100000) {
+          return 'areaInvalid';
+        }
+        if ((integer('bedrooms') ?? -1) < 0 ||
+            (integer('bedrooms') ?? 101) > 100) {
+          return 'bedroomsInvalid';
+        }
+        if ((integer('bathrooms') ?? 0) < 1 ||
+            (integer('bathrooms') ?? 101) > 100) {
+          return 'bathroomsInvalid';
+        }
+        return 'capacityInvalid';
+      case 'verification':
+        if (nationalId.isEmpty) return 'needNationalId';
+        final expected = nationalIdBirthDate(nationalId);
+        if (expected == null) return 'invalidNationalId';
+        if (birthDate.isEmpty) return 'needBirthDate';
+        if (birthDate != identityDateText(expected)) {
+          return 'NATIONAL_ID_BIRTH_DATE_MISMATCH';
+        }
+        if (identity == null) return 'needIdentityImage';
+        if (ownership == null) return 'needOwnershipImage';
+        return 'needReviewConsent';
+      case 'photos':
+        return 'choosePhotos';
+      case 'beds':
+        if ((integer('total_beds') ?? 0) < 1) return 'totalBedsInvalid';
+        if ((integer('total_beds') ?? 0) > (integer('capacity') ?? 0)) {
+          return 'bedsExceedCapacity';
+        }
+        return 'availableBedsInvalid';
+      case 'utilities':
+        for (final key in ['water', 'electricity', 'gas']) {
+          if (values[key] is! bool) return 'needAnswer:$key';
+        }
+        return 'checkUtilities';
+      case 'finishing':
+        return values['finishing'] == null ? 'needFinishing' : 'needFurnishing';
+      case 'pricing':
+        if ((moneyCents(values['price']) ?? 0) <= 0) return 'priceInvalid';
+        if (values['negotiable'] is! bool) return 'needAnswer:negotiable';
+        if (values['category'] == 'sale_installments') {
+          return 'installmentError';
+        }
+        if (values['rental_period'] == null) return 'needRentalPeriod';
+        if ((moneyCents(values['deposit']) ?? -1) < 0) return 'depositInvalid';
+        return 'customMonthsInvalid';
+      case 'elevator':
+        return 'needAnswer:elevator';
+      default:
+        return 'chooseAnswer';
+    }
   }
 
   Map<String, dynamic> payload() {
@@ -213,6 +267,7 @@ class ListingCubit extends Cubit<ListingState> {
       if (data[key] == null || data[key] == '') data.remove(key);
     }
     for (final key in [
+      'floor_number',
       'bedrooms',
       'bathrooms',
       'capacity',
@@ -248,7 +303,8 @@ class ListingCubit extends Cubit<ListingState> {
   Future<void> submit() async {
     if (state.busy) return;
     if (steps.any((step) => !valid(step))) {
-      emit(const ListingState(error: 'invalid'));
+      final invalidStep = steps.firstWhere((step) => !valid(step));
+      emit(ListingState(error: validationIssue(invalidStep)));
       return;
     }
     emit(const ListingState(busy: true));

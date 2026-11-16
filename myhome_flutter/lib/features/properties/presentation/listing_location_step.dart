@@ -98,19 +98,27 @@ class _ListingLocationStepState extends State<ListingLocationStep> {
     },
   );
 
-  Widget _floorField() => DropdownButtonFormField<int>(
+  Widget _floorField() => TextFormField(
     key: const Key('address-floor_number'),
-    initialValue: int.tryParse('${widget.cubit.values['floor_number']}'),
-    decoration: InputDecoration(labelText: words(context, 'floor_number')),
-    items: [
-      for (var i = -5; i <= 100; i++)
-        DropdownMenuItem(
-          value: i,
-          child: Text(i == 0 ? words(context, 'groundFloor') : '$i'),
-        ),
+    initialValue: widget.cubit.values['floor_number']?.toString(),
+    keyboardType: TextInputType.number,
+    textDirection: TextDirection.ltr,
+    inputFormatters: [
+      FilteringTextInputFormatter.allow(RegExp(r'[0-9٠-٩۰-۹]')),
+      LengthLimitingTextInputFormatter(3),
     ],
+    decoration: InputDecoration(
+      labelText: words(context, 'floor_number'),
+      helperText: words(context, 'floorInputHint'),
+      errorText:
+          widget.cubit.values['floor_number'] != null &&
+              (int.tryParse('${widget.cubit.values['floor_number']}') ?? 101) >
+                  100
+          ? words(context, 'floorInvalid')
+          : null,
+    ),
     onChanged: (value) {
-      widget.cubit.values['floor_number'] = value;
+      widget.cubit.values['floor_number'] = ListingCubit.latinDigits(value);
       widget.changed();
     },
   );

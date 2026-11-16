@@ -111,6 +111,9 @@ class ApiAuthRepository implements AuthRepository {
       options: Options(
         method: method ?? (post ? 'POST' : 'GET'),
         responseType: responseType,
+        receiveTimeout: path == '/identity/scan' || path == '/assets'
+            ? const Duration(seconds: 40)
+            : null,
         headers: {'Authorization': 'Bearer $_accessToken'},
       ),
       data: data is FormData ? data.clone() : data,

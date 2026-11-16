@@ -1,9 +1,10 @@
 import '../../../core/widgets/app_layout.dart';
 import 'package:file_selector/file_selector.dart';
-import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/config/marketplace_strings.dart';
+import '../../../core/input/egyptian_identity.dart';
 import '../../auth/presentation/auth_cubit.dart';
 import '../domain/property_repository.dart';
 import 'listing_cubit.dart';
@@ -15,7 +16,6 @@ import 'listing_generated_details.dart';
 import 'listing_location_step.dart';
 import 'listing_optional_features.dart';
 import '../../../core/widgets/app_icon.dart';
-import '../../../core/widgets/selection_tile.dart';
 import '../../../core/widgets/choice_artwork.dart';
 
 class ListingPage extends StatefulWidget {
@@ -31,6 +31,10 @@ class _ListingPageState extends State<ListingPage> {
   int _step = 0;
   bool _invalid = false, _catalogFailed = false;
   bool _quoteReady = false;
+  bool _scanBusy = false;
+  String? _scanError;
+  Map<String, dynamic>? _scanResult;
+  final _nationalInput = TextEditingController();
   final _controllers = <String, TextEditingController>{};
 
   TextEditingController _controller(String key) {
@@ -66,6 +70,7 @@ class _ListingPageState extends State<ListingPage> {
 
   @override
   void dispose() {
+    _nationalInput.dispose();
     for (final controller in _controllers.values) {
       controller.dispose();
     }
@@ -114,7 +119,6 @@ class _ListingPageState extends State<ListingPage> {
           key: ValueKey('choice-$key-$value'),
           label: words(context, value),
           illustration: value,
-          illustrated: key != 'finishing',
           selected: _cubit.values[key] == value,
           onTap: () => _set(key, value),
         ),
@@ -152,11 +156,13 @@ class _ListingPageState extends State<ListingPage> {
     minimum: minimum,
     maximum: maximum,
     presets: presets,
-    onChanged: (value) => _set(key, '$value'),
+    onChanged: (value) => _set(key, value == null ? null : '$value'),
   );
 
   Future<void> chooseBirthDate() async {
-    final current = DateTime.tryParse(_cubit.birthDate);
+    final current =
+        DateTime.tryParse(_cubit.birthDate) ??
+        nationalIdBirthDate(_cubit.nationalId);
     final date = await showDatePicker(
       context: context,
       initialDate: current ?? DateTime(2000),
@@ -169,6 +175,47 @@ class _ListingPageState extends State<ListingPage> {
         () => _cubit.birthDate =
             '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}',
       );
+    }
+  }
+
+  Future<void> scanIdentity() async {
+    if (_cubit.identity == null || !_cubit.consent) {
+      setState(
+        () => _scanError = _cubit.identity == null
+            ? 'needIdentityImage'
+            : 'needReviewConsent',
+      );
+      return;
+    }
+    setState(() {
+      _scanBusy = true;
+      _scanError = null;
+      _scanResult = null;
+    });
+    try {
+      final result = await widget.repository.scanIdentity(_cubit.identity!);
+      if (!mounted) return;
+      final number = result['national_id'] as String;
+      final date = result['birth_date'] as String;
+      setState(() {
+        _scanResult = result;
+        if (_cubit.nationalId.isNotEmpty && _cubit.nationalId != number) {
+          _scanError = 'OCR_NUMBER_MISMATCH';
+        } else if (_cubit.birthDate.isNotEmpty && _cubit.birthDate != date) {
+          _scanError = 'NATIONAL_ID_BIRTH_DATE_MISMATCH';
+        } else {
+          _cubit.nationalId = number;
+          _nationalInput.text = number;
+          _cubit.birthDate = date;
+          if (_cubit.valid('verification')) _invalid = false;
+        }
+      });
+    } on PropertyException catch (error) {
+      if (mounted) setState(() => _scanError = error.code);
+    } catch (_) {
+      if (mounted) setState(() => _scanError = 'NETWORK_ERROR');
+    } finally {
+      if (mounted) setState(() => _scanBusy = false);
     }
   }
 
@@ -198,6 +245,8 @@ class _ListingPageState extends State<ListingPage> {
         } else if (images.isNotEmpty) {
           if (kind == 'identity') {
             _cubit.identity = images.first;
+            _scanResult = null;
+            _scanError = null;
           } else {
             _cubit.ownership = images.first;
           }
@@ -438,18 +487,29 @@ class _ListingPageState extends State<ListingPage> {
             const SizedBox(height: 20),
             TextFormField(
               key: const Key('listingNationalId'),
-              initialValue: _cubit.nationalId,
+              controller: _nationalInput,
               keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9٠-٩۰-۹]')),
+              ],
               maxLength: 14,
               decoration: InputDecoration(
                 labelText: words(context, 'nationalId'),
+                errorText:
+                    _cubit.nationalId.isNotEmpty &&
+                        nationalIdBirthDate(_cubit.nationalId) == null
+                    ? words(context, 'invalidNationalId')
+                    : null,
                 prefixIcon: const Padding(
                   padding: EdgeInsets.all(8),
                   child: AppIcon(Icons.badge_outlined, size: 28),
                 ),
               ),
-              onChanged: (value) =>
-                  _cubit.nationalId = ListingCubit.latinDigits(value),
+              onChanged: (value) => setState(() {
+                _cubit.nationalId = ListingCubit.latinDigits(value);
+                _scanResult = null;
+                _scanError = null;
+              }),
             ),
             const SizedBox(height: 16),
             OutlinedButton.icon(
@@ -463,6 +523,18 @@ class _ListingPageState extends State<ListingPage> {
               ),
             ),
             const SizedBox(height: 20),
+            if (nationalIdBirthDate(_cubit.nationalId) case final date?) ...[
+              Text(
+                '${words(context, 'dateFromId')}: ${identityDateText(date)}',
+              ),
+              if (_cubit.birthDate.isNotEmpty &&
+                  _cubit.birthDate != identityDateText(date))
+                Text(
+                  words(context, 'NATIONAL_ID_BIRTH_DATE_MISMATCH'),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              const SizedBox(height: 12),
+            ],
             OutlinedButton.icon(
               key: const Key('pickIdentity'),
               onPressed: () => pick('identity'),
@@ -481,13 +553,50 @@ class _ListingPageState extends State<ListingPage> {
               ),
             ),
             const SizedBox(height: 16),
-            SelectionTile(
+            CheckboxListTile(
               key: const Key('listingConsent'),
-              artwork: 'consent',
-              label: words(context, 'consent'),
-              selected: _cubit.consent,
-              onChanged: (value) => setState(() => _cubit.consent = value),
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+              title: Text(words(context, 'consent')),
+              value: _cubit.consent,
+              onChanged: (value) =>
+                  setState(() => _cubit.consent = value ?? false),
             ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              key: const Key('scanIdentity'),
+              onPressed: _scanBusy ? null : scanIdentity,
+              icon: _scanBusy
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.document_scanner_outlined),
+              label: Text(
+                words(context, _scanBusy ? 'scanningIdentity' : 'scanIdentity'),
+              ),
+            ),
+            if (_scanResult != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(
+                  '${words(context, 'scanFound')}: ${_scanResult!['national_id']} · ${_scanResult!['birth_date']}',
+                ),
+              ),
+            if (_scanError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    words(context, _scanError!),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+              ),
           ],
         );
       default:
@@ -633,7 +742,7 @@ class _ListingPageState extends State<ListingPage> {
                           ),
                           const SizedBox(height: 24),
                           IgnorePointer(
-                            ignoring: state.busy,
+                            ignoring: state.busy || _scanBusy,
                             child: AnimatedSwitcher(
                               duration: MediaQuery.disableAnimationsOf(context)
                                   ? Duration.zero
@@ -682,7 +791,7 @@ class _ListingPageState extends State<ListingPage> {
                                       icon: const AppIcon(
                                         Icons.arrow_back_rounded,
                                       ),
-                                      onPressed: state.busy
+                                      onPressed: state.busy || _scanBusy
                                           ? null
                                           : () => setState(() {
                                               _step--;
@@ -706,6 +815,7 @@ class _ListingPageState extends State<ListingPage> {
                                     ),
                                     onPressed:
                                         state.busy ||
+                                            _scanBusy ||
                                             (step == 'pricing' && !_quoteReady)
                                         ? null
                                         : () {
