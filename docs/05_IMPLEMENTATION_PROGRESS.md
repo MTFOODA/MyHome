@@ -1,3 +1,19 @@
+## Responsive property and messaging experience - 2026-11-16
+
+[x] PROP-046: Desktop/mobile photo gallery, final-price actions, merged Features & utilities and actual visible recommendations.
+
+[x] PROP-047 / SEARCH-043: Optional nullable property extras, orientation/kitchen and Ultra Super Lux with compatible furnishing filters and additive migrations.
+
+[x] CHAT-044 / PROP-048: Responsive property-context threads/inbox and explicit-send quick drafts; owner eye/bookmark counts inside cards.
+
+<!-- DONE: PROP-046 | Files: property_details_page.dart, property_gallery.dart, property_features_grid.dart, similar_properties.dart, properties.py | Tests: 111 Flutter, 113 PostgreSQL, 8 render scenarios | Verified: 2026-11-16 -->
+<!-- DONE: PROP-047, SEARCH-043 | Files: listing_optional_features.dart, listing_page.dart, property_filters_sheet.dart, schemas.py, models.py, 20261116_optional_features.py, 20261116_finish_options.py | Tests: optional feature persistence/validation and ultra furnishing discovery regressions | Verified: 2026-11-16 -->
+<!-- DONE: CHAT-044, PROP-048 | Files: chat_page.dart, conversation_list.dart, messages.py, property_card.dart, owner_portfolio_page.dart | Tests: participant metadata/privacy, quick-message draft rejection, owner in-card stats/navigation, mobile/desktop renders | Verified: 2026-11-16 -->
+
+Source verified: 111 Flutter / 113 PostgreSQL tests, analyzer/Ruff clean and eight render scenarios. Web release/Android debug and public HTTP smoke passed; current JavaScript hash matched local. Both backed-up databases migrated without losing existing records. Delivery evidence and limits are in [guide 43](43_PROPERTY_EXPERIENCE_AND_OPTIONAL_FEATURES.md). No entire marketplace phase is marked complete. The supplied Figma link was empty; implementation follows attached screenshots.
+
+---
+
 ## Addresses, illustrated details and owner engagement - 2026-11-16
 
 [x] PROP-043: Structured required address input/persistence and legacy-safe complete-address output; area credits moved to About.

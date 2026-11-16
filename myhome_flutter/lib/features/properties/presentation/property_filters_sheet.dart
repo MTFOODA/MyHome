@@ -29,7 +29,11 @@ class _PropertyFiltersSheetState extends State<PropertyFiltersSheet> {
   void initState() {
     super.initState();
     _draft = Map.of(widget.applied);
-    if (!['lux', 'super_lux'].contains(_draft['finishing'])) {
+    if (![
+      'lux',
+      'super_lux',
+      'ultra_super_lux',
+    ].contains(_draft['finishing'])) {
       _draft.remove('furnished');
     }
     _catalog = widget.catalog;
@@ -79,7 +83,8 @@ class _PropertyFiltersSheetState extends State<PropertyFiltersSheet> {
             : value;
       }
       if (key == 'governorate_id') _draft.remove('area_id');
-      if (key == 'finishing' && !['lux', 'super_lux'].contains(value)) {
+      if (key == 'finishing' &&
+          !['lux', 'super_lux', 'ultra_super_lux'].contains(value)) {
         _draft.remove('furnished');
       }
     });
@@ -307,9 +312,14 @@ class _PropertyFiltersSheetState extends State<PropertyFiltersSheet> {
                       'plastered',
                       'lux',
                       'super_lux',
+                      'ultra_super_lux',
                     ].map((key) => (key, words(context, key))).toList(),
                   ),
-                  if (['lux', 'super_lux'].contains(_draft['finishing'])) ...[
+                  if ([
+                    'lux',
+                    'super_lux',
+                    'ultra_super_lux',
+                  ].contains(_draft['finishing'])) ...[
                     Text(
                       words(context, 'furnished'),
                       style: Theme.of(context).textTheme.titleMedium,

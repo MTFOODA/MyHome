@@ -6,6 +6,7 @@ import 'package:myhome_flutter/features/properties/presentation/owner_portfolio_
 import 'package:myhome_flutter/features/properties/presentation/owner_portfolio_page.dart';
 import 'package:myhome_flutter/features/properties/presentation/price_quote_panel.dart';
 import 'package:myhome_flutter/features/properties/presentation/property_list_page.dart';
+import 'package:myhome_flutter/features/properties/presentation/property_card.dart';
 import 'fake_property_repository.dart';
 import 'fakes.dart';
 import 'widget_test.dart' show launch;
@@ -24,13 +25,27 @@ PropertySummary home(String id, {String availability = 'active'}) =>
       bathrooms: 1,
       capacity: 4,
       availability: availability,
+      visitorCount: 24,
+      savedCount: 5,
     );
 
 class PortfolioRepository extends FakePropertyRepository {
   final requests = <Map<String, String?>>[];
   final changed = <String>[];
+  final interestedRequests = <String>[];
   bool failMore = false;
   String visibility = 'active';
+  @override
+  Future<Map<String, dynamic>> interested(String id, {String? before}) async {
+    interestedRequests.add(id);
+    return {
+      'items': [
+        {'id': 'buyer', 'name': 'Interested person'},
+      ],
+      'next_cursor': null,
+    };
+  }
+
   @override
   Future<List<PortfolioCount>> portfolio() async => const [
     PortfolioCount('sale', 5, 5, 0, 1, 0),
@@ -77,6 +92,88 @@ class PortfolioRepository extends FakePropertyRepository {
 }
 
 void main() {
+  for (final spec in [
+    (language: 'ar', size: const Size(320, 844)),
+    (language: 'en', size: const Size(1440, 1100)),
+  ]) {
+    testWidgets(
+      'owner eye/save counters stay inside the card and open savers in ${spec.language}',
+      (tester) async {
+        final repo = PortfolioRepository();
+        final openedDetails = <String>[];
+        await launch(
+          tester,
+          FakeAuthRepository()..restored = account,
+          properties: repo,
+          language: spec.language,
+          size: spec.size,
+        );
+        Navigator.of(tester.element(find.byType(Scaffold).first)).push(
+          MaterialPageRoute<void>(
+            builder: (_) => OwnerPortfolioPage(
+              repository: repo,
+              onDetails: openedDetails.add,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final property = find.byWidgetPredicate(
+          (widget) => widget is PropertyCard && widget.property.id == '1',
+        );
+        final card = find.descendant(of: property, matching: find.byType(Card));
+        final bookmark = find.byKey(const ValueKey('interested-1'));
+        await tester.ensureVisible(bookmark);
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(bookmark);
+        for (final icon in [Icons.visibility_outlined, Icons.bookmark_border]) {
+          final counterIcon = find.descendant(
+            of: card,
+            matching: find.byIcon(icon),
+          );
+          expect(counterIcon, findsOneWidget);
+          expect(
+            tester.getRect(card).contains(tester.getCenter(counterIcon)),
+            isTrue,
+          );
+        }
+        for (final number in ['24', '5']) {
+          expect(
+            find.descendant(of: card, matching: find.text(number)),
+            findsOneWidget,
+          );
+        }
+        expect(find.textContaining('عدد الزوار:'), findsNothing);
+        expect(find.textContaining('Unique visitors:'), findsNothing);
+        expect(tester.getSize(bookmark).height, greaterThanOrEqualTo(48));
+        await tester.tap(bookmark);
+        await tester.pumpAndSettle();
+        expect(repo.interestedRequests, ['1']);
+        expect(find.text('Interested person'), findsOneWidget);
+        expect(openedDetails, isEmpty);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+  testWidgets('public property cards do not show owner engagement counters', (
+    tester,
+  ) async {
+    final repo = PortfolioRepository()..items = [home('public')];
+    await launch(tester, FakeAuthRepository(), properties: repo);
+    final card = find.byType(PropertyCard).first;
+    expect(card, findsOneWidget);
+    expect(
+      find.descendant(
+        of: card,
+        matching: find.byIcon(Icons.visibility_outlined),
+      ),
+      findsNothing,
+    );
+    expect(
+      find.descendant(of: card, matching: find.byIcon(Icons.bookmark_border)),
+      findsNothing,
+    );
+    expect(find.byKey(const ValueKey('interested-public')), findsNothing);
+  });
   testWidgets(
     'saved unavailable cards show status and saved-price labels without property images',
     (tester) async {

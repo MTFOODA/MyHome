@@ -4,6 +4,10 @@ import '../domain/property_repository.dart';
 
 class ApiPropertyRepository implements PropertyRepository {
   @override
+  Future<List<PropertySummary>> similar(String id) => _call(
+    () async => _items(await auth.authorizedRequest('/properties/$id/similar')),
+  );
+  @override
   Future<List<Map<String, dynamic>>> verifications() => _call(
     () async => (await auth.authorizedRequest('/admin/verifications') as List)
         .map((value) => Map<String, dynamic>.from(value as Map))

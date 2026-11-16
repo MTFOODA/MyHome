@@ -4,6 +4,12 @@ import '../../auth/domain/auth_repository.dart';
 import '../domain/chat_repository.dart';
 
 class ApiChatRepository implements ChatRepository {
+  @override
+  Future<Map<String, dynamic>> metadata(String id) => _call(
+    () async => Map<String, dynamic>.from(
+      await auth.authorizedRequest('/conversations/$id') as Map,
+    ),
+  );
   final ApiAuthRepository auth;
   const ApiChatRepository(this.auth);
   Future<T> _call<T>(Future<T> Function() action) async {

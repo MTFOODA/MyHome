@@ -15,7 +15,7 @@ Intent = Literal[
     "tenant_shared",
 ]
 Category = Literal["sale_cash", "sale_installments", "private_rental", "shared_rental"]
-Finishing = Literal["red_brick", "plastered", "lux", "super_lux"]
+Finishing = Literal["red_brick", "plastered", "lux", "super_lux", "ultra_super_lux"]
 RentalPeriod = Literal["one_year", "three_years", "five_years", "old_rent", "custom"]
 Money = Annotated[Decimal, Field(gt=0, max_digits=14, decimal_places=2)]
 
@@ -89,6 +89,12 @@ class ListingInput(StrictModel):
     area_m2: Decimal = Field(gt=0, le=100000, decimal_places=2)
     area_measurement: Literal["net", "gross"] | None = None
     furnished: StrictBool | None = None
+    compound: StrictBool | None = None
+    security: StrictBool | None = None
+    internet: StrictBool | None = None
+    garage: StrictBool | None = None
+    orientation: Literal["north", "south", "east", "west", "north_south"] | None = None
+    kitchen_type: Literal["closed_kitchen", "american_kitchen"] | None = None
     location_url: str | None = Field(default=None, max_length=2048)
     bedrooms: int = Field(ge=0, le=100)
     bathrooms: int = Field(ge=1, le=100)
@@ -118,7 +124,7 @@ class ListingInput(StrictModel):
             setattr(self, name, value)
         if self.category != "shared_rental":
             self.capacity = None  # Not an occupancy claim for sale or private rental.
-        if self.finishing not in ("lux", "super_lux") and self.furnished is not None:
+        if self.finishing not in ("lux", "super_lux", "ultra_super_lux") and self.furnished is not None:
             raise ValueError("FURNISHING_NOT_APPLICABLE")
         if self.location_url:
             from app.map_links import validate_map_url

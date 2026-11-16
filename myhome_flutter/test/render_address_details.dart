@@ -7,7 +7,7 @@ import 'package:myhome_flutter/app/app.dart';
 import 'package:myhome_flutter/core/config/settings_cubit.dart';
 import 'package:myhome_flutter/features/properties/domain/property_repository.dart';
 import 'package:myhome_flutter/features/properties/presentation/property_details_page.dart';
-import 'package:myhome_flutter/features/properties/presentation/property_facts_grid.dart';
+import 'package:myhome_flutter/features/properties/presentation/property_features_grid.dart';
 import 'package:myhome_flutter/features/properties/presentation/owner_portfolio_page.dart';
 import 'address_details_test.dart' show DetailRepository;
 import 'fakes.dart';
@@ -142,7 +142,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         await capture('details');
-        await tester.ensureVisible(find.byType(PropertyFactsGrid));
+        await tester.ensureVisible(find.byType(PropertyFeaturesGrid));
         await tester.pumpAndSettle();
         await capture('facts');
         Navigator.of(tester.element(find.byType(PropertyDetailsPage))).pop();
@@ -155,13 +155,23 @@ void main() {
         );
         await tester.pumpAndSettle();
         await capture('owner');
-        await tester.ensureVisible(
+        final ownerScroll = find
+            .descendant(
+              of: find.byType(OwnerListingsPage),
+              matching: find.byType(Scrollable),
+            )
+            .last;
+        await tester.scrollUntilVisible(
           find.byKey(const ValueKey('interested-pending')),
+          300,
+          scrollable: ownerScroll,
         );
         await tester.pumpAndSettle();
         await capture('review');
-        await tester.ensureVisible(
+        await tester.scrollUntilVisible(
           find.byKey(const ValueKey('interested-sold')),
+          300,
+          scrollable: ownerScroll,
         );
         await tester.pumpAndSettle();
         await capture('sold');

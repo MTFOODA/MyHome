@@ -1,5 +1,7 @@
 # Structured addresses, property details and owner engagement
 
+Presentation is subsequently amended by [guide 43](43_PROPERTY_EXPERIENCE_AND_OPTIONAL_FEATURES.md). The address/owner screenshots below are regenerated from the current renderer; historical verification counts in this guide describe its original increment.
+
 Increment: 2026-11-16. This builds on guide 41 and preserves the approved financial rules, moderated encrypted-at-rest chat, open maps, private documents, property photos and structured choices.
 
 ## Address entry and credits

@@ -16,6 +16,8 @@ const testProperty = PropertySummary(
 
 class FakePropertyRepository implements PropertyRepository {
   @override
+  Future<List<PropertySummary>> similar(String id) async => [];
+  @override
   Future<Map<String, dynamic>> interested(String id, {String? before}) async =>
       {'items': [], 'next_cursor': null};
   @override

@@ -22,7 +22,7 @@ from app.deals import audit, scoped
 from app.models import Conversation, Favorite, HousingGroup, Message, Property, Tenancy, User
 from app.policy import require_owner
 from app.portfolio import cursor_decode, cursor_encode
-from app.properties import visible_query
+from app.properties import summary, visible_query
 from app.schemas import StrictModel
 from app.security import authenticated, now
 
@@ -202,12 +202,24 @@ def inbox(
     rows = rows[:20]
     others = {p.owner_id if c.seeker_id == user.id else c.seeker_id for c, p in rows}
     names = dict(db.execute(select(User.id, User.name).where(User.id.in_(others))).all())
+    latest = {
+        m.conversation_id: m
+        for m in db.scalars(
+            select(Message)
+            .where(Message.conversation_id.in_([c.id for c, _ in rows]))
+            .distinct(Message.conversation_id)
+            .order_by(Message.conversation_id, Message.id.desc())
+        )
+    }
     return {
         "items": [
             {
                 "id": str(c.id),
                 "title": p.title,
                 "name": names.get(p.owner_id if c.seeker_id == user.id else c.seeker_id, "Member"),
+                "property": summary(db, p, owner_media=p.owner_id == user.id),
+                "updated_at": c.updated_at.isoformat(),
+                "last_message": decode(latest[c.id]) if c.id in latest else "",
             }
             for c, p in rows
         ],
@@ -237,6 +249,33 @@ def ensure_conversation(db, **target):
         "encrypted_at_rest": True,
         "end_to_end_encrypted": False,
     }
+
+
+def conversation_context(db, conversation, user):
+    if conversation.property_id:
+        prop = db.get(Property, conversation.property_id)
+    elif conversation.deal_id:
+        deal = scoped(db, user, conversation.deal_id)
+        prop = db.get(Property, deal.property_id)
+    else:
+        prop = None
+    other = None
+    if conversation.property_id:
+        other = db.get(User, prop.owner_id if conversation.seeker_id == user.id else conversation.seeker_id)
+    return {
+        "id": str(conversation.id),
+        "name": other.name if other else "",
+        "owner_verified": bool(other and prop and other.id == prop.owner_id and other.owner_verified),
+        "kind": "property" if conversation.property_id else "deal" if conversation.deal_id else "group",
+        "property": summary(db, prop, owner_media=prop.owner_id == user.id) if prop else None,
+        "updated_at": conversation.updated_at.isoformat(),
+    }
+
+
+@router.get("/conversations/{conversation_id}")
+def conversation_details(conversation_id: UUID, context=Depends(authenticated), db: Session = Depends(db_session)):
+    row = conversation_for(db, context[0], conversation_id)
+    return conversation_context(db, row, context[0])
 
 
 @router.post("/deals/{deal_id}/conversation")

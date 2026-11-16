@@ -132,6 +132,7 @@ abstract class PropertyRepository {
   Future<LocationCatalog> locations();
   Future<PropertyResults> discover(Map<String, dynamic> filters, int page);
   Future<Map<String, dynamic>> details(String id);
+  Future<List<PropertySummary>> similar(String id);
   Future<List<PropertySummary>> favorites();
   Future<void> save(String id);
   Future<void> unsave(String id);

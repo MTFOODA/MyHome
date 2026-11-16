@@ -7,7 +7,7 @@ import 'onboarding_pricing_test.dart' show tap;
 
 void main() {
   for (final language in ['ar', 'en']) {
-    for (final finishing in ['lux', 'super_lux']) {
+    for (final finishing in ['lux', 'super_lux', 'ultra_super_lux']) {
       testWidgets(
         'furnishing filter applies booleans and clears irrelevant choices $language $finishing',
         (tester) async {
@@ -42,11 +42,13 @@ void main() {
                         ? {
                             'lux': 'Lux',
                             'super_lux': 'Super Lux',
+                            'ultra_super_lux': 'Ultra super lux',
                             'plastered': 'Plastered',
                           }[value]!
                         : {
                             'lux': 'لوكس',
                             'super_lux': 'سوبر لوكس',
+                            'ultra_super_lux': 'ألترا سوبر لوكس',
                             'plastered': 'على المحارة',
                           }[value]!,
                   )

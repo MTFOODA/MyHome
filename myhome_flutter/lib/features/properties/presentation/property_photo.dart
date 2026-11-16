@@ -8,6 +8,7 @@ import '../domain/property_repository.dart';
 class PropertyPhoto extends StatefulWidget {
   final String? id;
   final bool private;
+  final bool compact;
   final String category;
   final PropertyRepository repository;
   const PropertyPhoto({
@@ -15,6 +16,7 @@ class PropertyPhoto extends StatefulWidget {
     required this.id,
     required this.repository,
     this.private = false,
+    this.compact = false,
     this.category = 'sale_cash',
   });
   @override
@@ -46,20 +48,28 @@ class _PropertyPhotoState extends State<PropertyPhoto> {
   }
 
   Widget _unavailable(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const FeatureSymbol('photos', size: 56),
-          Text(words(context, 'photoUnavailable'), textAlign: TextAlign.center),
-        ],
-      ),
-    ),
+    child: widget.compact
+        ? const Icon(Icons.image_not_supported_outlined, size: 24)
+        : Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const FeatureSymbol('photos', size: 56),
+                Text(
+                  words(context, 'photoUnavailable'),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
   );
   @override
   Widget build(BuildContext context) {
     if (widget.id == null) {
+      if (widget.compact) {
+        return const Center(child: Icon(Icons.home_work_outlined, size: 28));
+      }
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

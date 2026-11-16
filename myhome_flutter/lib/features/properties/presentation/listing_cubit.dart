@@ -108,7 +108,11 @@ class ListingCubit extends Cubit<ListingState> {
         return values[step] is bool;
       case 'finishing':
         return values['finishing'] != null &&
-            (!['lux', 'super_lux'].contains(values['finishing']) ||
+            (![
+                  'lux',
+                  'super_lux',
+                  'ultra_super_lux',
+                ].contains(values['finishing']) ||
                 values['furnished'] is bool);
       case 'pricing':
         return (moneyCents(values['price']) ?? 0) > 0 &&
@@ -202,7 +206,7 @@ class ListingCubit extends Cubit<ListingState> {
     data['property_kind'] =
         propertyKind ?? values['property_kind'] ?? 'apartment';
     if (data['category'] != 'shared_rental') data.remove('capacity');
-    if (!['lux', 'super_lux'].contains(data['finishing'])) {
+    if (!['lux', 'super_lux', 'ultra_super_lux'].contains(data['finishing'])) {
       data.remove('furnished');
     }
     for (final key in ['latitude', 'longitude']) {

@@ -9,7 +9,7 @@ import 'package:myhome_flutter/features/chat/presentation/contact_pages.dart';
 import 'package:myhome_flutter/features/chat/presentation/chat_page.dart';
 import 'package:myhome_flutter/features/properties/domain/structured_address.dart';
 import 'package:myhome_flutter/features/properties/presentation/property_details_page.dart';
-import 'package:myhome_flutter/features/properties/presentation/property_facts_grid.dart';
+import 'package:myhome_flutter/features/properties/presentation/property_features_grid.dart';
 import 'package:myhome_flutter/features/sales/presentation/financial_card.dart';
 import 'fake_property_repository.dart';
 import 'fakes.dart';
@@ -139,14 +139,14 @@ void main() {
         expect(find.byKey(const Key('propertyFinalPrice')), findsOneWidget);
         expect(find.text('10000'), findsNothing);
         expect(find.byKey(const Key('buyProperty')), findsOneWidget);
-        final grid = find.byType(PropertyFactsGrid);
+        final grid = find.byType(PropertyFeaturesGrid);
         expect(
           find.descendant(of: grid, matching: find.byType(Icon)),
-          findsNothing,
+          findsWidgets,
         );
         expect(
           find.descendant(of: grid, matching: find.byType(ChoiceArtwork)),
-          findsWidgets,
+          findsNothing,
         );
         await tap(tester, find.byKey(const Key('contactOwner')));
         expect(find.byType(ChatPage), findsOneWidget);

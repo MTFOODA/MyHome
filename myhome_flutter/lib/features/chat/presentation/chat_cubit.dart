@@ -21,6 +21,8 @@ class ChatCubit extends Cubit<ChatState> {
   final ChatRepository repository;
   final String? dealId, groupId, propertyId, seekerId, conversationId;
   String? _id;
+  String? get id => _id;
+  Map<String, dynamic> contextData = {};
   Timer? _timer;
   bool _polling = false;
   ChatCubit(
@@ -51,6 +53,12 @@ class ChatCubit extends Cubit<ChatState> {
               : dealId != null
               ? await repository.openDeal(dealId!)
               : await repository.openGroup(groupId!));
+      // Metadata is auxiliary; history/send remain usable if its request fails.
+      try {
+        contextData = await repository.metadata(_id!);
+      } catch (_) {
+        contextData = {};
+      }
       final batch = await repository.read(_id!);
       if (isClosed) return;
       emit(ChatState(messages: batch.messages, before: batch.before));

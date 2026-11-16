@@ -1,3 +1,9 @@
+## Responsive property and messaging experience - 2026-11-16
+
+New Flutter widgets: `property_gallery.dart`, `property_features_grid.dart`, `similar_properties.dart`, `listing_optional_features.dart`, `conversation_list.dart`; formatter `core/config/price_text.dart`. Existing repositories/Cubits/details/chat/cards extended. New backend migrations `20261116_optional_features.py` and `20261116_finish_options.py`, regression `tests/test_optional_features.py`. Flutter regressions `property_experience_test.dart` and `render_property_experience.dart`, with existing owner/filter/address tests extended. API metadata, inbox preview and similar-property queries reuse existing authorization and summaries. See [guide 43](43_PROPERTY_EXPERIENCE_AND_OPTIONAL_FEATURES.md).
+
+---
+
 ## Addresses, illustrated details and owner engagement - 2026-11-16
 
 New: backend `listing_address.py`, `PropertyVisit`, structured Property columns and property/seeker Conversation target; migration `20261116_address_engagement.py`; tests `test_address_engagement.py`. Flutter adds `structured_address.dart`, `property_facts_grid.dart`, `contact_pages.dart` (ContactsCubit/page), `address_details_test.dart`, `render_address_details.dart` and `assets/illustrations/property-facts-v3.png`. Repository interfaces carry interested/inbox/property-conversation operations; existing chat/owner Cubits are extended. Full source/provenance details in guide42 and design/illustrations/PROPERTY_FACTS_V3.md.

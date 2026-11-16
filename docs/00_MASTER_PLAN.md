@@ -1,3 +1,9 @@
+## Responsive property and messaging experience - 2026-11-16
+
+The latest owner reference screenshots add a desktop/mobile gallery, price/contact card, merged Features & utilities, related listings and property-context messages. Optional compound/security/internet/garage/orientation/kitchen answers and Ultra Super Lux extend the existing listing flow. In-card owner eye/bookmark counts replace external text. See [guide 43](43_PROPERTY_EXPERIENCE_AND_OPTIONAL_FEATURES.md). Earlier entries remain historical; the Figma URL supplied was empty.
+
+---
+
 ## Addresses, illustrated details and owner engagement - 2026-11-16
 
 Latest owner requirements: mandatory structured street/building/floor/unit address with a complete preview; relocate catalogue credits to About. Property details show the final advertised price and independent Buy/Rent and Contact owner actions, with illustrated fact cards and captions below. My properties opens latest rows directly with exact three-item cursor loading, grayscale unavailable/review states, distinct-visitor/save counts and owner-only saver contact through moderated property chats. Financial breakdown/consent remains in the transaction flow.

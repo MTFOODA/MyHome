@@ -84,10 +84,30 @@ class Property(Timestamps, Base):
         ),
         CheckConstraint("category <> 'shared_rental' OR capacity IS NOT NULL"),
         CheckConstraint("area_measurement IS NULL OR area_measurement IN ('net','gross')"),
-        CheckConstraint("furnished IS NULL OR finishing IN ('lux','super_lux')"),
+        CheckConstraint(
+            "furnished IS NULL OR finishing IN ('lux','super_lux','ultra_super_lux')", name="property_furnishing_valid"
+        ),
+        CheckConstraint(
+            "finishing IN ('red_brick','plastered','lux','super_lux','ultra_super_lux')",
+            name="property_finishing_valid",
+        ),
+        CheckConstraint(
+            "orientation IS NULL OR orientation IN ('north','south','east','west','north_south')",
+            name="property_orientation_valid",
+        ),
+        CheckConstraint(
+            "kitchen_type IS NULL OR kitchen_type IN ('closed_kitchen','american_kitchen')",
+            name="property_kitchen_valid",
+        ),
         CheckConstraint("floor_number IS NULL OR floor_number BETWEEN -5 AND 100", name="property_floor_valid"),
-        CheckConstraint("num_nonnulls(street_address,building_number,floor_number,unit_number) IN (0,4)", name="property_address_complete"),
-        CheckConstraint("property_kind IS NULL OR property_kind IN ('apartment','studio','duplex','villa','room')", name="property_kind_valid"),
+        CheckConstraint(
+            "num_nonnulls(street_address,building_number,floor_number,unit_number) IN (0,4)",
+            name="property_address_complete",
+        ),
+        CheckConstraint(
+            "property_kind IS NULL OR property_kind IN ('apartment','studio','duplex','villa','room')",
+            name="property_kind_valid",
+        ),
         CheckConstraint("status IN ('draft','pending','approved','rejected')"),
         Index("properties_discovery_idx", "status", "area_id", "category", "price"),
     )
@@ -109,6 +129,12 @@ class Property(Timestamps, Base):
     area_measurement: Mapped[str | None] = mapped_column(String(10))
     location_url: Mapped[str | None] = mapped_column(String(2048))
     furnished: Mapped[bool | None] = mapped_column(Boolean)
+    compound: Mapped[bool | None] = mapped_column(Boolean)
+    security: Mapped[bool | None] = mapped_column(Boolean)
+    internet: Mapped[bool | None] = mapped_column(Boolean)
+    garage: Mapped[bool | None] = mapped_column(Boolean)
+    orientation: Mapped[str | None] = mapped_column(String(16))
+    kitchen_type: Mapped[str | None] = mapped_column(String(20))
     bedrooms: Mapped[int] = mapped_column(Integer)
     bathrooms: Mapped[int] = mapped_column(Integer)
     capacity: Mapped[int | None] = mapped_column(Integer)
@@ -339,7 +365,10 @@ class Conversation(Timestamps, Base):
     __tablename__ = "conversations"
     __table_args__ = (
         UniqueConstraint("property_id", "seeker_id", name="uq_property_inquiry"),
-        CheckConstraint("num_nonnulls(deal_id,group_id,property_id)=1 AND ((property_id IS NOT NULL)=(seeker_id IS NOT NULL))", name="conversation_target_valid"),
+        CheckConstraint(
+            "num_nonnulls(deal_id,group_id,property_id)=1 AND ((property_id IS NOT NULL)=(seeker_id IS NOT NULL))",
+            name="conversation_target_valid",
+        ),
     )
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     deal_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("deals.id"), unique=True)

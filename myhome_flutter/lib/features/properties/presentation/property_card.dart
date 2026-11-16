@@ -10,6 +10,7 @@ class PropertyCard extends StatelessWidget {
   final PropertySummary property;
   final PropertyRepository repository;
   final VoidCallback onDetails, onSave;
+  final VoidCallback? onInterested;
   final bool saved, showSave;
   const PropertyCard({
     super.key,
@@ -19,6 +20,7 @@ class PropertyCard extends StatelessWidget {
     required this.onSave,
     this.saved = false,
     this.showSave = true,
+    this.onInterested,
   });
   @override
   Widget build(BuildContext context) {
@@ -144,6 +146,55 @@ class PropertyCard extends StatelessWidget {
                                   : 'perMonth',
                             ),
                     ),
+                  if (onInterested != null) ...[
+                    const Divider(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Tooltip(
+                          message: words(context, 'visitorCount'),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const ExcludeSemantics(
+                                child: AppIcon(
+                                  Icons.visibility_outlined,
+                                  size: 22,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${property.visitorCount}',
+                                semanticsLabel:
+                                    '${words(context, 'visitorCount')}: ${property.visitorCount}',
+                              ),
+                            ],
+                          ),
+                        ),
+                        Tooltip(
+                          message: words(context, 'interestedPeople'),
+                          child: TextButton.icon(
+                            key: ValueKey('interested-${property.id}'),
+                            onPressed: onInterested,
+                            style: TextButton.styleFrom(
+                              minimumSize: const Size(64, 48),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                            ),
+                            icon: const ExcludeSemantics(
+                              child: AppIcon(Icons.bookmark_border, size: 22),
+                            ),
+                            label: Text(
+                              '${property.savedCount}',
+                              semanticsLabel:
+                                  '${words(context, 'savedCount')}: ${property.savedCount}',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

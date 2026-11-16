@@ -44,6 +44,8 @@ void updateGeneratedDetails(
       'finishing',
       'total_beds',
       'available_beds',
+      'orientation',
+      'kitchen_type',
     ])
       if (cubit.values[field] != null)
         '${label(field)}: ${marketplaceWords.containsKey('${cubit.values[field]}') ? label('${cubit.values[field]}') : cubit.values[field]}.',
@@ -53,6 +55,10 @@ void updateGeneratedDetails(
       'gas',
       'elevator',
       'furnished',
+      'compound',
+      'security',
+      'internet',
+      'garage',
     ])
       if (cubit.values[field] is bool)
         '${label(field)}: ${label(cubit.values[field] == true ? 'yes' : 'no')}.',

@@ -1,3 +1,15 @@
+## Responsive property and messaging experience - 2026-11-16
+
+[x] Visitor/save text moved into owner cards as eye/bookmark glyphs with adjacent counts; saver navigation preserved.
+
+[x] Mobile price/contact moved before long facts; quick-message options wrap into two columns without clipping.
+
+[x] Added the previously missing PostgreSQL finishing-constraint extension for Ultra Super Lux; full isolated suite passes.
+
+[x] Optional feature unknown states, unified utility cards, real recommendations and responsive property-context messages verified. See [guide 43](43_PROPERTY_EXPERIENCE_AND_OPTIONAL_FEATURES.md). The Figma URL is still empty, so exact-file comparison remains unavailable.
+
+---
+
 ## Addresses, illustrated details and owner engagement - 2026-11-16
 
 [x] Area source footer removed from selection and credited in About with license/source links.

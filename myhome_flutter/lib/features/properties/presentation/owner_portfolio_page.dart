@@ -374,6 +374,14 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                                               widget.onDetails(item.id),
                                           onSave: () {},
                                           showSave: false,
+                                          onInterested: () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute<void>(
+                                              builder: (_) => ContactListPage(
+                                                propertyId: item.id,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                       if (item.status != 'approved' ||
@@ -407,32 +415,6 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                                             ),
                                           ),
                                         ),
-                                    ],
-                                  ),
-                                  Wrap(
-                                    alignment: WrapAlignment.spaceBetween,
-                                    spacing: 12,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(16),
-                                        child: Text(
-                                          '${words(context, 'visitorCount')}: ${item.visitorCount}',
-                                        ),
-                                      ),
-                                      TextButton(
-                                        key: ValueKey('interested-${item.id}'),
-                                        onPressed: () => Navigator.push(
-                                          context,
-                                          MaterialPageRoute<void>(
-                                            builder: (_) => ContactListPage(
-                                              propertyId: item.id,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          '${words(context, 'savedCount')}: ${item.savedCount}',
-                                        ),
-                                      ),
                                     ],
                                   ),
                                   if (item.status == 'approved' &&

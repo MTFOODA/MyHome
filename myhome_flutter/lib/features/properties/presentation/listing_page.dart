@@ -10,8 +10,10 @@ import 'listing_cubit.dart';
 import 'listing_pricing_step.dart';
 import 'listing_choices.dart';
 import 'property_facts_grid.dart';
+import 'property_features_grid.dart';
 import 'listing_generated_details.dart';
 import 'listing_location_step.dart';
+import 'listing_optional_features.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/selection_tile.dart';
 import '../../../core/widgets/choice_artwork.dart';
@@ -97,7 +99,8 @@ class _ListingPageState extends State<ListingPage> {
   );
   void _set(String key, dynamic value) => setState(() {
     _cubit.setValue(key, value);
-    if (key == 'finishing' && !['lux', 'super_lux'].contains(value)) {
+    if (key == 'finishing' &&
+        !['lux', 'super_lux', 'ultra_super_lux'].contains(value)) {
       _cubit.values.remove('furnished');
     }
     updateGeneratedDetails(context, _cubit, _catalog);
@@ -111,6 +114,7 @@ class _ListingPageState extends State<ListingPage> {
           key: ValueKey('choice-$key-$value'),
           label: words(context, value),
           illustration: value,
+          illustrated: key != 'finishing',
           selected: _cubit.values[key] == value,
           onTap: () => _set(key, value),
         ),
@@ -321,6 +325,12 @@ class _ListingPageState extends State<ListingPage> {
           ],
         );
       case 'elevator':
+        return Column(
+          children: [
+            yesNo(step),
+            ListingOptionalFeatures(values: _cubit.values, onChanged: _set),
+          ],
+        );
       case 'negotiable':
         return yesNo(step);
       case 'finishing':
@@ -332,8 +342,13 @@ class _ListingPageState extends State<ListingPage> {
               'plastered',
               'lux',
               'super_lux',
+              'ultra_super_lux',
             ]),
-            if (['lux', 'super_lux'].contains(_cubit.values['finishing'])) ...[
+            if ([
+              'lux',
+              'super_lux',
+              'ultra_super_lux',
+            ].contains(_cubit.values['finishing'])) ...[
               const SizedBox(height: 24),
               Text(
                 words(context, 'furnished'),
@@ -493,10 +508,6 @@ class _ListingPageState extends State<ListingPage> {
                   'bathrooms',
                   'area_measurement',
                   'finishing',
-                  'water',
-                  'electricity',
-                  'gas',
-                  'elevator',
                   'furnished',
                   if (_cubit.values['category'] == 'shared_rental') 'capacity',
                 ])
@@ -528,6 +539,16 @@ class _ListingPageState extends State<ListingPage> {
                     ),
               ],
             ),
+            const SizedBox(height: 24),
+            PropertyFeaturesGrid(data: _cubit.values),
+            for (final key in ['orientation', 'kitchen_type'])
+              if (_cubit.values[key] != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text(
+                    '${words(context, key)}: ${words(context, '${_cubit.values[key]}')}',
+                  ),
+                ),
             const SizedBox(height: 20),
             Text(
               _cubit.values['approximate_location']?.toString() ?? '',

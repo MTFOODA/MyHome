@@ -3,7 +3,7 @@ from uuid import UUID
 
 from cryptography.fernet import Fernet
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
-from sqlalchemy import delete, exists, func, or_, select
+from sqlalchemy import case, delete, exists, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -366,6 +366,7 @@ def details(property_id: UUID, context=Depends(authenticated), db: Session = Dep
         )
     ]
     result["ownerVerified"] = db.get(User, prop.owner_id).owner_verified
+    result["owner_name"] = db.get(User, prop.owner_id).name
     result["owner_id"] = str(prop.owner_id)
     result["price"] = str(prop.display_price)
     result["platform_fee"] = str(prop.platform_fee)
@@ -386,6 +387,30 @@ def details(property_id: UUID, context=Depends(authenticated), db: Session = Dep
     if prop.owner_id == context[0].id:
         result["owner_price"] = str(prop.price)
     return result
+
+
+@router.get("/properties/{property_id}/similar")
+def similar(property_id: UUID, context=Depends(authenticated), db: Session = Depends(db_session)):
+    source = db.scalar(visible_query().where(Property.id == property_id))
+    if not source:
+        source = db.get(Property, property_id)
+        if not source or source.owner_id != context[0].id:
+            raise HTTPException(404, "PROPERTY_NOT_FOUND")
+    area = db.get(Area, source.area_id)
+    region = select(Area.id).where(Area.governorate_id == area.governorate_id)
+    # Reuse public visibility rules; never recommend private/paused/closed listings.
+    rows = db.scalars(
+        visible_query()
+        .where(Property.id != source.id, Property.category == source.category)
+        .order_by(
+            case((Property.area_id == source.area_id, 0), (Property.area_id.in_(region), 1), else_=2),
+            func.abs(Property.display_price - source.display_price),
+            Property.created_at.desc(),
+            Property.id.desc(),
+        )
+        .limit(6)
+    ).all()
+    return {"items": [summary(db, prop) for prop in rows]}
 
 
 @router.get("/favorites")

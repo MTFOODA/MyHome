@@ -1,3 +1,9 @@
+## Responsive property and messaging experience - 2026-11-16
+
+Optional features distinguish absent/false/true at schema/database/UI boundaries; extended finishing constraints and furnishing filters are regression tested. Recommendations reuse the public-visible query and suppress source/private fields. Metadata and decrypted previews are participant-only. Existing financial formulas, moderation, encrypted message storage and protected photo loaders are reused. No invented presence, service verification or call functionality. Source verification: 111 Flutter / 113 PostgreSQL, analyzer/Ruff clean, eight render scenarios. [Guide 43](43_PROPERTY_EXPERIENCE_AND_OPTIONAL_FEATURES.md) records scope and delivery evidence.
+
+---
+
 ## Addresses, illustrated details and owner engagement - 2026-11-16
 
 The address and discovery/details contract supports mandatory new structured addresses while preserving existing unknown data. All category/current/history owner cursor bindings retain user/group/scope/query isolation. Visitor inserts are idempotent; counts and saver names are owner-only and use no phone/email. Independent property chats are unique per property/seeker, enforce participants on read/send, and reuse existing encrypted moderated storage. Deal/group targets and financial controls are preserved. Picture selection/details/review captions are beneath illustrations; property media authorization remains unchanged. Current source checks: 99 Flutter / 101 PostgreSQL, analyzer/Ruff clean, four renderer scenarios. Remaining product/production tasks stay pending.

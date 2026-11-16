@@ -7,18 +7,21 @@ import '../../../core/widgets/selection_tile.dart';
 class ListingChoice extends StatelessWidget {
   final String label, illustration;
   final bool selected;
+  final bool illustrated;
   final VoidCallback? onTap;
   const ListingChoice({
     super.key,
     required this.label,
     required this.illustration,
     required this.selected,
+    this.illustrated = true,
     required this.onTap,
   });
   @override
   Widget build(BuildContext context) => SelectionTile(
     label: label,
     artwork: illustration,
+    illustrated: illustrated,
     selected: selected,
     onChanged: onTap == null ? null : (_) => onTap!(),
   );

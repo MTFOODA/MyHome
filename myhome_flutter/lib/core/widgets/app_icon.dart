@@ -50,6 +50,7 @@ class FeatureSymbol extends StatelessWidget {
     'owner_',
     '',
   )) {
+    'ultra_super_lux' => Icons.auto_awesome,
     'apartment' => Icons.apartment_rounded,
     'studio' => Icons.weekend_outlined,
     'duplex' => Icons.stairs_outlined,

@@ -8,6 +8,7 @@ class SelectionTile extends StatelessWidget {
   final String label;
   final String? subtitle;
   final String artwork;
+  final bool illustrated;
   final bool selected;
   final ValueChanged<bool>? onChanged;
   const SelectionTile({
@@ -15,6 +16,7 @@ class SelectionTile extends StatelessWidget {
     required this.label,
     this.subtitle,
     required this.artwork,
+    this.illustrated = true,
     required this.selected,
     required this.onChanged,
   });
@@ -53,7 +55,8 @@ class SelectionTile extends StatelessWidget {
                 padding: EdgeInsets.all(AppLayout.wide(context) ? 20 : 16),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    final picture = ChoiceArtwork.cellFor(artwork) != null;
+                    final picture =
+                        illustrated && ChoiceArtwork.cellFor(artwork) != null;
                     final symbol =
                         picture || FeatureSymbol.iconFor(artwork) != null;
                     final visual = picture
