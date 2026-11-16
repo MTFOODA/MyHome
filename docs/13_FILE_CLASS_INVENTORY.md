@@ -1,3 +1,13 @@
+## Public admin login file correction — 2026-11-17
+
+Read [guide 48](48_ADMIN_LOGIN_CREDENTIAL_GUIDE.md). The login page already routes fooda/amr to the admin dashboard. The rejection was caused by copying main credentials from the top of the old mixed-environment file into the public demo site. ADMIN_LOGIN.txt now contains public/mobile credentials only; ADMIN_LOCAL_LOGIN.txt contains the separate main API credentials. No password or database changed. Future provisioning and a file-only refresh helper use the same writer.
+
+[x] OPS-048: Real public login/dashboard HTTP checks passed for both accounts. Four new AR/EN form-to-dashboard UI scenarios pass within 14 targeted Flutter tests; two credential-file isolation tests pass. No binary/API deployment required.
+
+<!-- DONE: OPS-048 | Files: operator_files.py, prepare_admin.py, refresh_admin_login_files.py, test_operator_files.py, operator_features_test.dart | Tests: 14 Flutter targeted, 2 isolated file tests, actual public admin login/dashboard 200 | Verified: 2026-11-17 -->
+
+---
+
 ## Architectural headers and alternating guide poses — 2026-11-17
 
 Read [guide 47](47_ARCHITECTURAL_HEADERS_AND_GUIDE_POSES.md). Three bundled WebP architectural scenes decorate the first part of normal pages through AppScaffold, with light/dark tint, fade and no pointer interception. Home/login/listing/account variants retain existing content and property artwork. Four transparent standalone poses alternate beside each guide/About section; only the first introduction combines both presenters. Reduced-motion navigation uses immediate page jumps.

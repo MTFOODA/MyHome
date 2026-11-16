@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend_fastapi"))
 from app.admin_cli import reconcile_operators
-from app.operator_files import secure_folder, write_private
+from app.operator_files import secure_folder, write_operator_login_guides, write_private
 
 
 def main():
@@ -112,18 +112,7 @@ def main():
                 )
         finally:
             engine.dispose()
-    lines = [
-        "MyHome / بيتي — fooda و amr فقط",
-        "الدخول باسم المستخدم. كلمات المرور أولية؛ بعد تغييرها استخدم اختيارك الجديد.",
-        "الموقع والموبايل الحاليان يستخدمان حسابات demo. لا تشارك هذا الملف.",
-    ]
-    for environment, operators in records.items():
-        lines.extend(["", environment])
-        for name, record in operators.items():
-            lines.extend(
-                [f"Username: {name}", f"Initial password: {record['password']}"]
-            )
-    write_private(folder / "ADMIN_LOGIN.txt", "\n".join(lines) + "\n")
+    write_operator_login_guides(folder, records)
     write_private(folder / "credentials.json", json.dumps(records, indent=2) + "\n")
     (ROOT / "artifacts/fixed-operators-report.json").write_text(
         json.dumps(reports, indent=2)

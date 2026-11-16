@@ -55,6 +55,25 @@ class PasswordFake extends FakeAuthRepository {
   }
 }
 
+class OperatorLoginFake extends FakeAuthRepository {
+  final String username;
+  (String, String)? submitted;
+  OperatorLoginFake(this.username);
+  @override
+  Future<Account> login(String email, String password) async {
+    submitted = (email, password);
+    return Account(
+      id: 'operator-$username',
+      name: username,
+      email: 'operator-$username@myhome.example.com',
+      username: username,
+      role: 'admin',
+      ownerVerified: false,
+      onboardingComplete: true,
+    );
+  }
+}
+
 Widget localized(Widget home, String language) => MaterialApp(
   locale: Locale(language),
   supportedLocales: AppLocalizations.supportedLocales,
@@ -100,6 +119,50 @@ void main() {
     await cubit.close();
   });
   for (final language in ['ar', 'en']) {
+    for (final username in ['fooda', 'amr']) {
+      testWidgets(
+        '$username signs in through the public form and reaches the admin dashboard in $language',
+        (tester) async {
+          SharedPreferences.setMockInitialValues({'language': language});
+          final repository = OperatorLoginFake(username);
+          await tester.pumpWidget(
+            MyHome(
+              showIntroduction: false,
+              repository: repository,
+              propertyRepository: FakePropertyRepository(),
+              salesRepository: DashboardFake(),
+              settings: SettingsCubit(await SharedPreferences.getInstance()),
+            ),
+          );
+          await tester.pumpAndSettle();
+          expect(find.byType(AdminDashboard), findsNothing);
+          await tap(tester, find.byKey(const Key('openSignIn')));
+          await tester.enterText(find.byKey(const Key('email')), username);
+          await tester.enterText(
+            find.byKey(const Key('password')),
+            'synthetic-password-for-ui-test',
+          );
+          await tap(tester, find.byKey(const Key('submitAuth')));
+          expect(repository.submitted, (
+            username,
+            'synthetic-password-for-ui-test',
+          ));
+          expect(find.byType(AdminDashboard), findsOneWidget);
+          expect(find.byKey(const Key('submitAuth')), findsNothing);
+          expect(
+            find.byKey(const ValueKey('navigation-favorites')),
+            findsNothing,
+          );
+          expect(
+            find.byKey(const ValueKey('navigation-roommates')),
+            findsNothing,
+          );
+          expect(find.byKey(const Key('drawerAddProperty')), findsNothing);
+          expect(tester.takeException(), isNull);
+          await tester.pumpWidget(const SizedBox.shrink());
+        },
+      );
+    }
     testWidgets('admin has dashboard and no consumer navigation in $language', (
       tester,
     ) async {

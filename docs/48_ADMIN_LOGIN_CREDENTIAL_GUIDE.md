@@ -1,0 +1,9 @@
+# Public admin login credential correction — 2026-11-17
+
+The shared login page already accepts `fooda` and `amr` and routes a successful admin session to the admin dashboard. The reported rejection came from using the main-database password at the public Worker URL, which serves the separate demo database. The old `ADMIN_LOGIN.txt` listed main credentials before demo credentials, making the first copied password misleading.
+
+`admin/ADMIN_LOGIN.txt` now contains **only public Web/current APK/demo-gateway credentials**, with the corresponding URL and normal-page/dashboard instructions. Separate local main-API credentials live in `admin/ADMIN_LOCAL_LOGIN.txt`. No passwords, user roles, sessions of other users, databases or assets were reset or changed. The files remain ignored and ACL restricted.
+
+`write_operator_login_guides` centralizes this presentation in `app/operator_files.py`; `tools/prepare_admin.py` uses it for future provisioning, and `tools/refresh_admin_login_files.py` regenerates the instructions without connecting to the database or changing passwords. Changing a password through Profile still makes that initial stored password obsolete; use the chosen current password afterward.
+
+Validation: both usernames successfully authenticate against the real public URL and reach `/admin/dashboard` with status 200. Four new Flutter UI scenarios sign in through the same public form in Arabic/English, assert that it closes and the admin dashboard opens, and confirm consumer navigation remains hidden. The targeted Flutter suite passes **14 tests**; **two isolated credential-file tests** confirm environment separation and safe failure on incomplete input. No app binary or API deployment is necessary for this file/instruction correction. Evidence remains in ignored `artifacts/public-admin-check48.json` and `operator-login48-flutter.log`.
