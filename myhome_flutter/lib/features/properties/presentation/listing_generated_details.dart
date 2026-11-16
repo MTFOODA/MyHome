@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../domain/property_repository.dart';
 import 'listing_cubit.dart';
+import '../domain/structured_address.dart';
 
 /// Creates factual copy from answers only; never invents amenities or an address.
 void updateGeneratedDetails(
@@ -21,17 +22,16 @@ void updateGeneratedDetails(
     if (area != null) ar ? area.nameAr : area.nameEn,
     if (governorate != null) ar ? governorate.nameAr : governorate.nameEn,
   ].join(' · ');
-  if (!cubit.manualLocation && place.isNotEmpty) {
-    cubit.values['approximate_location'] = place;
-  }
+  cubit.values['approximate_location'] = structuredAddress(
+    cubit.values,
+    place,
+    arabic: ar,
+  );
   if (cubit.propertyKind == null) return;
   final kind = label(cubit.propertyKind!);
   final category = label(cubit.values['category']?.toString() ?? 'addProperty');
-  cubit.values['title'] = [
-    kind,
-    category,
-    if (place.isNotEmpty) place,
-  ].join(' · ');
+  final title = [kind, category, if (place.isNotEmpty) place].join(' · ');
+  cubit.values['title'] = title.length > 150 ? title.substring(0, 150) : title;
   final details = <String>[
     '${label('propertyKind')}: $kind. $category.',
     if (place.isNotEmpty) '${label('location')}: $place.',

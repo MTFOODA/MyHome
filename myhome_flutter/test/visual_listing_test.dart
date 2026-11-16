@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myhome_flutter/core/config/marketplace_strings.dart';
-import 'package:myhome_flutter/core/widgets/app_icon.dart';
+import 'package:myhome_flutter/core/widgets/choice_artwork.dart';
 import 'package:myhome_flutter/features/auth/domain/auth_repository.dart';
 import 'package:myhome_flutter/features/properties/presentation/listing_choices.dart';
 import 'package:myhome_flutter/features/properties/presentation/listing_page.dart';
@@ -52,6 +52,22 @@ Future<void> nextStep(WidgetTester tester) async {
   expect(tester.takeException(), isNull);
 }
 
+Future<void> completeAddress(WidgetTester tester) async {
+  for (final field in {
+    'street_address': 'Test street',
+    'building_number': '7',
+    'unit_number': '12',
+  }.entries) {
+    final finder = find.byKey(ValueKey('address-${field.key}'));
+    await tester.ensureVisible(finder);
+    await tester.enterText(finder, field.value);
+  }
+  tester.testTextInput.hide();
+  await tester.pumpAndSettle();
+  await tap(tester, find.byKey(const Key('address-floor_number')));
+  await tap(tester, find.text('4').last);
+}
+
 void main() {
   for (final language in ['ar', 'en']) {
     for (final width in [320.0, 1440.0]) {
@@ -66,7 +82,7 @@ void main() {
         await nextStep(tester);
         await tap(tester, find.byKey(const ValueKey('property-kind-villa')));
         expect(find.byType(TextFormField), findsNothing);
-        expect(find.byType(FeatureSymbol), findsWidgets);
+        expect(find.byType(ChoiceArtwork), findsNWidgets(5));
         expect(tester.takeException(), isNull);
       });
     }
@@ -143,6 +159,7 @@ void main() {
             tester,
             find.byKey(const ValueKey('location-option-maadi')),
           );
+          await completeAddress(tester);
           await nextStep(tester);
           await tap(tester, find.byKey(const ValueKey('area-115')));
           expect(
@@ -230,10 +247,7 @@ void main() {
             (data['description'] as String).length,
             greaterThanOrEqualTo(20),
           );
-          expect(
-            data['approximate_location'],
-            language == 'ar' ? 'المعادي · القاهرة' : 'Maadi · Cairo',
-          );
+          expect(data['approximate_location'], contains('7 Test street'));
           expect(data['water'], false);
           expect(data['bedrooms'], 2);
           expect(tester.takeException(), isNull);

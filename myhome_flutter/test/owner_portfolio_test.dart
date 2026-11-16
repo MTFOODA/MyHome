@@ -165,9 +165,6 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('portfolio-sale')), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('portfolio-sale')));
-      await tester.pumpAndSettle();
       expect(repo.requests.length, 1);
       await tester.ensureVisible(find.byKey(const ValueKey('visibility-1')));
       await tester.pumpAndSettle();

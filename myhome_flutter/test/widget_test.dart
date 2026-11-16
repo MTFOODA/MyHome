@@ -6,6 +6,7 @@ import 'package:myhome_flutter/core/config/settings_cubit.dart';
 import 'package:myhome_flutter/features/auth/domain/auth_repository.dart';
 import 'fakes.dart';
 import 'fake_property_repository.dart';
+import 'package:myhome_flutter/features/chat/domain/chat_repository.dart';
 
 Future<void> launch(
   WidgetTester tester,
@@ -13,6 +14,7 @@ Future<void> launch(
   String language = 'en',
   Size size = const Size(390, 844),
   FakePropertyRepository? properties,
+  ChatRepository? chat,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -23,6 +25,7 @@ Future<void> launch(
     MyHome(
       repository: repo,
       propertyRepository: properties ?? FakePropertyRepository(),
+      chatRepository: chat,
       settings: SettingsCubit(await SharedPreferences.getInstance()),
     ),
   );
@@ -166,8 +169,8 @@ void main() {
     await tester.ensureVisible(find.text('Explore as a guest'));
     await tester.tap(find.text('Explore as a guest'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byTooltip('Save property'));
-    await tester.tap(find.byTooltip('Save property'));
+    await tester.ensureVisible(find.byTooltip(RegExp('^Save property')));
+    await tester.tap(find.byTooltip(RegExp('^Save property')));
     await tester.pumpAndSettle();
     expect(find.text('Welcome back'), findsOneWidget);
     expect(properties.saveCalls, 0);

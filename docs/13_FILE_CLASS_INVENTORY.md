@@ -1,3 +1,11 @@
+## Addresses, illustrated details and owner engagement - 2026-11-16
+
+New: backend `listing_address.py`, `PropertyVisit`, structured Property columns and property/seeker Conversation target; migration `20261116_address_engagement.py`; tests `test_address_engagement.py`. Flutter adds `structured_address.dart`, `property_facts_grid.dart`, `contact_pages.dart` (ContactsCubit/page), `address_details_test.dart`, `render_address_details.dart` and `assets/illustrations/property-facts-v3.png`. Repository interfaces carry interested/inbox/property-conversation operations; existing chat/owner Cubits are extended. Full source/provenance details in guide42 and design/illustrations/PROPERTY_FACTS_V3.md.
+
+Read [guide 42](42_ADDRESS_PROPERTY_DETAILS_AND_OWNER_ENGAGEMENT.md). Previous entries remain historical.
+
+---
+
 ## Picture choices and furnishing search - 2026-11-16
 
 New: `core/widgets/choice_artwork.dart` and `selection_tile.dart`; bundled `assets/illustrations/choice-atlas-v2.png`; `test/selection_tile_test.dart`; `test/render_picture_choices.dart`; artwork prompt in `design/illustrations/CHOICE_ARTWORK_V2.md`. Updated discovery route accepts nullable `furnished` boolean; six real PostgreSQL filter regressions added. Listing/onboarding/deal consent cards reuse one component and keep existing state management.

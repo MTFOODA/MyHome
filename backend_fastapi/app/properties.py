@@ -9,7 +9,20 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import db_session
 from app.financial import Reference, settle
-from app.models import Area, Asset, AuditEvent, Deal, Favorite, Property, Tenancy, User, UserIntent, Verification
+from app.listing_address import full_address
+from app.models import (
+    Area,
+    Asset,
+    AuditEvent,
+    Deal,
+    Favorite,
+    Property,
+    PropertyVisit,
+    Tenancy,
+    User,
+    UserIntent,
+    Verification,
+)
 from app.policy import require_owner
 from app.pricing import set_listing_price
 from app.schemas import Category, Finishing, ListingInput, Review, SubmitVerification
@@ -206,6 +219,7 @@ def create(body: ListingInput, context=Depends(authenticated), db: Session = Dep
     if not db.get(Area, body.area_id):
         raise HTTPException(400, "UNKNOWN_AREA")
     prop = Property(owner_id=user.id, **body.model_dump())
+    prop.approximate_location = full_address(db, prop)
     set_listing_price(prop, db)
     db.add(prop)
     db.commit()
@@ -245,6 +259,7 @@ def edit(property_id: UUID, body: ListingInput, context=Depends(authenticated), 
         raise HTTPException(400, "UNKNOWN_AREA")
     for name, value in body.model_dump().items():
         setattr(prop, name, value)
+    prop.approximate_location = full_address(db, prop)
     prop.status = "draft"  # Any material edit removes public approval.
     set_listing_price(prop, db)
     db.commit()
@@ -314,6 +329,7 @@ def submit(
 @router.get("/properties/{property_id}")
 def details(property_id: UUID, context=Depends(authenticated), db: Session = Depends(db_session)):
     prop = db.scalar(visible_query().where(Property.id == property_id))
+    public = prop is not None
     if not prop:
         candidate = db.get(Property, property_id)
         if candidate and (candidate.owner_id == context[0].id or context[0].role == "admin"):
@@ -325,11 +341,24 @@ def details(property_id: UUID, context=Depends(authenticated), db: Session = Dep
             return saved_tombstone(favorite, candidate)
         raise HTTPException(404, "PROPERTY_NOT_FOUND")
     result = summary(db, prop, owner_media=prop.owner_id == context[0].id)
+    # Existing records may have no structured address; do not fabricate one or
+    # validate legacy output against today's mandatory creation form.
     result.update(
-        ListingInput.model_validate({field: getattr(prop, field) for field in ListingInput.model_fields}).model_dump(
-            mode="json"
-        )
+        {
+            field: str(value) if isinstance(value, Decimal) else value
+            for field in ListingInput.model_fields
+            if (value := getattr(prop, field)) is not None
+        }
     )
+    result["full_address_ar"] = full_address(db, prop)
+    result["full_address_en"] = full_address(db, prop, arabic=False)
+    if prop.category != "shared_rental":
+        result["capacity"] = None
+    if public and prop.owner_id != context[0].id and context[0].role != "admin":
+        from sqlalchemy.dialects.postgresql import insert
+
+        db.execute(insert(PropertyVisit).values(property_id=prop.id, user_id=context[0].id).on_conflict_do_nothing())
+        db.commit()
     result["photo_ids"] = [
         str(value)
         for value in db.scalars(

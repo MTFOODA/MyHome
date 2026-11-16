@@ -201,15 +201,9 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
           final selected = (_filters['category'] ?? '') == entry.$1;
           return Padding(
             padding: const EdgeInsetsDirectional.only(end: 10),
-            child: OutlinedButton.icon(
+            child: OutlinedButton(
               key: ValueKey('quick-type-${entry.$1}'),
               onPressed: () => _category(entry.$1.isEmpty ? null : entry.$1),
-              icon: entry.$1.isEmpty
-                  ? AppIcon(entry.$2, size: 21)
-                  : ChoiceArtwork(entry.$1, size: 38),
-              label: Text(
-                words(context, entry.$1.isEmpty ? 'allHomes' : entry.$1),
-              ),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 22,
@@ -223,6 +217,19 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ChoiceArtwork(
+                    entry.$1.isEmpty ? 'allHomes' : entry.$1,
+                    size: 52,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    words(context, entry.$1.isEmpty ? 'allHomes' : entry.$1),
+                  ),
+                ],
               ),
             ),
           );

@@ -20,7 +20,7 @@ class OwnerListingsState {
 
 class OwnerListingsCubit extends Cubit<OwnerListingsState> {
   final PropertyRepository repository;
-  final String group;
+  String group;
   String query = '', scope = 'current', availability = 'all';
   int _generation = 0;
   bool _mutating = false;
@@ -28,10 +28,12 @@ class OwnerListingsCubit extends Cubit<OwnerListingsState> {
     : super(const OwnerListingsState());
   Future<void> search({
     String? text,
+    String? selectedGroup,
     String? selectedScope,
     String? selectedAvailability,
   }) async {
     if (isClosed) return;
+    group = selectedGroup ?? group;
     query = text ?? query;
     scope = selectedScope ?? scope;
     availability = selectedAvailability ?? availability;

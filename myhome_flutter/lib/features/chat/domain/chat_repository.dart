@@ -25,6 +25,8 @@ class ChatBatch {
 abstract class ChatRepository {
   Future<String> openDeal(String id);
   Future<String> openGroup(String id);
+  Future<String> openProperty(String id, {String? seekerId});
+  Future<Map<String, dynamic>> inbox({String? before});
   Future<ChatBatch> read(String id, {int? before, int? after});
   Future<ChatMessage> send(String id, String text);
 }

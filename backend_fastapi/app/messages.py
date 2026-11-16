@@ -12,14 +12,17 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import Field
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select, tuple_
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import db_session
 from app.deals import audit, scoped
-from app.models import Conversation, HousingGroup, Message, Tenancy, User
+from app.models import Conversation, Favorite, HousingGroup, Message, Property, Tenancy, User
+from app.policy import require_owner
+from app.portfolio import cursor_decode, cursor_encode
+from app.properties import visible_query
 from app.schemas import StrictModel
 from app.security import authenticated, now
 
@@ -130,9 +133,90 @@ def conversation_for(db, user, identity):
         raise HTTPException(404, "CONVERSATION_NOT_FOUND")
     if row.deal_id:
         scoped(db, user, row.deal_id)
+    elif row.property_id:
+        prop = db.get(Property, row.property_id)
+        if not prop or user.id not in (prop.owner_id, row.seeker_id):
+            raise HTTPException(404, "CONVERSATION_NOT_FOUND")
     else:
         group_member(db, user, row.group_id)
     return row
+
+
+@router.post("/properties/{property_id}/conversation")
+def property_conversation(
+    property_id: UUID, seeker_id: UUID | None = None, context=Depends(authenticated), db: Session = Depends(db_session)
+):
+    user = context[0]
+    prop = db.get(Property, property_id)
+    if not prop:
+        raise HTTPException(404, "PROPERTY_NOT_FOUND")
+    if user.id == prop.owner_id:
+        require_owner(db, user, prop.category)
+        if not seeker_id or seeker_id == user.id or not db.get(Favorite, (seeker_id, prop.id)):
+            raise HTTPException(404, "INTEREST_NOT_FOUND")
+        seeker = db.get(User, seeker_id)
+        if not seeker or not seeker.active:
+            raise HTTPException(404, "INTEREST_NOT_FOUND")
+    else:
+        if seeker_id is not None and seeker_id != user.id:
+            raise HTTPException(404, "CONVERSATION_NOT_FOUND")
+        seeker_id = user.id
+        if not db.scalar(visible_query().where(Property.id == property_id)):
+            raise HTTPException(404, "PROPERTY_NOT_FOUND")
+    identity = db.scalar(
+        insert(Conversation)
+        .values(id=uuid4(), property_id=prop.id, seeker_id=seeker_id)
+        .on_conflict_do_nothing(index_elements=["property_id", "seeker_id"])
+        .returning(Conversation.id)
+    )
+    if not identity:
+        identity = db.scalar(
+            select(Conversation.id).where(Conversation.property_id == prop.id, Conversation.seeker_id == seeker_id)
+        )
+    db.commit()
+    return {
+        "id": str(identity),
+        "kind": "property",
+        "moderated": True,
+        "encrypted_at_rest": True,
+        "end_to_end_encrypted": False,
+    }
+
+
+@router.get("/conversations/inbox")
+def inbox(
+    before: str | None = Query(None, max_length=1024), context=Depends(authenticated), db: Session = Depends(db_session)
+):
+    user = context[0]
+    query = (
+        select(Conversation, Property)
+        .join(Property, Conversation.property_id == Property.id)
+        .where(or_(Property.owner_id == user.id, Conversation.seeker_id == user.id))
+    )
+    binding = f"inbox:{user.id}"
+    if before:
+        time, identity = cursor_decode(before, binding)
+        query = query.where(tuple_(Conversation.updated_at, Conversation.id) < tuple_(time, identity))
+    rows = db.execute(query.order_by(Conversation.updated_at.desc(), Conversation.id.desc()).limit(21)).all()
+    more = len(rows) > 20
+    rows = rows[:20]
+    others = {p.owner_id if c.seeker_id == user.id else c.seeker_id for c, p in rows}
+    names = dict(db.execute(select(User.id, User.name).where(User.id.in_(others))).all())
+    return {
+        "items": [
+            {
+                "id": str(c.id),
+                "title": p.title,
+                "name": names.get(p.owner_id if c.seeker_id == user.id else c.seeker_id, "Member"),
+            }
+            for c, p in rows
+        ],
+        "next_cursor": cursor_encode(
+            dict(binding=binding, time=rows[-1][0].updated_at.isoformat(), id=str(rows[-1][0].id))
+        )
+        if more
+        else None,
+    }
 
 
 def ensure_conversation(db, **target):
@@ -211,7 +295,7 @@ def send_message(
 ):
     user = context[0]
     db.scalar(select(User).where(User.id == user.id).with_for_update())
-    conversation_for(db, user, conversation_id)
+    conversation = conversation_for(db, user, conversation_id)
     text = body.text.strip()
     if not text:
         raise HTTPException(422, "MESSAGE_TEXT_REQUIRED")
@@ -245,6 +329,7 @@ def send_message(
         {"id": row.id, "conversation": str(conversation_id), "sender": str(user.id), "text": text}, ensure_ascii=False
     ).encode()
     row.body_cipher = cipher_for(conversation_id).encrypt(content)
+    conversation.updated_at = now()
     audit(db, user, "message.sent", conversation_id)
     db.commit()
     return message_data(row, user)

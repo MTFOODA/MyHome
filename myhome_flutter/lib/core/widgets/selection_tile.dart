@@ -56,7 +56,6 @@ class SelectionTile extends StatelessWidget {
                     final picture = ChoiceArtwork.cellFor(artwork) != null;
                     final symbol =
                         picture || FeatureSymbol.iconFor(artwork) != null;
-                    final compact = constraints.maxWidth < 180;
                     final visual = picture
                         ? ChoiceArtwork(
                             artwork,
@@ -65,13 +64,11 @@ class SelectionTile extends StatelessWidget {
                         : FeatureSymbol(artwork, size: 32);
                     final text = Column(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: compact
-                          ? CrossAxisAlignment.center
-                          : CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           label,
-                          textAlign: compact ? TextAlign.center : null,
+                          textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         if (subtitle != null) ...[
@@ -80,19 +77,11 @@ class SelectionTile extends StatelessWidget {
                         ],
                       ],
                     );
-                    if (compact) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (symbol) ...[visual, const SizedBox(height: 10)],
-                          text,
-                        ],
-                      );
-                    }
-                    return Row(
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (symbol) ...[visual, const SizedBox(width: 16)],
-                        Expanded(child: text),
+                        if (symbol) ...[visual, const SizedBox(height: 12)],
+                        text,
                       ],
                     );
                   },

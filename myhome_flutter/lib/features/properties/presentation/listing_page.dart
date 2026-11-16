@@ -9,6 +9,7 @@ import '../domain/property_repository.dart';
 import 'listing_cubit.dart';
 import 'listing_pricing_step.dart';
 import 'listing_choices.dart';
+import 'property_facts_grid.dart';
 import 'listing_generated_details.dart';
 import 'listing_location_step.dart';
 import '../../../core/widgets/app_icon.dart';
@@ -303,15 +304,13 @@ class _ListingPageState extends State<ListingPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (final utility in ['water', 'electricity', 'gas']) ...[
-              Row(
+              Column(
                 children: [
-                  ChoiceArtwork(utility, size: 52),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      words(context, utility),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                  ChoiceArtwork(utility, size: 64),
+                  const SizedBox(height: 10),
+                  Text(
+                    words(context, utility),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],
               ),
@@ -480,46 +479,61 @@ class _ListingPageState extends State<ListingPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final entry in _cubit.payload().entries.where(
-              (entry) =>
-                  !(entry.key == 'capacity' &&
-                      _cubit.values['category'] != 'shared_rental') &&
-                  !{
-                    'latitude',
-                    'longitude',
-                    'price',
-                    'rental_period',
-                    'custom_months',
-                    'deposit',
-                    'negotiable',
-                    'down_payment',
-                    'installment_count',
-                    'installment_amount',
-                  }.contains(entry.key),
-            ))
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: FeatureSymbol(entry.key),
-                title: Text(
-                  words(
-                    context,
-                    entry.key == 'area_id'
-                        ? 'area'
-                        : entry.key == 'approximate_location'
-                        ? 'location'
-                        : entry.key,
-                  ),
-                ),
-                subtitle: Text(
-                  entry.key == 'area_id'
-                      ? locationName(entry.value.toString())
-                      : entry.value is bool
-                      ? words(context, entry.value ? 'yes' : 'no')
-                      : marketplaceWords.containsKey(entry.value.toString())
-                      ? words(context, entry.value.toString())
-                      : entry.value.toString(),
-                ),
-              ),
+            Text(
+              _cubit.values['title']?.toString() ?? '',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            PropertyFactsGrid(
+              facts: [
+                for (final key in [
+                  'category',
+                  'area_m2',
+                  'bedrooms',
+                  'bathrooms',
+                  'area_measurement',
+                  'finishing',
+                  'water',
+                  'electricity',
+                  'gas',
+                  'elevator',
+                  'furnished',
+                  if (_cubit.values['category'] == 'shared_rental') 'capacity',
+                ])
+                  if (_cubit.values[key] != null)
+                    PropertyFact(
+                      [
+                            'category',
+                            'area_measurement',
+                            'finishing',
+                          ].contains(key)
+                          ? '${_cubit.values[key]}'
+                          : key == 'furnished'
+                          ? (_cubit.values[key] == true
+                                ? 'furnished'
+                                : 'unfurnished')
+                          : key,
+                      words(context, key),
+                      _cubit.values[key] is bool
+                          ? words(
+                              context,
+                              _cubit.values[key] == true ? 'yes' : 'no',
+                            )
+                          : marketplaceWords.containsKey(
+                              '${_cubit.values[key]}',
+                            )
+                          ? words(context, '${_cubit.values[key]}')
+                          : '${_cubit.values[key]}',
+                      muted: _cubit.values[key] == false,
+                    ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Text(
+              _cubit.values['approximate_location']?.toString() ?? '',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
             Text('${_cubit.photos.length} ${words(context, 'photos')}'),
             Text(words(context, 'privateDocs')),
           ],
@@ -540,6 +554,7 @@ class _ListingPageState extends State<ListingPage> {
     context,
     {
           'information': 'propertyKind',
+          'location': 'completeAddress',
           'utilities': 'listingUtilities',
           'dimensions': 'area_m2',
           'pricing': 'pricingFinal',
@@ -550,179 +565,169 @@ class _ListingPageState extends State<ListingPage> {
         step,
   );
   @override
-  Widget build(
-    BuildContext context,
-  ) => BlocConsumer<ListingCubit, ListingState>(
-    bloc: _cubit,
-    listener: (context, state) {
-      if (state.submitted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(words(context, 'submitted'))));
-        Navigator.pop(context, true);
-      }
-    },
-    builder: (context, state) {
-      final steps = _cubit.steps;
-      final step = steps[_step.clamp(0, steps.length - 1)];
-      return PopScope(
-        canPop: !state.busy,
-        child: AppScaffold(
-          appBar: AppBar(title: Text(words(context, 'addProperty'))),
-          body: SingleChildScrollView(
-            child: Center(
-              child: ConstrainedBox(
-                key: const Key('listingContent'),
-                constraints: BoxConstraints(
-                  maxWidth: AppLayout.formWidth(context),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(AppLayout.gutter(context)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      LinearProgressIndicator(
-                        value: state.busy
-                            ? state.progress
-                            : (_step + 1) / steps.length,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        '${_step + 1} / ${steps.length}',
-                        textDirection: TextDirection.ltr,
-                      ),
-                      const SizedBox(height: 24),
-                      Row(
+  Widget build(BuildContext context) =>
+      BlocConsumer<ListingCubit, ListingState>(
+        bloc: _cubit,
+        listener: (context, state) {
+          if (state.submitted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(words(context, 'submitted'))),
+            );
+            Navigator.pop(context, true);
+          }
+        },
+        builder: (context, state) {
+          final steps = _cubit.steps;
+          final step = steps[_step.clamp(0, steps.length - 1)];
+          return PopScope(
+            canPop: !state.busy,
+            child: AppScaffold(
+              appBar: AppBar(title: Text(words(context, 'addProperty'))),
+              body: SingleChildScrollView(
+                child: Center(
+                  child: ConstrainedBox(
+                    key: const Key('listingContent'),
+                    constraints: BoxConstraints(
+                      maxWidth: AppLayout.formWidth(context),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(AppLayout.gutter(context)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          FeatureSymbol(
-                            step,
-                            size: AppLayout.wide(context) ? 48 : 36,
+                          LinearProgressIndicator(
+                            value: state.busy
+                                ? state.progress
+                                : (_step + 1) / steps.length,
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              title(step),
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
+                          const SizedBox(height: 12),
+                          Text(
+                            '${_step + 1} / ${steps.length}',
+                            textDirection: TextDirection.ltr,
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      IgnorePointer(
-                        ignoring: state.busy,
-                        child: AnimatedSwitcher(
-                          duration: MediaQuery.disableAnimationsOf(context)
-                              ? Duration.zero
-                              : const Duration(milliseconds: 220),
-                          child: KeyedSubtree(
-                            key: ValueKey(step),
-                            child: content(step),
+                          const SizedBox(height: 24),
+                          Text(
+                            title(step),
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
-                        ),
-                      ),
-                      if (_invalid || state.error != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Semantics(
-                            liveRegion: true,
-                            child: Text(
-                              words(
-                                context,
-                                state.error ??
-                                    _cubit.validationIssue(step) ??
-                                    'required',
-                              ),
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
+                          const SizedBox(height: 24),
+                          IgnorePointer(
+                            ignoring: state.busy,
+                            child: AnimatedSwitcher(
+                              duration: MediaQuery.disableAnimationsOf(context)
+                                  ? Duration.zero
+                                  : const Duration(milliseconds: 220),
+                              child: KeyedSubtree(
+                                key: ValueKey(step),
+                                child: content(step),
                               ),
                             ),
                           ),
-                        ),
-                      const SizedBox(height: 28),
-                      LayoutBuilder(
-                        builder: (context, constraints) => OverflowBar(
-                          alignment: _step > 0
-                              ? MainAxisAlignment.spaceBetween
-                              : MainAxisAlignment.end,
-                          overflowAlignment: OverflowBarAlignment.end,
-                          spacing: 12,
-                          overflowSpacing: 12,
-                          children: [
-                            if (_step > 0)
-                              SizedBox(
-                                width: AppLayout.actionWidth(
-                                  context,
-                                  constraints.maxWidth,
-                                ),
-                                child: TextButton.icon(
-                                  icon: const AppIcon(Icons.arrow_back_rounded),
-                                  onPressed: state.busy
-                                      ? null
-                                      : () => setState(() {
-                                          _step--;
-                                          _quoteReady = false;
-                                          _invalid = false;
-                                        }),
-                                  label: Text(words(context, 'back')),
-                                ),
-                              ),
-                            SizedBox(
-                              width: AppLayout.actionWidth(
-                                context,
-                                constraints.maxWidth,
-                              ),
-                              child: FilledButton.icon(
-                                key: const Key('listingContinue'),
-                                icon: AppIcon(
-                                  _step == steps.length - 1
-                                      ? Icons.verified_outlined
-                                      : Icons.arrow_forward_rounded,
-                                ),
-                                onPressed:
-                                    state.busy ||
-                                        (step == 'pricing' && !_quoteReady)
-                                    ? null
-                                    : () {
-                                        updateGeneratedDetails(
-                                          context,
-                                          _cubit,
-                                          _catalog,
-                                        );
-                                        if (!_cubit.valid(step)) {
-                                          setState(() => _invalid = true);
-                                          return;
-                                        }
-                                        if (_step == steps.length - 1) {
-                                          _cubit.submit();
-                                        } else {
-                                          FocusScope.of(context).unfocus();
-                                          setState(() {
-                                            _step++;
-                                            _invalid = false;
-                                          });
-                                        }
-                                      },
-                                label: Text(
+                          if (_invalid || state.error != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child: Semantics(
+                                liveRegion: true,
+                                child: Text(
                                   words(
                                     context,
-                                    _step == steps.length - 1
-                                        ? 'submitReview'
-                                        : 'continue',
+                                    state.error ??
+                                        _cubit.validationIssue(step) ??
+                                        'required',
+                                  ),
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
                                   ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          const SizedBox(height: 28),
+                          LayoutBuilder(
+                            builder: (context, constraints) => OverflowBar(
+                              alignment: _step > 0
+                                  ? MainAxisAlignment.spaceBetween
+                                  : MainAxisAlignment.end,
+                              overflowAlignment: OverflowBarAlignment.end,
+                              spacing: 12,
+                              overflowSpacing: 12,
+                              children: [
+                                if (_step > 0)
+                                  SizedBox(
+                                    width: AppLayout.actionWidth(
+                                      context,
+                                      constraints.maxWidth,
+                                    ),
+                                    child: TextButton.icon(
+                                      icon: const AppIcon(
+                                        Icons.arrow_back_rounded,
+                                      ),
+                                      onPressed: state.busy
+                                          ? null
+                                          : () => setState(() {
+                                              _step--;
+                                              _quoteReady = false;
+                                              _invalid = false;
+                                            }),
+                                      label: Text(words(context, 'back')),
+                                    ),
+                                  ),
+                                SizedBox(
+                                  width: AppLayout.actionWidth(
+                                    context,
+                                    constraints.maxWidth,
+                                  ),
+                                  child: FilledButton.icon(
+                                    key: const Key('listingContinue'),
+                                    icon: AppIcon(
+                                      _step == steps.length - 1
+                                          ? Icons.verified_outlined
+                                          : Icons.arrow_forward_rounded,
+                                    ),
+                                    onPressed:
+                                        state.busy ||
+                                            (step == 'pricing' && !_quoteReady)
+                                        ? null
+                                        : () {
+                                            updateGeneratedDetails(
+                                              context,
+                                              _cubit,
+                                              _catalog,
+                                            );
+                                            if (!_cubit.valid(step)) {
+                                              setState(() => _invalid = true);
+                                              return;
+                                            }
+                                            if (_step == steps.length - 1) {
+                                              _cubit.submit();
+                                            } else {
+                                              FocusScope.of(context).unfocus();
+                                              setState(() {
+                                                _step++;
+                                                _invalid = false;
+                                              });
+                                            }
+                                          },
+                                    label: Text(
+                                      words(
+                                        context,
+                                        _step == steps.length - 1
+                                            ? 'submitReview'
+                                            : 'continue',
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       );
-    },
-  );
 }

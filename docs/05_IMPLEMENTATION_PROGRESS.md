@@ -1,3 +1,17 @@
+## Addresses, illustrated details and owner engagement - 2026-11-16
+
+[x] PROP-043: Structured required address input/persistence and legacy-safe complete-address output; area credits moved to About.
+
+[x] PROP-044: Final-price details, independent contact and existing supervised Buy/Rent actions; uniform illustrated facts/review and captions below artwork.
+
+[x] PROP-045 / CHAT-043: Direct newest owner list, all-category/all-state three-row cursor pages, gray review/closed banners, unique visitor/save counts, owner-only saver list, property chat and inbox.
+
+Verified source checks: 99 Flutter tests, 101 PostgreSQL tests, clean analyzer/Ruff and four visual render scenarios. Web release/Android debug, both API upgrades and final public bundle/artwork checks passed. Real public owner pagination, saver privacy, independent chat reuse/authorization/moderation and no automatic Deal creation passed. Both databases retained existing records after backups. Details in guide42. No entire marketplace phase is marked complete.
+
+Read [guide 42](42_ADDRESS_PROPERTY_DETAILS_AND_OWNER_ENGAGEMENT.md). Previous entries remain historical.
+
+---
+
 ## Picture choices and furnishing search - 2026-11-16
 
 [x] SEARCH-041: Furnished/unfurnished/All filter appears for Lux/Super Lux, clears on other finishes and submits real booleans to discovery. SQL preserves unknown legacy values; omitted filter includes them.

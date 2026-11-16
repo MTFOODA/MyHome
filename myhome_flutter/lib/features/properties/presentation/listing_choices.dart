@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../../../core/widgets/app_icon.dart';
+import '../../../core/widgets/choice_artwork.dart';
 import '../../../core/widgets/selection_tile.dart';
 
 class ListingChoice extends StatelessWidget {
@@ -129,15 +130,14 @@ class ListingQuantity extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
+          Column(
             children: [
-              FeatureSymbol(field),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  words(context, field),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+              if (ChoiceArtwork.cellFor(field) != null)
+                ChoiceArtwork(field, size: 68),
+              const SizedBox(height: 10),
+              Text(
+                words(context, field),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ],
           ),

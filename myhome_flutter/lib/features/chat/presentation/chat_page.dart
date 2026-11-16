@@ -7,9 +7,21 @@ import '../../sales/presentation/sales_strings.dart';
 import 'chat_cubit.dart';
 
 class ChatPage extends StatefulWidget {
-  final String? dealId, groupId;
-  const ChatPage({super.key, this.dealId, this.groupId})
-    : assert((dealId == null) != (groupId == null));
+  final String? dealId, groupId, propertyId, seekerId, conversationId;
+  const ChatPage({
+    super.key,
+    this.dealId,
+    this.groupId,
+    this.propertyId,
+    this.seekerId,
+    this.conversationId,
+  }) : assert(
+         (dealId != null ? 1 : 0) +
+                 (groupId != null ? 1 : 0) +
+                 (propertyId != null ? 1 : 0) +
+                 (conversationId != null ? 1 : 0) ==
+             1,
+       );
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
@@ -25,6 +37,9 @@ class _ChatPageState extends State<ChatPage> {
       context.read<ChatRepository>(),
       dealId: widget.dealId,
       groupId: widget.groupId,
+      propertyId: widget.propertyId,
+      seekerId: widget.seekerId,
+      conversationId: widget.conversationId,
     )..open();
   }
 

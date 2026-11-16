@@ -1,6 +1,40 @@
 import 'package:flutter/material.dart';
 
 const marketplaceWords = <String, (String, String)>{
+  'street_address': (
+    'Street name and detailed address',
+    'اسم الشارع ووصف العنوان بالتفصيل',
+  ),
+  'building_number': ('Building number', 'رقم المبنى في الشارع'),
+  'floor_number': ('Floor', 'الدور'),
+  'unit_number': ('Apartment number', 'رقم الشقة'),
+  'completeAddress': ('Complete property address', 'عنوان العقار بالكامل'),
+  'groundFloor': ('Ground floor', 'الدور الأرضي'),
+  'buyProperty': ('Buy this property', 'شراء العقار'),
+  'rentProperty': ('Rent this property', 'استئجار العقار'),
+  'contactOwner': ('Contact the owner', 'التواصل مع مالك العقار'),
+  'propertyMessages': ('Property conversations', 'محادثات العقارات'),
+  'interestedPeople': (
+    'People who saved this property',
+    'المهتمون الذين حفظوا العقار',
+  ),
+  'visitorCount': ('Unique visitors', 'عدد الزوار'),
+  'savedCount': ('People who saved', 'عدد مرات الحفظ'),
+  'contactInterested': ('Message', 'مراسلة'),
+  'loadMorePeople': ('Show more', 'عرض المزيد'),
+  'saveDisclosure': (
+    'Saving lets the owner see your account name and contact you inside MyHome. Your phone and email stay private.',
+    'حفظ العقار يسمح للمالك يشوف اسم حسابك ويتواصل معاك داخل بيتي. رقمك وإيميلك يفضلوا خاصين.',
+  ),
+  'dataCredits': ('Area data credits', 'مصادر بيانات المناطق'),
+  'dataCreditsBody': (
+    'Egypt administrative area data: Open Admin Data, CC BY 4.0. Includes project additions and display-name formatting. OpenStreetMap attribution is shown on the map.',
+    'بيانات المناطق الإدارية لمصر: Open Admin Data بترخيص CC BY 4.0، مع إضافات المشروع وتنسيق أسماء العرض. إسناد OpenStreetMap موجود على الخريطة.',
+  ),
+  'newestMine': ('My latest properties', 'أحدث عقاراتي'),
+  'portfolio': ('My properties', 'عقاراتي'),
+  'applied': ('Request sent', 'تم إرسال الطلب'),
+  'manageGroup': ('Housing requests and group', 'طلبات السكن والجروب'),
   'furnishedOption': ('Furnished', 'مفروشة'),
   'unfurnishedOption': ('Unfurnished', 'غير مفروشة'),
   'noPropertyPhoto': (

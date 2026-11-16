@@ -3,6 +3,7 @@ class PropertySummary {
   final String? coverId;
   final bool negotiable;
   final int bedrooms, bathrooms;
+  final int visitorCount, savedCount;
   final int? capacity;
   final bool coverPrivate;
   final double? latitude, longitude;
@@ -34,6 +35,8 @@ class PropertySummary {
     this.unavailable = false,
     this.allIn = true,
     this.priceBasis = '',
+    this.visitorCount = 0,
+    this.savedCount = 0,
   });
   factory PropertySummary.fromJson(Map<String, dynamic> value) =>
       PropertySummary(
@@ -58,6 +61,8 @@ class PropertySummary {
         unavailable: value['unavailable'] as bool? ?? false,
         allIn: value['all_in'] as bool? ?? true,
         priceBasis: value['price_basis'] as String? ?? '',
+        visitorCount: value['visitor_count'] as int? ?? 0,
+        savedCount: value['saved_count'] as int? ?? 0,
       );
 }
 
@@ -132,6 +137,7 @@ abstract class PropertyRepository {
   Future<void> unsave(String id);
   Future<List<PropertySummary>> mine();
   Future<List<PortfolioCount>> portfolio();
+  Future<Map<String, dynamic>> interested(String id, {String? before});
   Future<OwnerPage> ownerPage(
     String group, {
     String scope = 'current',

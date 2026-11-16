@@ -1,3 +1,11 @@
+## Addresses, illustrated details and owner engagement - 2026-11-16
+
+The latest work is structured addresses, final-price illustrated property details with Buy/Rent and separate Contact owner, direct newest owner listings, owner visitor/save metrics and saver-specific app conversations. Credits move to About. No optional precise-address switch, side checkbox ornaments, financial-ledger dump on listing details or separate category landing page remains. Source checks: 99 Flutter / 101 PostgreSQL and four render scenarios, analyzer/Ruff clean; deployment and database-preservation evidence in guide42. Remaining roadmap items below are not complete.
+
+Read [guide 42](42_ADDRESS_PROPERTY_DETAILS_AND_OWNER_ENGAGEMENT.md). Previous entries remain historical.
+
+---
+
 ## Picture choices and furnishing search - 2026-11-16
 
 The intended visual policy is mixed: transparent meaningful choice pictures, native tool icons, and no side checkbox/radio ornament. Lux/Super Lux reveal an All/Furnished/Unfurnished filter backed by SQL. Omitted furnishing preserves unknown legacy records; False only matches explicitly unfurnished. Existing pricing, maps, private media and manual-copy removal are preserved. See guide 41 for verification and current deployment.

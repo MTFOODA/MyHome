@@ -8,8 +8,9 @@ import 'listing_page.dart';
 import 'owner_portfolio_cubit.dart';
 import 'property_card.dart';
 import '../../auth/presentation/auth_cubit.dart';
+import '../../chat/presentation/contact_pages.dart';
 
-class OwnerPortfolioPage extends StatefulWidget {
+class OwnerPortfolioPage extends StatelessWidget {
   final PropertyRepository repository;
   final void Function(String) onDetails;
   const OwnerPortfolioPage({
@@ -18,142 +19,11 @@ class OwnerPortfolioPage extends StatefulWidget {
     required this.onDetails,
   });
   @override
-  State<OwnerPortfolioPage> createState() => _OwnerPortfolioPageState();
-}
-
-class _OwnerPortfolioPageState extends State<OwnerPortfolioPage> {
-  late Future<List<PortfolioCount>> _counts;
-  @override
-  void initState() {
-    super.initState();
-    _reload();
-  }
-
-  void _reload() {
-    _counts = widget.repository.portfolio();
-  }
-
-  Future<void> _open(String group, {bool history = false}) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (_) => OwnerListingsPage(
-          repository: widget.repository,
-          group: group,
-          onDetails: widget.onDetails,
-          history: history,
-        ),
-      ),
-    );
-    if (mounted) setState(_reload);
-  }
-
-  @override
-  Widget build(BuildContext context) => AppScaffold(
-    appBar: AppBar(title: Text(words(context, 'manageProperties'))),
-    floatingActionButton:
-        (context.watch<AuthCubit>().state.account?.canManageProperties ?? false)
-        ? FloatingActionButton(
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute<bool>(
-                  builder: (_) => ListingPage(repository: widget.repository),
-                ),
-              );
-              if (mounted) setState(_reload);
-            },
-            child: const AppIcon(Icons.add),
-          )
-        : null,
-    body: FutureBuilder(
-      future: _counts,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(
-            child: TextButton(
-              onPressed: () => setState(_reload),
-              child: Text(words(context, 'retry')),
-            ),
-          );
-        }
-        return RefreshIndicator(
-          onRefresh: () async {
-            setState(_reload);
-            await _counts;
-          },
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              Text(
-                words(context, 'portfolioHint'),
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              const SizedBox(height: 20),
-              if (snapshot.data!.isEmpty) Text(words(context, 'empty')),
-              for (final count in snapshot.data!)
-                Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: AppLayout.formWidth(context),
-                    ),
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: AppIcon(
-                                count.group == 'sale'
-                                    ? Icons.sell_outlined
-                                    : count.group == 'shared_rental'
-                                    ? Icons.groups_outlined
-                                    : Icons.home_outlined,
-                              ),
-                              title: Text(
-                                words(context, count.group),
-                                style: Theme.of(context).textTheme.titleLarge,
-                              ),
-                              trailing: Text(
-                                '${count.current}',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineLarge,
-                              ),
-                            ),
-                            Text(
-                              '${words(context, 'publishedCount')}: ${count.published} · ${words(context, 'paused')}: ${count.paused} · ${words(context, 'awaitingCount')}: ${count.awaiting}',
-                            ),
-                            const SizedBox(height: 16),
-                            FilledButton(
-                              key: ValueKey('portfolio-${count.group}'),
-                              onPressed: () => _open(count.group),
-                              child: Text(words(context, 'currentListings')),
-                            ),
-                            TextButton.icon(
-                              onPressed: () =>
-                                  _open(count.group, history: true),
-                              icon: const AppIcon(Icons.history),
-                              label: Text(
-                                '${words(context, 'history')} (${count.history})',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    ),
+  Widget build(BuildContext context) => OwnerListingsPage(
+    repository: repository,
+    group: 'all',
+    initialScope: 'all',
+    onDetails: onDetails,
   );
 }
 
@@ -161,6 +31,7 @@ class OwnerListingsPage extends StatefulWidget {
   final PropertyRepository repository;
   final String group;
   final bool history;
+  final String? initialScope;
   final void Function(String) onDetails;
   const OwnerListingsPage({
     super.key,
@@ -168,6 +39,7 @@ class OwnerListingsPage extends StatefulWidget {
     required this.group,
     required this.onDetails,
     this.history = false,
+    this.initialScope,
   });
   @override
   State<OwnerListingsPage> createState() => _OwnerListingsPageState();
@@ -180,7 +52,10 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
   void initState() {
     super.initState();
     _cubit = OwnerListingsCubit(widget.repository, widget.group)
-      ..search(selectedScope: widget.history ? 'history' : 'current');
+      ..search(
+        selectedScope:
+            widget.initialScope ?? (widget.history ? 'history' : 'current'),
+      );
     _scroll.addListener(() {
       if (_scroll.position.extentAfter < 180 && !_cubit.state.moreFailed) {
         _cubit.more();
@@ -234,7 +109,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
     builder: (context, state) => AppScaffold(
       appBar: AppBar(
         title: Text(
-          '${words(context, widget.group)}${state.loading ? '' : ' (${state.total})'}',
+          '${words(context, widget.group == 'all' ? 'portfolio' : widget.group)}${state.loading ? '' : ' (${state.total})'}',
         ),
         actions: [
           IconButton(
@@ -244,29 +119,70 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
           ),
         ],
       ),
+      floatingActionButton:
+          (context.read<AuthCubit>().state.account?.canManageProperties ??
+              false)
+          ? FloatingActionButton(
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute<bool>(
+                    builder: (_) => ListingPage(repository: widget.repository),
+                  ),
+                );
+                if (mounted) _cubit.search();
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                SegmentedButton<String>(
-                  showSelectedIcon: false,
-                  segments: [
-                    ButtonSegment(
-                      value: 'current',
-                      label: Text(words(context, 'currentListings')),
-                    ),
-                    ButtonSegment(
-                      value: 'history',
-                      label: Text(words(context, 'history')),
-                      icon: const AppIcon(Icons.history),
-                    ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final scope in ['all', 'current', 'history'])
+                      ChoiceChip(
+                        key: ValueKey('owner-scope-$scope'),
+                        label: Text(
+                          words(
+                            context,
+                            scope == 'current' ? 'currentListings' : scope,
+                          ),
+                        ),
+                        selected: _cubit.scope == scope,
+                        onSelected: (_) => _cubit.search(selectedScope: scope),
+                      ),
                   ],
-                  selected: {_cubit.scope},
-                  onSelectionChanged: (v) =>
-                      _cubit.search(selectedScope: v.first),
                 ),
+                if (widget.group == 'all')
+                  Padding(
+                    padding: const EdgeInsets.only(top: 14),
+                    child: DropdownButtonFormField<String>(
+                      key: const Key('ownerGroupFilter'),
+                      initialValue: _cubit.group,
+                      decoration: InputDecoration(
+                        labelText: words(context, 'category'),
+                      ),
+                      items: [
+                        for (final group in [
+                          'all',
+                          'sale',
+                          'private_rental',
+                          'shared_rental',
+                        ])
+                          DropdownMenuItem(
+                            value: group,
+                            child: Text(words(context, group)),
+                          ),
+                      ],
+                      onChanged: (value) => _cubit.search(selectedGroup: value),
+                    ),
+                  ),
                 const SizedBox(height: 14),
                 Autocomplete<String>(
                   optionsBuilder: (value) async {
@@ -275,7 +191,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                     }
                     try {
                       return await widget.repository.ownerSuggestions(
-                        widget.group,
+                        _cubit.group,
                         value.text.trim(),
                         _cubit.scope,
                       );
@@ -392,19 +308,132 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                                           words(context, item.status),
                                         ),
                                       ),
-                                      Chip(
-                                        label: Text(
-                                          words(context, item.availability),
+                                      if (item.status == 'approved')
+                                        Chip(
+                                          label: Text(
+                                            words(context, item.availability),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  Stack(
+                                    children: [
+                                      ColorFiltered(
+                                        colorFilter: ColorFilter.matrix(
+                                          item.status != 'approved' ||
+                                                  item.availability != 'active'
+                                              ? const <double>[
+                                                  .2126,
+                                                  .7152,
+                                                  .0722,
+                                                  0,
+                                                  0,
+                                                  .2126,
+                                                  .7152,
+                                                  .0722,
+                                                  0,
+                                                  0,
+                                                  .2126,
+                                                  .7152,
+                                                  .0722,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  1,
+                                                  0,
+                                                ]
+                                              : const <double>[
+                                                  1,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  1,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  1,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  1,
+                                                  0,
+                                                ],
+                                        ),
+                                        child: PropertyCard(
+                                          property: item,
+                                          repository: widget.repository,
+                                          onDetails: () =>
+                                              widget.onDetails(item.id),
+                                          onSave: () {},
+                                          showSave: false,
+                                        ),
+                                      ),
+                                      if (item.status != 'approved' ||
+                                          item.availability != 'active')
+                                        Positioned(
+                                          top: 12,
+                                          left: 12,
+                                          right: 12,
+                                          child: IgnorePointer(
+                                            child: Container(
+                                              padding: const EdgeInsets.all(12),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withValues(
+                                                  alpha: .68,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Text(
+                                                words(
+                                                  context,
+                                                  item.status != 'approved'
+                                                      ? item.status
+                                                      : item.availability,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  Wrap(
+                                    alignment: WrapAlignment.spaceBetween,
+                                    spacing: 12,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: Text(
+                                          '${words(context, 'visitorCount')}: ${item.visitorCount}',
+                                        ),
+                                      ),
+                                      TextButton(
+                                        key: ValueKey('interested-${item.id}'),
+                                        onPressed: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute<void>(
+                                            builder: (_) => ContactListPage(
+                                              propertyId: item.id,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '${words(context, 'savedCount')}: ${item.savedCount}',
                                         ),
                                       ),
                                     ],
-                                  ),
-                                  PropertyCard(
-                                    property: item,
-                                    repository: widget.repository,
-                                    onDetails: () => widget.onDetails(item.id),
-                                    onSave: () {},
-                                    showSave: false,
                                   ),
                                   if (item.status == 'approved' &&
                                       [
@@ -443,7 +472,9 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                                               ? null
                                               : () => _change(
                                                   item,
-                                                  widget.group == 'sale'
+                                                  item.category.startsWith(
+                                                        'sale_',
+                                                      )
                                                       ? 'sold'
                                                       : 'rented',
                                                 ),
@@ -453,7 +484,7 @@ class _OwnerListingsPageState extends State<OwnerListingsPage> {
                                           label: Text(
                                             words(
                                               context,
-                                              widget.group == 'sale'
+                                              item.category.startsWith('sale_')
                                                   ? 'markSold'
                                                   : 'markRented',
                                             ),

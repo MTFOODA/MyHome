@@ -16,6 +16,7 @@ import '../properties/presentation/property_list_page.dart';
 import '../properties/presentation/listing_page.dart';
 import '../properties/presentation/owner_portfolio_page.dart';
 import '../properties/presentation/my_groups_page.dart';
+import '../chat/presentation/contact_pages.dart';
 import '../sales/presentation/sales_pages.dart';
 import '../sales/presentation/sales_admin_page.dart';
 import '../sales/presentation/sales_strings.dart';
@@ -269,6 +270,20 @@ class _HomePageState extends State<HomePage> {
                       context,
                       MaterialPageRoute<void>(
                         builder: (_) => const EligibilityReviewsPage(),
+                      ),
+                    );
+                  },
+                ),
+              if (account != null)
+                ListTile(
+                  leading: const Icon(Icons.chat_bubble_outline),
+                  title: Text(words(context, 'propertyMessages')),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ContactListPage(),
                       ),
                     );
                   },

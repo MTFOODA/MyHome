@@ -1,3 +1,11 @@
+## Addresses, illustrated details and owner engagement - 2026-11-16
+
+Latest owner requirements: mandatory structured street/building/floor/unit address with a complete preview; relocate catalogue credits to About. Property details show the final advertised price and independent Buy/Rent and Contact owner actions, with illustrated fact cards and captions below. My properties opens latest rows directly with exact three-item cursor loading, grayscale unavailable/review states, distinct-visitor/save counts and owner-only saver contact through moderated property chats. Financial breakdown/consent remains in the transaction flow.
+
+Read [guide 42](42_ADDRESS_PROPERTY_DETAILS_AND_OWNER_ENGAGEMENT.md). Previous entries remain historical.
+
+---
+
 ## Picture choices and furnishing search - 2026-11-16
 
 Owner feedback corrects the preceding blanket native-only presentation. Use transparent, distinct pictures for property/transaction/furnishing choices, familiar native tool icons, and whole-card color/border selection without checkbox/radio ornaments. Add the furnished filter only for Lux/Super Lux, enforced by the real discovery query.

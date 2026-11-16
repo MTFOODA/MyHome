@@ -1,3 +1,11 @@
+## Addresses, illustrated details and owner engagement - 2026-11-16
+
+Resume from guide 42. Address fields/property_kind are mandatory in new ListingInput, nullable for legacy rows, with backend-composed address. Do not validate old output through the new input schema or invent missing fields. Migration head is `20261116_address_engagement`; both databases were backed up before additive rollout. Property facts and selection cards place captions underneath matching transparent pictures; native tools remain outside picture grids. Details hide FinancialCard but existing deal/ledger/consent remains unchanged. OwnerPortfolioPage forwards directly to all-category/all-state OwnerListingsPage. Owner-only aggregate counts, 20-row saver list, independent property/seeker Conversation and inbox are implemented. Visitors are distinct authenticated non-owner/non-admin accounts, starting now, not historical guesses. Property chat reuses existing moderation/encryption and requires no Deal. See current release evidence/limits in guide42; no reset/reseed.
+
+Read [guide 42](42_ADDRESS_PROPERTY_DETAILS_AND_OWNER_ENGAGEMENT.md). Previous entries remain historical.
+
+---
+
 ## Picture choices and furnishing search - 2026-11-16
 
 Resume from guide 41. `SelectionTile` is the shared press-to-toggle card, with selected/disabled semantics and background/border feedback. `ChoiceArtwork` displays distinct transparent atlas cells only for meaningful pictures; AppIcon/FeatureSymbol remain for tools/semantic glyphs. There are no authored Checkbox/CheckboxListTile widgets; chip/segmented selected checks are hidden. Never reinstate blanket raster substitution or blanket picture removal. Filter `furnished` is a boolean and only shown in the UI for Lux/Super Lux; changing to another finish clears the draft value. The API reuses its visible property query and nullable furnished column. No migration, reset or reseed.

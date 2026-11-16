@@ -1,4 +1,5 @@
 import '../../../core/widgets/app_icon.dart';
+import '../../../core/widgets/choice_artwork.dart';
 import 'package:flutter/material.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../domain/property_repository.dart';
@@ -82,20 +83,26 @@ class PropertyCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(ar ? property.locationAr : property.locationEn),
                     const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 12,
-                      crossAxisAlignment: WrapCrossAlignment.center,
+                    Row(
                       children: [
-                        const AppIcon(Icons.square_foot, size: 18),
-                        Text('${property.areaM2} m²'),
-                        if (property.areaMeasurement != null)
-                          Text(words(context, property.areaMeasurement!)),
-                        const AppIcon(Icons.bed_outlined, size: 18),
-                        Text('${property.bedrooms}'),
-                        const AppIcon(Icons.bathtub_outlined, size: 18),
-                        Text('${property.bathrooms}'),
+                        for (final metric in [
+                          ('area_m2', '${property.areaM2} m²'),
+                          ('bedrooms', '${property.bedrooms}'),
+                          ('bathrooms', '${property.bathrooms}'),
+                        ])
+                          Expanded(
+                            child: Column(
+                              children: [
+                                ChoiceArtwork(metric.$1, size: 42),
+                                const SizedBox(height: 6),
+                                Text(metric.$2, textAlign: TextAlign.center),
+                              ],
+                            ),
+                          ),
                       ],
                     ),
+                    if (property.areaMeasurement != null)
+                      Text(words(context, property.areaMeasurement!)),
                   ],
                   const SizedBox(height: 12),
                   if (property.unavailable) Text(words(context, 'savedPrice')),
@@ -113,7 +120,9 @@ class PropertyCard extends StatelessWidget {
                       if (showSave)
                         IconButton(
                           onPressed: onSave,
-                          tooltip: words(context, saved ? 'remove' : 'save'),
+                          tooltip: saved
+                              ? words(context, 'remove')
+                              : '${words(context, 'save')}\n${words(context, 'saveDisclosure')}',
                           icon: AppIcon(
                             saved ? Icons.favorite : Icons.favorite_border,
                           ),

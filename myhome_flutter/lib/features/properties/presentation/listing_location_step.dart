@@ -81,6 +81,40 @@ class _ListingLocationStepState extends State<ListingLocationStep> {
     }
   }
 
+  Widget _addressField(String field) => TextFormField(
+    key: ValueKey('address-$field'),
+    initialValue: widget.cubit.values[field]?.toString(),
+    maxLength: field == 'street_address' ? 160 : 20,
+    decoration: InputDecoration(
+      labelText: words(context, field),
+      counterText: '',
+    ),
+    textInputAction: TextInputAction.next,
+    onChanged: (text) {
+      widget.cubit.values[field] = field == 'street_address'
+          ? text
+          : ListingCubit.latinDigits(text);
+      widget.changed();
+    },
+  );
+
+  Widget _floorField() => DropdownButtonFormField<int>(
+    key: const Key('address-floor_number'),
+    initialValue: int.tryParse('${widget.cubit.values['floor_number']}'),
+    decoration: InputDecoration(labelText: words(context, 'floor_number')),
+    items: [
+      for (var i = -5; i <= 100; i++)
+        DropdownMenuItem(
+          value: i,
+          child: Text(i == 0 ? words(context, 'groundFloor') : '$i'),
+        ),
+    ],
+    onChanged: (value) {
+      widget.cubit.values['floor_number'] = value;
+      widget.changed();
+    },
+  );
+
   @override
   Widget build(BuildContext context) {
     final cubit = widget.cubit,
@@ -109,9 +143,7 @@ class _ListingLocationStepState extends State<ListingLocationStep> {
           onChanged: (value) {
             cubit.values['governorate_id'] = value;
             cubit.values.remove('area_id');
-            if (!cubit.manualLocation) {
-              cubit.values.remove('approximate_location');
-            }
+            cubit.values.remove('approximate_location');
             widget.changed();
           },
         ),
@@ -133,25 +165,42 @@ class _ListingLocationStepState extends State<ListingLocationStep> {
         ),
         const SizedBox(height: 16),
         Text(words(context, 'areaLocationHint')),
-        SwitchListTile.adaptive(
-          contentPadding: EdgeInsets.zero,
-          title: Text(words(context, 'customLandmark')),
-          value: cubit.manualLocation,
-          onChanged: (value) {
-            cubit.manualLocation = value;
-            widget.changed();
+        const SizedBox(height: 16),
+        _addressField('street_address'),
+        const SizedBox(height: 16),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth >= 650
+                ? (constraints.maxWidth - 32) / 3
+                : constraints.maxWidth;
+            return Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                SizedBox(width: width, child: _addressField('building_number')),
+                SizedBox(width: width, child: _floorField()),
+                SizedBox(width: width, child: _addressField('unit_number')),
+              ],
+            );
           },
         ),
-        if (cubit.manualLocation)
-          TextFormField(
-            initialValue: cubit.values['approximate_location'] as String?,
-            maxLength: 250,
-            decoration: InputDecoration(
-              labelText: words(context, 'location'),
-              prefixIcon: const AppIcon(Icons.edit_location_alt_outlined),
+        const SizedBox(height: 16),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  words(context, 'completeAddress'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 10),
+                SelectableText('${cubit.values['approximate_location'] ?? ''}'),
+              ],
             ),
-            onChanged: (text) => cubit.values['approximate_location'] = text,
           ),
+        ),
         const SizedBox(height: 16),
         OutlinedButton.icon(
           key: const Key('openLocationMap'),

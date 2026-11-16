@@ -1,3 +1,11 @@
+## Addresses, illustrated details and owner engagement - 2026-11-16
+
+The address and discovery/details contract supports mandatory new structured addresses while preserving existing unknown data. All category/current/history owner cursor bindings retain user/group/scope/query isolation. Visitor inserts are idempotent; counts and saver names are owner-only and use no phone/email. Independent property chats are unique per property/seeker, enforce participants on read/send, and reuse existing encrypted moderated storage. Deal/group targets and financial controls are preserved. Picture selection/details/review captions are beneath illustrations; property media authorization remains unchanged. Current source checks: 99 Flutter / 101 PostgreSQL, analyzer/Ruff clean, four renderer scenarios. Remaining product/production tasks stay pending.
+
+Read [guide 42](42_ADDRESS_PROPERTY_DETAILS_AND_OWNER_ENGAGEMENT.md). Previous entries remain historical.
+
+---
+
 ## Picture choices and furnishing search - 2026-11-16
 
 The native-only artwork rule is superseded. Meaningful transparent pictures coexist with native navigation/search/language symbols. All authored checkboxes and side selection ornaments are removed, but selecting and revoking consent still requires explicit presses; digest gating remains. Discovery filters furnished=True/False without treating NULL as False, retains all existing visibility/owner checks, and uses no new schema or side channel.

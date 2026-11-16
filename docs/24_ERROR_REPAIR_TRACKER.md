@@ -1,3 +1,21 @@
+## Addresses, illustrated details and owner engagement - 2026-11-16
+
+[x] Area source footer removed from selection and credited in About with license/source links.
+
+[x] Optional location description replaced by mandatory street/building/floor/unit and complete preview.
+
+[x] Public-facing details no longer dump the financial ledger or stacked fact rows; final price/actions and uniform picture cards are used.
+
+[x] My properties opens rows directly, retains three-row remote loading and marks pending/closed cards gray.
+
+[x] Owner-only unique visitor/save counts and current-saver messaging added with participant authorization.
+
+Validation and build/runtime limits are recorded in guide42.
+
+Read [guide 42](42_ADDRESS_PROPERTY_DETAILS_AND_OWNER_ENGAGEMENT.md). Previous entries remain historical.
+
+---
+
 ## Picture choices and furnishing search - 2026-11-16
 
 [x] Furnishing filter missing: added conditional All/Furnished/Unfurnished options and boolean API query.

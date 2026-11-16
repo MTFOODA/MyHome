@@ -16,6 +16,9 @@ const testProperty = PropertySummary(
 
 class FakePropertyRepository implements PropertyRepository {
   @override
+  Future<Map<String, dynamic>> interested(String id, {String? before}) async =>
+      {'items': [], 'next_cursor': null};
+  @override
   Future<List<PortfolioCount>> portfolio() async => const [];
   @override
   Future<OwnerPage> ownerPage(
@@ -80,6 +83,21 @@ class FakePropertyRepository implements PropertyRepository {
       'price': '5000',
       'description': 'Test property',
       'photo_ids': [],
+      'category': 'private_rental',
+      'owner_id': 'other-owner',
+      'availability': 'active',
+      'all_in': true,
+      'area_m2': '100',
+      'bedrooms': 2,
+      'bathrooms': 1,
+      'water': true,
+      'electricity': true,
+      'gas': false,
+      'elevator': true,
+      'finishing': 'lux',
+      'furnished': false,
+      'rental_period': 'one_year',
+      'approximate_location': 'Known area',
     };
   }
 

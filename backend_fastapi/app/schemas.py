@@ -78,7 +78,12 @@ class ListingInput(StrictModel):
     description: str = Field(min_length=20, max_length=5000)
     category: Category
     area_id: str = Field(max_length=40)
-    approximate_location: str = Field(min_length=5, max_length=250)
+    approximate_location: str = Field(min_length=5, max_length=500)
+    street_address: str = Field(min_length=3, max_length=160)
+    building_number: str = Field(min_length=1, max_length=20)
+    floor_number: int = Field(ge=-5, le=100)
+    unit_number: str = Field(min_length=1, max_length=20)
+    property_kind: Literal["apartment", "studio", "duplex", "villa", "room"]
     latitude: Decimal | None = Field(default=None, ge=22, le=32)
     longitude: Decimal | None = Field(default=None, ge=24, le=37)
     area_m2: Decimal = Field(gt=0, le=100000, decimal_places=2)
@@ -106,6 +111,11 @@ class ListingInput(StrictModel):
 
     @model_validator(mode="after")
     def conditional_fields(self):
+        for name in ("street_address", "building_number", "unit_number"):
+            value = getattr(self, name).strip()
+            if not value or (name == "street_address" and len(value) < 3):
+                raise ValueError("COMPLETE_ADDRESS_REQUIRED")
+            setattr(self, name, value)
         if self.category != "shared_rental":
             self.capacity = None  # Not an occupancy claim for sale or private rental.
         if self.finishing not in ("lux", "super_lux") and self.furnished is not None:

@@ -1,16 +1,18 @@
-import '../../../core/widgets/app_layout.dart';
-import '../../../core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/config/marketplace_strings.dart';
+import '../../../core/widgets/app_layout.dart';
+import '../../../core/widgets/choice_artwork.dart';
 import '../../auth/presentation/auth_cubit.dart';
-import 'housing_group_page.dart';
+import '../../auth/presentation/intents_page.dart';
+import '../../chat/presentation/chat_page.dart';
 import '../../sales/domain/sales_repository.dart';
 import '../../sales/presentation/sales_pages.dart';
-import '../../sales/presentation/financial_card.dart';
 import '../../sales/presentation/sales_strings.dart';
-import '../../../core/config/marketplace_strings.dart';
 import '../domain/property_repository.dart';
 import '../domain/location_repository.dart';
+import 'property_facts_grid.dart';
+import 'housing_group_page.dart';
 import 'property_map.dart';
 import 'property_photo.dart';
 
@@ -29,16 +31,75 @@ class PropertyDetailsPage extends StatefulWidget {
 class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
   late Future<Map<String, dynamic>> _details;
   bool _saving = false;
+  int _photoIndex = 0;
+  final _gallery = PageController();
+  @override
+  void dispose() {
+    _gallery.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
     _details = widget.repository.details(widget.id);
   }
 
+  Future<void> _run(Future<void> Function() action) async {
+    setState(() => _saving = true);
+    try {
+      await action();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e is SalesFailure
+                  ? salesText(context, e.code)
+                  : e is PropertyException
+                  ? words(context, e.code)
+                  : words(context, 'saveError'),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _buy(Map<String, dynamic> data) async {
+    final account = context.read<AuthCubit>().state.account!;
+    final intent = {
+      'sale_cash': 'buyer_cash',
+      'sale_installments': 'buyer_installments',
+      'private_rental': 'tenant_private',
+      'shared_rental': 'tenant_shared',
+    }[data['category']];
+    if (!account.intents.contains(intent)) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => const IntentsPage(settings: true),
+        ),
+      );
+      return;
+    }
+    await _run(() async {
+      final id = await context.read<SalesRepository>().start(widget.id);
+      if (mounted) {
+        await Navigator.push(
+          context,
+          MaterialPageRoute<void>(builder: (_) => SalesDetailPage(id: id)),
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) => AppScaffold(
     appBar: AppBar(title: Text(words(context, 'details'))),
-    body: FutureBuilder(
+    body: FutureBuilder<Map<String, dynamic>>(
       future: _details,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
@@ -62,13 +123,12 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const AppIcon(Icons.info_outline, size: 56),
-                  const SizedBox(height: 16),
                   Text(
                     data['title'] as String,
-                    style: Theme.of(context).textTheme.titleLarge,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Text(
                     words(
                       context,
@@ -76,9 +136,8 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                           ? 'listingUnavailable'
                           : data['availability'] as String,
                     ),
-                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Text(
                     words(context, 'savedUnavailableHint'),
                     textAlign: TextAlign.center,
@@ -89,7 +148,303 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
           );
         }
         final account = context.watch<AuthCubit>().state.account;
-        final photos = List<String>.from(data['photo_ids'] as List);
+        final owner = account?.id == data['owner_id'];
+        final ar = Localizations.localeOf(context).languageCode == 'ar';
+        final photos = List<String>.from(data['photo_ids'] as List? ?? []);
+        final facts = <PropertyFact>[];
+        String display(dynamic value) => value is bool
+            ? words(context, value ? 'yes' : 'no')
+            : marketplaceWords.containsKey('$value')
+            ? words(context, '$value')
+            : '$value';
+        void fact(String key, String artwork) {
+          if (data[key] != null) {
+            facts.add(
+              PropertyFact(
+                artwork,
+                words(context, key == 'property_kind' ? 'propertyKind' : key),
+                display(data[key]),
+                muted: data[key] == false,
+              ),
+            );
+          }
+        }
+
+        fact('category', '${data['category']}');
+        if (data['property_kind'] != null) {
+          fact('property_kind', '${data['property_kind']}');
+        }
+        fact('area_m2', 'area_m2');
+        fact('bedrooms', 'bedrooms');
+        fact('bathrooms', 'bathrooms');
+        if (data['area_measurement'] != null) {
+          fact('area_measurement', '${data['area_measurement']}');
+        }
+        if (data['finishing'] != null) {
+          fact('finishing', '${data['finishing']}');
+        }
+        if (data['furnished'] != null) {
+          facts.add(
+            PropertyFact(
+              data['furnished'] == true ? 'furnished' : 'unfurnished',
+              words(context, 'furnished'),
+              words(
+                context,
+                data['furnished'] == true
+                    ? 'furnishedOption'
+                    : 'unfurnishedOption',
+              ),
+            ),
+          );
+        }
+        for (final key in ['water', 'electricity', 'gas', 'elevator']) {
+          fact(key, key);
+        }
+        if (data['rental_period'] != null) {
+          fact('rental_period', '${data['rental_period']}');
+        }
+        if (data['category'] == 'shared_rental') {
+          fact('capacity', 'capacity');
+          fact('total_beds', 'total_beds');
+          fact('available_beds', 'available_beds');
+        }
+        if (data['rental_period'] == 'custom') {
+          fact('custom_months', 'custom_months');
+        }
+        final address =
+            data[ar ? 'full_address_ar' : 'full_address_en'] ??
+            data['approximate_location'] ??
+            '';
+        final price = data['all_in'] == false
+            ? salesText(context, 'eligibilityPending')
+            : '${data['price']} ${ar ? 'ج.م' : 'EGP'}';
+        final content = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(22),
+              child: SizedBox(
+                height: photos.isEmpty
+                    ? 210
+                    : AppLayout.wide(context)
+                    ? 440
+                    : 260,
+                child: photos.isEmpty
+                    ? PropertyPhoto(
+                        id: null,
+                        category: data['category'] as String,
+                        repository: widget.repository,
+                      )
+                    : PageView(
+                        controller: _gallery,
+                        onPageChanged: (value) =>
+                            setState(() => _photoIndex = value),
+                        children: [
+                          for (final photo in photos)
+                            PropertyPhoto(
+                              id: photo,
+                              category: data['category'] as String,
+                              repository: widget.repository,
+                              private: owner || account?.role == 'admin',
+                            ),
+                        ],
+                      ),
+              ),
+            ),
+            if (photos.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      tooltip: MaterialLocalizations.of(
+                        context,
+                      ).previousPageTooltip,
+                      onPressed: _photoIndex == 0
+                          ? null
+                          : () => _gallery.previousPage(
+                              duration: MediaQuery.disableAnimationsOf(context)
+                                  ? Duration.zero
+                                  : const Duration(milliseconds: 250),
+                              curve: Curves.easeOut,
+                            ),
+                      icon: const Icon(Icons.chevron_left),
+                    ),
+                    Text('${_photoIndex + 1} / ${photos.length}'),
+                    IconButton(
+                      tooltip: MaterialLocalizations.of(
+                        context,
+                      ).nextPageTooltip,
+                      onPressed: _photoIndex == photos.length - 1
+                          ? null
+                          : () => _gallery.nextPage(
+                              duration: MediaQuery.disableAnimationsOf(context)
+                                  ? Duration.zero
+                                  : const Duration(milliseconds: 250),
+                              curve: Curves.easeOut,
+                            ),
+                      icon: const Icon(Icons.chevron_right),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 24),
+            Text(
+              data['title'] as String,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              price,
+              key: const Key('propertyFinalPrice'),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 24),
+            if (account != null && !owner && data['availability'] == 'active')
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                alignment: WrapAlignment.center,
+                children: [
+                  FilledButton(
+                    key: const Key('buyProperty'),
+                    onPressed: _saving || data['all_in'] != true
+                        ? null
+                        : () => _buy(data),
+                    child: Text(
+                      words(
+                        context,
+                        '${data['category']}'.startsWith('sale_')
+                            ? 'buyProperty'
+                            : 'rentProperty',
+                      ),
+                    ),
+                  ),
+                  OutlinedButton(
+                    key: const Key('contactOwner'),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => ChatPage(propertyId: widget.id),
+                      ),
+                    ),
+                    child: Text(words(context, 'contactOwner')),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 24),
+            PropertyFactsGrid(facts: facts),
+            const SizedBox(height: 24),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    const ChoiceArtwork('location', size: 86),
+                    const SizedBox(height: 12),
+                    Text(
+                      words(context, 'completeAddress'),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    SelectableText('$address', textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+            ),
+            if (PropertyLocation.fromValues(data) case final point?)
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: SizedBox(
+                    height: 300,
+                    child: PropertyMap(selected: point),
+                  ),
+                ),
+              ),
+            if (data['property_kind'] == null &&
+                '${data['description'] ?? ''}'.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(
+                      '${data['description']}'.replaceAll('\n', ' '),
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+                ),
+              ),
+            if (data['category'] == 'shared_rental' &&
+                data['availability'] == 'active' &&
+                (account?.canFindRoommates ?? false))
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: OutlinedButton(
+                  onPressed: _saving
+                      ? null
+                      : () => _run(() async {
+                          await widget.repository.apply(widget.id);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(words(context, 'applied')),
+                              ),
+                            );
+                          }
+                        }),
+                  child: Text(words(context, 'applyHousing')),
+                ),
+              ),
+            if (data['category'] == 'shared_rental' && owner)
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: OutlinedButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => HousingGroupPage(
+                        propertyId: widget.id,
+                        repository: widget.repository,
+                      ),
+                    ),
+                  ),
+                  child: Text(words(context, 'manageGroup')),
+                ),
+              ),
+            if (!owner) ...[
+              const SizedBox(height: 24),
+              Text(
+                words(context, 'saveDisclosure'),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                key: const Key('saveProperty'),
+                onPressed: _saving
+                    ? null
+                    : () => _run(() async {
+                        await widget.repository.save(widget.id);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(words(context, 'saved'))),
+                          );
+                        }
+                      }),
+                child: Text(words(context, 'save')),
+              ),
+            ],
+          ],
+        );
         return SingleChildScrollView(
           child: Center(
             child: ConstrainedBox(
@@ -98,246 +453,19 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (photos.isNotEmpty)
-                      SizedBox(
-                        height: 300,
-                        child: PageView(
-                          children: [
-                            for (final id in photos)
-                              Padding(
-                                padding: const EdgeInsets.all(4),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: PropertyPhoto(
-                                    id: id,
-                                    repository: widget.repository,
-                                    private:
-                                        account?.id == data['owner_id'] ||
-                                        account?.role == 'admin',
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    const SizedBox(height: 20),
-                    if (PropertyLocation.fromValues(data)
-                        case final point?) ...[
-                      SizedBox(
-                        height: 310,
-                        child: PropertyMap(selected: point),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                    Text(
-                      data['title'] as String,
-                      style: Theme.of(context).textTheme.headlineMedium,
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: 1),
+                  duration: MediaQuery.disableAnimationsOf(context)
+                      ? Duration.zero
+                      : const Duration(milliseconds: 420),
+                  builder: (context, value, child) => Opacity(
+                    opacity: value,
+                    child: Transform.translate(
+                      offset: Offset(0, 12 * (1 - value)),
+                      child: child,
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      data['all_in'] == false
-                          ? salesText(context, 'eligibilityPending')
-                          : '${data['price']} ${Localizations.localeOf(context).languageCode == 'ar' ? 'ج.م' : 'EGP'}',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(data['description'] as String),
-                    if (data['financial'] is Map)
-                      FinancialCard(
-                        snapshot: Map<String, dynamic>.from(
-                          data['financial'] as Map,
-                        ),
-                        commitmentEnabled: data['all_in'] != false,
-                      ),
-                    if (data['all_in'] == true &&
-                        data['availability'] == 'active' &&
-                        account != null &&
-                        account.id != data['owner_id'] &&
-                        account.intents.contains(
-                          {
-                            'sale_cash': 'buyer_cash',
-                            'sale_installments': 'buyer_installments',
-                            'private_rental': 'tenant_private',
-                            'shared_rental': 'tenant_shared',
-                          }[data['category']],
-                        ))
-                      FilledButton.icon(
-                        onPressed: _saving
-                            ? null
-                            : () async {
-                                setState(() => _saving = true);
-                                try {
-                                  final id = await context
-                                      .read<SalesRepository>()
-                                      .start(widget.id);
-                                  if (context.mounted) {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute<void>(
-                                        builder: (_) => SalesDetailPage(id: id),
-                                      ),
-                                    );
-                                  }
-                                } on SalesFailure catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          salesText(context, e.code),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                } catch (_) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          salesText(context, 'NETWORK_ERROR'),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                                if (mounted) setState(() => _saving = false);
-                              },
-                        icon: const AppIcon(Icons.handshake_outlined),
-                        label: Text(salesText(context, 'start')),
-                      ),
-                    const SizedBox(height: 24),
-                    for (final key in [
-                      'category',
-                      'approximate_location',
-                      'area_m2',
-                      'bedrooms',
-                      'bathrooms',
-                      if (data['category'] == 'shared_rental') 'capacity',
-                      if (data['area_measurement'] != null) 'area_measurement',
-                      if (data['furnished'] != null) 'furnished',
-                      'finishing',
-                      'water',
-                      'electricity',
-                      'gas',
-                      'elevator',
-                      'negotiable',
-                      'rental_period',
-                      'custom_months',
-                      'deposit',
-                      'down_payment',
-                      'installment_count',
-                      'installment_amount',
-                      'total_beds',
-                      'available_beds',
-                    ])
-                      if (data[key] != null)
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            words(
-                              context,
-                              key == 'approximate_location' ? 'location' : key,
-                            ),
-                          ),
-                          subtitle: Text(
-                            data[key] is bool
-                                ? words(
-                                    context,
-                                    data[key] as bool ? 'yes' : 'no',
-                                  )
-                                : marketplaceWords.containsKey(
-                                    data[key].toString(),
-                                  )
-                                ? words(context, data[key].toString())
-                                : data[key].toString(),
-                          ),
-                        ),
-                    if (data['category'] == 'shared_rental' &&
-                        data['availability'] == 'active' &&
-                        (account?.canFindRoommates ?? false)) ...[
-                      const SizedBox(height: 16),
-                      OutlinedButton(
-                        onPressed: _saving
-                            ? null
-                            : () async {
-                                setState(() => _saving = true);
-                                try {
-                                  await widget.repository.apply(widget.id);
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          words(context, 'applicationSent'),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                } catch (_) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          words(context, 'saveError'),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                                if (mounted) setState(() => _saving = false);
-                              },
-                        child: Text(words(context, 'applyHousing')),
-                      ),
-                    ],
-                    if (data['category'] == 'shared_rental' &&
-                        account?.id == data['owner_id']) ...[
-                      const SizedBox(height: 16),
-                      OutlinedButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => HousingGroupPage(
-                              propertyId: widget.id,
-                              repository: widget.repository,
-                            ),
-                          ),
-                        ),
-                        child: Text(words(context, 'applications')),
-                      ),
-                    ],
-                    const SizedBox(height: 16),
-                    FilledButton.icon(
-                      onPressed: _saving
-                          ? null
-                          : () async {
-                              setState(() => _saving = true);
-                              try {
-                                await widget.repository.save(widget.id);
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(words(context, 'saved')),
-                                    ),
-                                  );
-                                }
-                              } catch (_) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        words(context, 'saveError'),
-                                      ),
-                                    ),
-                                  );
-                                }
-                              }
-                              if (mounted) setState(() => _saving = false);
-                            },
-                      icon: const AppIcon(Icons.favorite_border),
-                      label: Text(words(context, 'save')),
-                    ),
-                  ],
+                  ),
+                  child: content,
                 ),
               ),
             ),

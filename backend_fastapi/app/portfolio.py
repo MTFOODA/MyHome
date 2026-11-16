@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import db_session
-from app.models import AuditEvent, Deal, Property
+from app.models import AuditEvent, Deal, Favorite, Property, PropertyVisit, User
 from app.policy import intents_for
 from app.properties import owned, summary, text_filter
 from app.schemas import StrictModel
@@ -24,8 +24,8 @@ GROUPS = {
     "private_rental": ("private_rental",),
     "shared_rental": ("shared_rental",),
 }
-Group = Literal["sale", "private_rental", "shared_rental"]
-Scope = Literal["current", "history"]
+Group = Literal["all", "sale", "private_rental", "shared_rental"]
+Scope = Literal["all", "current", "history"]
 
 
 @router.get("/properties/mine/overview")
@@ -58,8 +58,11 @@ def overview(context=Depends(authenticated), db: Session = Depends(db_session)):
 
 
 def owner_query(user_id, group, scope, q, availability):
-    query = select(Property).where(Property.owner_id == user_id, Property.category.in_(GROUPS[group]))
-    query = query.where(Property.closed_at.is_not(None) if scope == "history" else Property.closed_at.is_(None))
+    query = select(Property).where(Property.owner_id == user_id)
+    if group != "all":
+        query = query.where(Property.category.in_(GROUPS[group]))
+    if scope != "all":
+        query = query.where(Property.closed_at.is_not(None) if scope == "history" else Property.closed_at.is_(None))
     if availability != "all" and scope == "current":
         query = query.where(Property.availability == availability)
     return text_filter(query, q)
@@ -87,7 +90,7 @@ def cursor_decode(value, binding):
 
 @router.get("/properties/mine/page")
 def page(
-    group: Group,
+    group: Group = "all",
     scope: Scope = "current",
     q: str = Query("", max_length=120),
     availability: Literal["all", "active", "paused"] = "all",
@@ -106,13 +109,37 @@ def page(
     props = list(db.scalars(query.order_by(column.desc(), Property.id.desc()).limit(4)))
     more = len(props) > 3
     props = props[:3]
+    identities = [prop.id for prop in props]
+    views = dict(
+        db.execute(
+            select(PropertyVisit.property_id, func.count())
+            .where(PropertyVisit.property_id.in_(identities))
+            .group_by(PropertyVisit.property_id)
+        ).all()
+    )
+    saves = dict(
+        db.execute(
+            select(Favorite.property_id, func.count())
+            .join(User, User.id == Favorite.user_id)
+            .where(Favorite.property_id.in_(identities), User.active.is_(True), Favorite.user_id != user_id)
+            .group_by(Favorite.property_id)
+        ).all()
+    )
     next_cursor = (
         cursor_encode(dict(binding=binding, time=getattr(props[-1], column.key).isoformat(), id=str(props[-1].id)))
         if more
         else None
     )
     return dict(
-        items=[summary(db, prop, owner_media=True) | {"owner_price": str(prop.price)} for prop in props],
+        items=[
+            summary(db, prop, owner_media=True)
+            | {
+                "owner_price": str(prop.price),
+                "visitor_count": views.get(prop.id, 0),
+                "saved_count": saves.get(prop.id, 0),
+            }
+            for prop in props
+        ],
         total=total,
         next_cursor=next_cursor,
         page_size=3,
@@ -121,7 +148,7 @@ def page(
 
 @router.get("/properties/mine/suggestions")
 def suggestions(
-    group: Group,
+    group: Group = "all",
     scope: Scope = "current",
     q: str = Query("", max_length=120),
     context=Depends(authenticated),
@@ -134,6 +161,38 @@ def suggestions(
 
 class AvailabilityInput(StrictModel):
     availability: Literal["active", "paused", "sold", "rented"]
+
+
+@router.get("/properties/{property_id}/interested")
+def interested(
+    property_id: UUID,
+    before: str | None = Query(None, max_length=1024),
+    context=Depends(authenticated),
+    db: Session = Depends(db_session),
+):
+    prop = db.get(Property, property_id)
+    if not prop or prop.owner_id != context[0].id:
+        raise HTTPException(404, "PROPERTY_NOT_FOUND")
+    query = (
+        select(Favorite, User)
+        .join(User, User.id == Favorite.user_id)
+        .where(Favorite.property_id == prop.id, User.active.is_(True), User.id != prop.owner_id)
+    )
+    binding = f"interested:{prop.id}:{prop.owner_id}"
+    if before:
+        time, identity = cursor_decode(before, binding)
+        query = query.where(tuple_(Favorite.created_at, Favorite.user_id) < tuple_(time, identity))
+    rows = db.execute(query.order_by(Favorite.created_at.desc(), Favorite.user_id.desc()).limit(21)).all()
+    more = len(rows) > 20
+    rows = rows[:20]
+    return {
+        "items": [{"id": str(user.id), "name": user.name} for _, user in rows],
+        "next_cursor": cursor_encode(
+            dict(binding=binding, time=rows[-1][0].created_at.isoformat(), id=str(rows[-1][1].id))
+        )
+        if more
+        else None,
+    }
 
 
 @router.put("/properties/{property_id}/availability")

@@ -8,7 +8,7 @@ import 'package:myhome_flutter/core/config/settings_cubit.dart';
 import 'fake_property_repository.dart';
 import 'fakes.dart';
 import 'onboarding_pricing_test.dart' show tap;
-import 'visual_listing_test.dart' show listingOwner, nextStep;
+import 'visual_listing_test.dart' show listingOwner, nextStep, completeAddress;
 
 void main() {
   setUpAll(() async {
@@ -110,6 +110,7 @@ void main() {
             tester,
             find.byKey(const ValueKey('location-option-maadi')),
           );
+          await completeAddress(tester);
           await capture('location');
           await nextStep(tester);
           for (final key in [

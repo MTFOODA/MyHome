@@ -85,6 +85,9 @@ class Property(Timestamps, Base):
         CheckConstraint("category <> 'shared_rental' OR capacity IS NOT NULL"),
         CheckConstraint("area_measurement IS NULL OR area_measurement IN ('net','gross')"),
         CheckConstraint("furnished IS NULL OR finishing IN ('lux','super_lux')"),
+        CheckConstraint("floor_number IS NULL OR floor_number BETWEEN -5 AND 100", name="property_floor_valid"),
+        CheckConstraint("num_nonnulls(street_address,building_number,floor_number,unit_number) IN (0,4)", name="property_address_complete"),
+        CheckConstraint("property_kind IS NULL OR property_kind IN ('apartment','studio','duplex','villa','room')", name="property_kind_valid"),
         CheckConstraint("status IN ('draft','pending','approved','rejected')"),
         Index("properties_discovery_idx", "status", "area_id", "category", "price"),
     )
@@ -94,7 +97,12 @@ class Property(Timestamps, Base):
     description: Mapped[str] = mapped_column(Text)
     category: Mapped[str] = mapped_column(String(32))
     area_id: Mapped[str] = mapped_column(ForeignKey("areas.id"), index=True)
-    approximate_location: Mapped[str] = mapped_column(String(250))
+    approximate_location: Mapped[str] = mapped_column(String(500))
+    street_address: Mapped[str | None] = mapped_column(String(160))
+    building_number: Mapped[str | None] = mapped_column(String(20))
+    floor_number: Mapped[int | None] = mapped_column(Integer)
+    unit_number: Mapped[str | None] = mapped_column(String(20))
+    property_kind: Mapped[str | None] = mapped_column(String(16))
     latitude: Mapped[Decimal | None] = mapped_column(Numeric(10, 7))
     longitude: Mapped[Decimal | None] = mapped_column(Numeric(10, 7))
     area_m2: Mapped[Decimal] = mapped_column(Numeric(10, 2))
@@ -169,6 +177,13 @@ class Favorite(Timestamps, Base):
     title_snapshot: Mapped[str] = mapped_column(String(150), default="Property")
     category_snapshot: Mapped[str] = mapped_column(String(32), default="sale_cash")
     price_snapshot: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=0)
+
+
+class PropertyVisit(Base):
+    __tablename__ = "property_visits"
+    property_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("properties.id", ondelete="CASCADE"), primary_key=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class HousingGroup(Timestamps, Base):
@@ -322,9 +337,15 @@ class SpecialFeeProposal(Timestamps, Base):
 
 class Conversation(Timestamps, Base):
     __tablename__ = "conversations"
+    __table_args__ = (
+        UniqueConstraint("property_id", "seeker_id", name="uq_property_inquiry"),
+        CheckConstraint("num_nonnulls(deal_id,group_id,property_id)=1 AND ((property_id IS NOT NULL)=(seeker_id IS NOT NULL))", name="conversation_target_valid"),
+    )
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     deal_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("deals.id"), unique=True)
     group_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("housing_groups.id"), unique=True)
+    property_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("properties.id"))
+    seeker_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), index=True)
 
 
 class Message(Base):

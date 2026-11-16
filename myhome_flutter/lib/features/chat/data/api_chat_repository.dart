@@ -44,6 +44,25 @@ class ApiChatRepository implements ChatRepository {
             as String,
   );
   @override
+  Future<String> openProperty(String id, {String? seekerId}) => _call(() async {
+    final query = Uri(queryParameters: {'seeker_id': ?seekerId}).query;
+    return (await auth.authorizedRequest(
+          '/properties/$id/conversation${query.isEmpty ? '' : '?$query'}',
+          method: 'POST',
+        ))['id']
+        as String;
+  });
+  @override
+  Future<Map<String, dynamic>> inbox({String? before}) => _call(() async {
+    final query = Uri(queryParameters: {'before': ?before}).query;
+    return Map<String, dynamic>.from(
+      await auth.authorizedRequest(
+            '/conversations/inbox${query.isEmpty ? '' : '?$query'}',
+          )
+          as Map,
+    );
+  });
+  @override
   Future<ChatBatch> read(String id, {int? before, int? after}) =>
       _call(() async {
         final query = Uri(

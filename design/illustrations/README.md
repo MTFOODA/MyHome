@@ -1,5 +1,7 @@
 # MyHome pictorial UI assets
 
+Latest extension: [property facts v3, final prompt and provenance](PROPERTY_FACTS_V3.md). Both transparent atlases are bundled; factual and selectable picture cards put captions underneath and use a consistent visual medium.
+
 Current amendment (2026-11-16): [transparent selection artwork and final prompt](CHOICE_ARTWORK_V2.md) restores meaningful pictures for choices, alongside native tool icons. The current bundled asset is `myhome_flutter/assets/illustrations/choice-atlas-v2.png`; earlier masters below remain archived. This supersedes the blanket native-only policy immediately below.
 
 Current policy (2026-11-16): use native semantic icons for navigation and controls, and distinct property-type symbols. These original generated masters are retained unchanged as design history and excluded from the Flutter runtime bundle. The equal-cell `PropertyIllustration` renderer was removed; no image generation or raster editing was done in this update. Real property photography and selected app branding remain in use.

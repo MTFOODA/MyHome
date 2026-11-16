@@ -19,12 +19,18 @@ class ChatState {
 
 class ChatCubit extends Cubit<ChatState> {
   final ChatRepository repository;
-  final String? dealId, groupId;
+  final String? dealId, groupId, propertyId, seekerId, conversationId;
   String? _id;
   Timer? _timer;
   bool _polling = false;
-  ChatCubit(this.repository, {this.dealId, this.groupId})
-    : super(const ChatState());
+  ChatCubit(
+    this.repository, {
+    this.dealId,
+    this.groupId,
+    this.propertyId,
+    this.seekerId,
+    this.conversationId,
+  }) : super(const ChatState());
   List<ChatMessage> _merge(List<ChatMessage> incoming) {
     final values = {
       for (final message in [...state.messages, ...incoming])
@@ -38,9 +44,13 @@ class ChatCubit extends Cubit<ChatState> {
     _timer?.cancel();
     emit(const ChatState(loading: true));
     try {
-      _id = dealId != null
-          ? await repository.openDeal(dealId!)
-          : await repository.openGroup(groupId!);
+      _id =
+          conversationId ??
+          (propertyId != null
+              ? await repository.openProperty(propertyId!, seekerId: seekerId)
+              : dealId != null
+              ? await repository.openDeal(dealId!)
+              : await repository.openGroup(groupId!));
       final batch = await repository.read(_id!);
       if (isClosed) return;
       emit(ChatState(messages: batch.messages, before: batch.before));

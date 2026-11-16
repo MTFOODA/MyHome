@@ -131,6 +131,17 @@ class ApiPropertyRepository implements PropertyRepository {
         .toList();
   });
   @override
+  Future<Map<String, dynamic>> interested(String id, {String? before}) =>
+      _call(() async {
+        final query = Uri(queryParameters: {'before': ?before}).query;
+        return Map<String, dynamic>.from(
+          await auth.authorizedRequest(
+                '/properties/$id/interested${query.isEmpty ? '' : '?$query'}',
+              )
+              as Map,
+        );
+      });
+  @override
   Future<OwnerPage> ownerPage(
     String group, {
     String scope = 'current',

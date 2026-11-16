@@ -1,3 +1,5 @@
+> Update 2026-11-16: [guide42](42_ADDRESS_PROPERTY_DETAILS_AND_OWNER_ENGAGEMENT.md) adds structured mandatory addresses, beneath-image captions on every pictorial card, matching fact illustrations, simpler listing details and direct owner listings with engagement/chat. Its location-credit placement supersedes the picker footer below. Furnishing search and selection behavior otherwise remain.
+
 # Picture selection and furnishing search
 
 Increment: 2026-11-16. This corrects guide 40's blanket native-only presentation while retaining its responsive sizes and removal of manual listing title/description.

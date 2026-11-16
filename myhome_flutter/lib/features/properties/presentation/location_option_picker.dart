@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../core/config/marketplace_strings.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../domain/property_repository.dart';
@@ -75,19 +74,6 @@ class LocationOptionPicker extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (options.any((o) => o.id.startsWith('oad-')))
-                              TextButton(
-                                onPressed: () => launchUrl(
-                                  Uri.parse(
-                                    'https://github.com/open-admin-data/egypt-administrative-divisions',
-                                  ),
-                                  mode: LaunchMode.externalApplication,
-                                ),
-                                child: const Text(
-                                  'Open Admin Data · CC BY 4.0',
-                                  textDirection: TextDirection.ltr,
-                                ),
-                              ),
                           ],
                         ),
                       ),

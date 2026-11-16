@@ -1,3 +1,11 @@
+## Addresses, illustrated details and owner engagement - 2026-11-16
+
+Source verification: **99 Flutter tests PASS**, **101 real PostgreSQL tests PASS**, **analyzer/Ruff clean**, **4 render scenarios PASS** generating 24 synthetic screenshots. New tests cover complete/invalid addresses and legacy output, unique views, saver privacy/pagination, owner row ordering and independent moderated/encrypted chats. The existing financial and role regressions remain included. Both databases were backed up before rollout; Web release/Android debug PASS; both APK artwork hashes and latest public Web/atlas hashes matched local sources. Both APIs healthy at the new head. Actual public owner pagination (11 rows / 4 pages), saver privacy, property chat reuse/isolation/contact rejection and no-deal side effect PASS. Private photos/map/catalogue checks PASS. See guide42. Browser GUI, physical phone and native iOS/desktop tests are not claimed.
+
+Read [guide 42](42_ADDRESS_PROPERTY_DETAILS_AND_OWNER_ENGAGEMENT.md). Previous entries remain historical.
+
+---
+
 ## Picture choices and furnishing search - 2026-11-16
 
 Latest checks and delivery evidence are in guide 41. This increment adds furnishing discovery tests across sale/private/shared and both Lux finishes, plus UI filtering and transparent-card/explicit-consent regressions. Earlier counts below are snapshots; current verified suites are 93 Flutter / 86 PostgreSQL with a clean analyzer/Ruff and four new visual render scenarios. Web release/Android debug PASS; bundled APK artwork and public Web/PNG hashes match the local sources. Both APIs healthy; real public auth/catalogue/map/private-photo/private-path and furnishing-query smoke PASS. Current public fixture furnishing is unknown, so explicit true/false results are empty; positive cases are verified in isolated PostgreSQL. No user data rewritten. Browser GUI/physical-device/iOS builds are not claimed.

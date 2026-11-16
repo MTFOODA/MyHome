@@ -3,6 +3,8 @@ import '../../core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 import '../../core/config/locale_config.dart';
 import '../../core/widgets/brand_logo.dart';
+import '../../core/config/marketplace_strings.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class InfoPage extends StatelessWidget {
   final bool about;
@@ -38,6 +40,33 @@ class InfoPage extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 24),
+                  if (about) ...[
+                    const SizedBox(height: 24),
+                    Text(
+                      words(context, 'dataCredits'),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(words(context, 'dataCreditsBody')),
+                    TextButton(
+                      onPressed: () => launchUrl(
+                        Uri.parse(
+                          'https://github.com/open-admin-data/egypt-administrative-divisions',
+                        ),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                      child: const Text('Open Admin Data · CC BY 4.0'),
+                    ),
+                    TextButton(
+                      onPressed: () => launchUrl(
+                        Uri.parse(
+                          'https://creativecommons.org/licenses/by/4.0/',
+                        ),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                      child: const Text('CC BY 4.0'),
+                    ),
+                  ],
                   if (about)
                     Text(
                       l.aboutBody,

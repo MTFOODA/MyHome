@@ -23,7 +23,6 @@ class ListingCubit extends Cubit<ListingState> {
   String nationalId = '', birthDate = '';
   bool consent = false;
   String? propertyKind;
-  bool manualLocation = false;
   String? _propertyId, _identityId, _ownershipId;
   String? get draftId => _propertyId;
   final Map<UploadImage, String> _uploaded = {};
@@ -71,6 +70,11 @@ class ListingCubit extends Cubit<ListingState> {
         final lat = values['latitude']?.toString() ?? '';
         final lon = values['longitude']?.toString() ?? '';
         return values['area_id'] != null &&
+            nonempty('street_address', 3) &&
+            nonempty('building_number', 1) &&
+            nonempty('unit_number', 1) &&
+            (integer('floor_number') ?? -99) >= -5 &&
+            (integer('floor_number') ?? 101) <= 100 &&
             nonempty('approximate_location', 5) &&
             ((lat.isEmpty && lon.isEmpty) ||
                 ((num.tryParse(lat) ?? -1) >= 22 &&
@@ -195,6 +199,8 @@ class ListingCubit extends Cubit<ListingState> {
 
   Map<String, dynamic> payload() {
     final data = Map<String, dynamic>.of(values)..remove('governorate_id');
+    data['property_kind'] =
+        propertyKind ?? values['property_kind'] ?? 'apartment';
     if (data['category'] != 'shared_rental') data.remove('capacity');
     if (!['lux', 'super_lux'].contains(data['finishing'])) {
       data.remove('furnished');
